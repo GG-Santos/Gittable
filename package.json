@@ -1,0 +1,53 @@
+{
+  "version": "1.0.0",
+  "name": "gittable",
+  "description": "Modern Git CLI with conventional commits powered by @clack/prompts",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "bin": {
+    "gittable": "./cli.js",
+    "gitt": "./cli.js",
+    "gitx": "./cli.js"
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "test": "jest",
+    "commit": "./standalone.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/gittable.git"
+  },
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "keywords": [
+    "git",
+    "cli",
+    "commitizen",
+    "commit",
+    "conventional-changelog",
+    "git-wrapper",
+    "version-control"
+  ],
+  "dependencies": {
+    "@clack/prompts": "^0.7.0",
+    "chalk": "^4.1.2",
+    "find-config": "^1.0.0",
+    "word-wrap": "^1.2.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "commitizen": "^4.3.0",
+    "jest": "^29.7.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./index.js"
+    }
+  }
+}
