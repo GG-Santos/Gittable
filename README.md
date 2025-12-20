@@ -24,7 +24,7 @@ Gittable provides a beautiful, user-friendly interface for common Git operations
 - **Smart Defaults** - Context-aware suggestions and shortcuts for common workflows
 - **Beautiful UI** - Colorful banners, tables, and status displays for better readability
 - **Fast & Lightweight** - Minimal dependencies, maximum performance
-- **Commitizen Adapter** - Works seamlessly with Commitizen for standardized commits
+- **Commitizen Compatible** - Built-in git-cz implementation compatible with Commitizen adapters
 
 ## Installation
 
@@ -252,7 +252,6 @@ Shows a beautiful, color-coded status display with:
 ### Development Dependencies
 
 - **[@biomejs/biome](https://biomejs.dev/)** (^1.9.4) - Fast formatter and linter
-- **[commitizen](https://github.com/commitizen/cz-cli)** (^4.3.0) - Commit message standardization
 
 ## License
 
@@ -267,7 +266,6 @@ Gittable is built with the following excellent open-source projects:
 - **[chalk](https://github.com/chalk/chalk)** by [@sindresorhus](https://github.com/sindresorhus) - Terminal string styling
 - **[cli-table3](https://github.com/cli-table/cli-table3)** - Beautiful CLI tables
 - **[Biome](https://biomejs.dev/)** - Fast formatter and linter
-- **[cz-customizable](https://github.com/leoforfree/cz-customizable)** - Customizable commitizen adapter for commit message prompts
 
 ## Author
 

@@ -7,7 +7,9 @@
   "bin": {
     "gittable": "index.js",
     "gitt": "index.js",
-    "gitx": "index.js"
+    "gitx": "index.js",
+    "git-cz": "bin/git-cz.js",
+    "cz": "bin/git-cz.js"
   },
   "scripts": {
     "lint": "biome check .",
@@ -48,14 +50,17 @@
     "word-wrap": "^1.2.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "commitizen": "^4.3.0"
+    "@biomejs/biome": "^1.9.4"
+  },
+  "overrides": {
+    "glob": "^10.0.0"
   },
   "files": [
     "index.js",
     "index.d.ts",
     "commands",
-    "lib"
+    "lib",
+    "bin"
   ],
   "engines": {
     "node": ">=14.0.0"

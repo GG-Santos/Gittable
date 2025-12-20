@@ -378,13 +378,13 @@ const main = async () => {
   }
 };
 
-// Export Commitizen adapter for integration
-const { prompter } = require('./lib/commit/commitizen-adapter');
+// Export prompter for programmatic use
+const { prompter } = require('./lib/commit/commit-utils');
 
 // Run CLI if executed directly
 if (require.main === module) {
   main();
 }
 
-// Export for Commitizen and programmatic use
+// Export for programmatic use
 module.exports = { prompter };
