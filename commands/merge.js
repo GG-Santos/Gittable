@@ -13,6 +13,15 @@ module.exports = async (args) => {
   let branchToMerge = args[0];
 
   if (!branchToMerge) {
+    // Check if TTY is available for interactive prompts
+    if (!process.stdin.isTTY) {
+      clack.cancel(chalk.red('Interactive mode required'));
+      console.log(chalk.yellow('This command requires interactive input.'));
+      console.log(chalk.gray('Please provide a branch name:'));
+      console.log(chalk.gray('  gittable merge <branch-name>'));
+      process.exit(1);
+    }
+
     const options = branches.local
       .filter((branch) => !branch.current)
       .map((branch) => ({

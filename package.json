@@ -13,14 +13,19 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
-    "test": "jest",
+    "test": "node --test test/**/*.test.js",
+    "test:watch": "node --test --watch test/**/*.test.js",
     "commit": "./standalone.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/gittable.git"
+    "url": "https://github.com/GG-Santos/Gittable.git"
   },
-  "author": "Your Name <your.email@example.com>",
+  "homepage": "https://github.com/GG-Santos/Gittable#readme",
+  "bugs": {
+    "url": "https://github.com/GG-Santos/Gittable/issues"
+  },
+  "author": "GG-Santos <ggsantos_0415@proton.me>",
   "license": "MIT",
   "keywords": [
     "git",
@@ -34,14 +39,24 @@
   "dependencies": {
     "@clack/prompts": "^0.7.0",
     "chalk": "^4.1.2",
+    "cli-table3": "^0.6.5",
+    "email-prompt": "^0.4.1",
     "find-config": "^1.0.0",
+    "prettycli": "^1.1.0",
     "word-wrap": "^1.2.5"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "commitizen": "^4.3.0",
-    "jest": "^29.7.0"
+    "commitizen": "^4.3.0"
   },
+  "files": [
+    "cli.js",
+    "index.js",
+    "index.d.ts",
+    "standalone.js",
+    "commands",
+    "lib"
+  ],
   "engines": {
     "node": ">=14.0.0"
   },
