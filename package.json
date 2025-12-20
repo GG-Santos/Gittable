@@ -40,7 +40,7 @@
     "@clack/prompts": "^0.7.0",
     "chalk": "^4.1.2",
     "cli-table3": "^0.6.5",
-    "email-prompt": "^0.4.1",
+    "email-prompt": "^0.4.0",
     "find-config": "^1.0.0",
     "prettycli": "^1.1.0",
     "word-wrap": "^1.2.5"
