@@ -55,3 +55,4 @@ module.exports = async (args) => {
     process.exit(1);
   }
 };
+

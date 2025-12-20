@@ -1,0 +1,7 @@
+# GitHub Packages Configuration
+# Copy this file to .npmrc and replace ${GITHUB_TOKEN} with your actual GitHub Personal Access Token
+# Or set the GITHUB_TOKEN environment variable
+
+@gg-santos:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+

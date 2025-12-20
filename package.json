@@ -1,6 +1,6 @@
 {
-  "version": "1.0.1",
-  "name": "gittable",
+  "version": "1.0.2",
+  "name": "@gg-santos/gittable",
   "description": "Modern Git CLI with Conventional Commits",
   "main": "index.js",
   "types": "index.d.ts",
@@ -69,5 +69,8 @@
     "lib": "lib",
     "test": "test"
   },
-  "type": "commonjs"
+  "type": "commonjs",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
 }
