@@ -1,11 +1,10 @@
 const clack = require('@clack/prompts');
 const chalk = require('chalk');
-const { execGit, getBranches, getCurrentBranch } = require('../lib/git/exec');
-const { showBanner } = require('../lib/ui/banner');
+const { getBranches, getCurrentBranch } = require('../lib/git/exec');
+const { showCommandHeader, requireTTY, execGitWithSpinner, handleCancel } = require('../lib/utils/command-helpers');
 
 module.exports = async (args) => {
-  showBanner('MERGE');
-  console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Merge Branch')}`);
+  showCommandHeader('MERGE', 'Merge Branch');
 
   const currentBranch = getCurrentBranch();
   const branches = getBranches();
@@ -13,14 +12,10 @@ module.exports = async (args) => {
   let branchToMerge = args[0];
 
   if (!branchToMerge) {
-    // Check if TTY is available for interactive prompts
-    if (!process.stdin.isTTY) {
-      clack.cancel(chalk.red('Interactive mode required'));
-      console.log(chalk.yellow('This command requires interactive input.'));
-      console.log(chalk.gray('Please provide a branch name:'));
-      console.log(chalk.gray('  gittable merge <branch-name>'));
-      process.exit(1);
-    }
+    requireTTY([
+      'Please provide a branch name:',
+      '  gittable merge <branch-name>',
+    ]);
 
     const options = branches.local
       .filter((branch) => !branch.current)
@@ -39,10 +34,7 @@ module.exports = async (args) => {
       options,
     });
 
-    if (clack.isCancel(branchToMerge)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    if (handleCancel(branchToMerge)) return;
   }
 
   const strategy = args.includes('--no-ff')
@@ -51,19 +43,14 @@ module.exports = async (args) => {
       ? '--squash'
       : '';
 
-  const spinner = clack.spinner();
-  spinner.start(`Merging ${branchToMerge} into ${currentBranch}`);
-
   const command = strategy ? `merge ${strategy} ${branchToMerge}` : `merge ${branchToMerge}`;
-  const result = execGit(command, { silent: false });
-  spinner.stop();
 
-  if (result.success) {
-    clack.outro(chalk.green.bold(`Merged ${branchToMerge} into ${currentBranch}`));
-  } else {
-    clack.cancel(chalk.red('Merge failed'));
-    console.error(result.error);
-    console.log(chalk.yellow('\nYou may need to resolve conflicts manually'));
-    process.exit(1);
-  }
+  await execGitWithSpinner(command, {
+    spinnerText: `Merging ${branchToMerge} into ${currentBranch}`,
+    successMessage: `Merged ${branchToMerge} into ${currentBranch}`,
+    errorMessage: 'Merge failed',
+    onError: () => {
+      console.log(chalk.yellow('\nYou may need to resolve conflicts manually'));
+    },
+  });
 };

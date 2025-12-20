@@ -1,11 +1,10 @@
 const clack = require('@clack/prompts');
 const chalk = require('chalk');
 const { execGit } = require('../lib/git/exec');
-const { showBanner } = require('../lib/ui/banner');
+const { showCommandHeader } = require('../lib/utils/command-helpers');
 
 module.exports = async (args) => {
-  showBanner('DIFF');
-  console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Show Changes')}`);
+  showCommandHeader('DIFF', 'Show Changes');
 
   const staged = args.includes('--staged') || args.includes('--cached');
   const file = args.find((arg) => !arg.startsWith('--'));

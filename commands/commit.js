@@ -1,22 +1,18 @@
 const clack = require('@clack/prompts');
 const chalk = require('chalk');
-const { promptQuestions } = require('../lib/commit/questions');
+const { promptQuestions, CancelError } = require('../lib/commit/questions');
 const buildCommit = require('../lib/commit/build-commit');
 const readConfigFile = require('../lib/config/read-config-file');
+const { showCommandHeader, requireTTY, handleCancel } = require('../lib/utils/command-helpers');
 
-const { showBanner } = require('../lib/ui/banner');
-
+/**
+ * Commit command - Framework agnostic commit creation with interactive prompts
+ * Supports going back to previous questions during the commit flow
+ */
 module.exports = async (_args) => {
-  showBanner('COMMIT');
-  console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Create Commit')}`);
+  showCommandHeader('COMMIT', 'Create Commit');
 
-  // Check if TTY is available for interactive prompts
-  if (!process.stdin.isTTY) {
-    clack.cancel(chalk.red('Interactive mode required'));
-    console.log(chalk.yellow('This command requires interactive input.'));
-    console.log(chalk.gray('Please use: git commit -m "message" for non-interactive commits'));
-    process.exit(1);
-  }
+  requireTTY('Please use: git commit -m "message" for non-interactive commits');
 
   const config = readConfigFile();
   if (!config) {
@@ -26,9 +22,10 @@ module.exports = async (_args) => {
 
   config.subjectLimit = config.subjectLimit || 100;
 
+  let message;
   try {
     const answers = await promptQuestions(config);
-    const message = buildCommit(answers, config);
+    message = buildCommit(answers, config);
 
     clack.note(message, chalk.bold('Commit Preview'));
 
@@ -40,13 +37,17 @@ module.exports = async (_args) => {
       ],
     });
 
-    if (clack.isCancel(action) || action === 'no') {
-      clack.cancel(chalk.yellow('Cancelled'));
+    if (handleCancel(action) || action === 'no') return;
+  } catch (error) {
+    if (error instanceof CancelError || error.isCancel) {
+      clack.cancel(chalk.yellow('Operation cancelled'));
       return;
     }
+    throw error;
+  }
 
+  try {
     const { execSync } = require('node:child_process');
-
     const spinner = clack.spinner();
     spinner.start('Creating commit...');
 

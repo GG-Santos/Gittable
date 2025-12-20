@@ -1,8 +1,8 @@
 const clack = require('@clack/prompts');
 const chalk = require('chalk');
-const { execGit, getStashList } = require('../lib/git/exec');
+const { getStashList } = require('../lib/git/exec');
 const { createTable } = require('../lib/ui/table');
-const { showBanner } = require('../lib/ui/banner');
+const { showCommandHeader, execGitWithSpinner, handleCancel, promptConfirm } = require('../lib/utils/command-helpers');
 
 const listStashes = () => {
   const stashes = getStashList();
@@ -17,28 +17,34 @@ const listStashes = () => {
   console.log(`\n${createTable(['Ref', 'Date', 'Message'], rows)}`);
 };
 
-const createStash = async (message, includeUntracked = false) => {
-  const spinner = clack.spinner();
-  spinner.start('Creating stash');
+const createStash = async (args) => {
+  let message = args[0];
+  const includeUntracked = args.includes('--include-untracked') || args.includes('-u');
+
+  if (!message) {
+    message = await clack.text({
+      message: chalk.cyan('Stash message (optional):'),
+      placeholder: 'WIP: working on feature',
+    });
+
+    if (handleCancel(message)) return;
+  }
 
   const command = includeUntracked
     ? `stash push -u -m "${message || 'Stash'}"`
     : `stash push -m "${message || 'Stash'}"`;
 
-  const result = execGit(command, { silent: true });
-  spinner.stop();
-
-  if (result.success) {
-    clack.outro(chalk.green.bold('Stash created'));
-  } else {
-    clack.cancel(chalk.red('Failed to create stash'));
-    console.error(result.error);
-    process.exit(1);
-  }
+  await execGitWithSpinner(command, {
+    spinnerText: 'Creating stash',
+    successMessage: 'Stash created',
+    errorMessage: 'Failed to create stash',
+    silent: true,
+  });
 };
 
-const applyStash = async (stashRef) => {
+const applyStash = async (args) => {
   const stashes = getStashList();
+  let stashRef = args[0];
 
   if (!stashRef) {
     if (stashes.length === 0) {
@@ -56,29 +62,19 @@ const applyStash = async (stashRef) => {
       options,
     });
 
-    if (clack.isCancel(stashRef)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    if (handleCancel(stashRef)) return;
   }
 
-  const spinner = clack.spinner();
-  spinner.start(`Applying stash ${stashRef}`);
-
-  const result = execGit(`stash apply ${stashRef}`, { silent: false });
-  spinner.stop();
-
-  if (result.success) {
-    clack.outro(chalk.green.bold('Stash applied'));
-  } else {
-    clack.cancel(chalk.red('Failed to apply stash'));
-    console.error(result.error);
-    process.exit(1);
-  }
+  await execGitWithSpinner(`stash apply ${stashRef}`, {
+    spinnerText: `Applying stash ${stashRef}`,
+    successMessage: 'Stash applied',
+    errorMessage: 'Failed to apply stash',
+  });
 };
 
-const popStash = async (stashRef) => {
+const popStash = async (args) => {
   const stashes = getStashList();
+  let stashRef = args[0];
 
   if (!stashRef) {
     if (stashes.length === 0) {
@@ -89,23 +85,16 @@ const popStash = async (stashRef) => {
     stashRef = stashes[0].ref; // Default to most recent
   }
 
-  const spinner = clack.spinner();
-  spinner.start(`Popping stash ${stashRef}`);
-
-  const result = execGit(`stash pop ${stashRef}`, { silent: false });
-  spinner.stop();
-
-  if (result.success) {
-    clack.outro(chalk.green.bold('Stash popped'));
-  } else {
-    clack.cancel(chalk.red('Failed to pop stash'));
-    console.error(result.error);
-    process.exit(1);
-  }
+  await execGitWithSpinner(`stash pop ${stashRef}`, {
+    spinnerText: `Popping stash ${stashRef}`,
+    successMessage: 'Stash popped',
+    errorMessage: 'Failed to pop stash',
+  });
 };
 
-const dropStash = async (stashRef) => {
+const dropStash = async (args) => {
   const stashes = getStashList();
+  let stashRef = args[0];
 
   if (!stashRef) {
     if (stashes.length === 0) {
@@ -123,42 +112,24 @@ const dropStash = async (stashRef) => {
       options,
     });
 
-    if (clack.isCancel(stashRef)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    if (handleCancel(stashRef)) return;
   }
 
-  const confirm = await clack.confirm({
-    message: chalk.yellow(`Delete stash ${stashRef}?`),
-    initialValue: false,
+  const confirmed = await promptConfirm(`Delete stash ${stashRef}?`, false);
+  if (!confirmed) return;
+
+  await execGitWithSpinner(`stash drop ${stashRef}`, {
+    spinnerText: `Dropping stash ${stashRef}`,
+    successMessage: 'Stash dropped',
+    errorMessage: 'Failed to drop stash',
+    silent: true,
   });
-
-  if (clack.isCancel(confirm) || !confirm) {
-    clack.cancel(chalk.yellow('Cancelled'));
-    return;
-  }
-
-  const spinner = clack.spinner();
-  spinner.start(`Dropping stash ${stashRef}`);
-
-  const result = execGit(`stash drop ${stashRef}`, { silent: true });
-  spinner.stop();
-
-  if (result.success) {
-    clack.outro(chalk.green.bold('Stash dropped'));
-  } else {
-    clack.cancel(chalk.red('Failed to drop stash'));
-    console.error(result.error);
-    process.exit(1);
-  }
 };
 
 module.exports = async (args) => {
   const action = args[0] || 'list';
 
-  showBanner('STASH');
-  console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Stash Management')}`);
+  showCommandHeader('STASH', 'Stash Management');
 
   if (action === 'list' || action === 'ls') {
     listStashes();
@@ -167,35 +138,25 @@ module.exports = async (args) => {
   }
 
   if (action === 'create' || action === 'save' || action === 'push') {
-    const message =
-      args[1] ||
-      (await clack.text({
-        message: chalk.cyan('Stash message (optional):'),
-        placeholder: 'WIP: working on feature',
-      }));
-
-    if (!clack.isCancel(message)) {
-      const includeUntracked = args.includes('--include-untracked') || args.includes('-u');
-      await createStash(message, includeUntracked);
-    }
+    await createStash(args.slice(1));
     return;
   }
 
   if (action === 'apply') {
-    await applyStash(args[1]);
+    await applyStash(args.slice(1));
     return;
   }
 
   if (action === 'pop') {
-    await popStash(args[1]);
+    await popStash(args.slice(1));
     return;
   }
 
   if (action === 'drop' || action === 'delete') {
-    await dropStash(args[1]);
+    await dropStash(args.slice(1));
     return;
   }
 
   // Default: create stash
-  await createStash(action);
+  await createStash([action]);
 };

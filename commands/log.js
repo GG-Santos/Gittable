@@ -2,11 +2,10 @@ const clack = require('@clack/prompts');
 const chalk = require('chalk');
 const { getLog } = require('../lib/git/exec');
 const { createTable } = require('../lib/ui/table');
-const { showBanner } = require('../lib/ui/banner');
+const { showCommandHeader } = require('../lib/utils/command-helpers');
 
 module.exports = async (args) => {
-  showBanner('LOG');
-  console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Commit History')}`);
+  showCommandHeader('LOG', 'Commit History');
 
   const limit = parseInt(args[0], 10) || 20;
   const format = args.includes('--oneline') ? '%h|%s' : '%h|%an|%ar|%s';

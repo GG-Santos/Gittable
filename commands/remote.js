@@ -2,7 +2,8 @@ const clack = require('@clack/prompts');
 const chalk = require('chalk');
 const { execGit } = require('../lib/git/exec');
 const { createTable } = require('../lib/ui/table');
-const { showBanner } = require('../lib/ui/banner');
+const { createActionRouter } = require('../lib/utils/action-router');
+const { execGitWithSpinner, handleCancel, promptConfirm } = require('../lib/utils/command-helpers');
 
 const listRemotes = () => {
   const result = execGit('remote -v', { silent: true });
@@ -35,17 +36,17 @@ const listRemotes = () => {
   console.log(`\n${createTable(['Remote', 'URL', 'Note'], rows)}`);
 };
 
-const addRemote = async (name, url) => {
+const addRemote = async (args) => {
+  let name = args[0];
+  let url = args[1];
+
   if (!name) {
     name = await clack.text({
       message: chalk.cyan('Remote name:'),
       placeholder: 'origin',
     });
 
-    if (clack.isCancel(name)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return false;
-    }
+    if (handleCancel(name)) return false;
   }
 
   if (!url) {
@@ -54,77 +55,56 @@ const addRemote = async (name, url) => {
       placeholder: 'https://github.com/user/repo.git',
     });
 
-    if (clack.isCancel(url)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return false;
-    }
+    if (handleCancel(url)) return false;
   }
 
-  const spinner = clack.spinner();
-  spinner.start(`Adding remote ${name}`);
+  const result = await execGitWithSpinner(`remote add ${name} ${url}`, {
+    spinnerText: `Adding remote ${name}`,
+    successMessage: null, // Custom success message
+    errorMessage: 'Failed to add remote',
+    silent: true,
+    onSuccess: () => {
+      console.log(chalk.green(`✓ Remote ${name} added`));
+    },
+  });
 
-  const result = execGit(`remote add ${name} ${url}`, { silent: true });
-  spinner.stop();
-
-  if (result.success) {
-    console.log(chalk.green(`✓ Remote ${name} added`));
-    return true;
-  } else {
-    clack.cancel(chalk.red('Failed to add remote'));
-    console.error(result.error);
-    return false;
-  }
+  return result.success;
 };
 
-const removeRemote = async (name) => {
+const removeRemote = async (args) => {
+  let name = args[0];
+
   if (!name) {
     name = await clack.text({
       message: chalk.cyan('Remote name to remove:'),
       placeholder: 'origin',
     });
 
-    if (clack.isCancel(name)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    if (handleCancel(name)) return;
   }
 
-  const confirm = await clack.confirm({
-    message: chalk.yellow(`Remove remote ${name}?`),
-    initialValue: false,
+  const confirmed = await promptConfirm(`Remove remote ${name}?`, false);
+  if (!confirmed) return;
+
+  await execGitWithSpinner(`remote remove ${name}`, {
+    spinnerText: `Removing remote ${name}`,
+    successMessage: `Remote ${name} removed`,
+    errorMessage: 'Failed to remove remote',
+    silent: true,
   });
-
-  if (clack.isCancel(confirm) || !confirm) {
-    clack.cancel(chalk.yellow('Cancelled'));
-    return;
-  }
-
-  const spinner = clack.spinner();
-  spinner.start(`Removing remote ${name}`);
-
-  const result = execGit(`remote remove ${name}`, { silent: true });
-  spinner.stop();
-
-  if (result.success) {
-    clack.outro(chalk.green.bold(`Remote ${name} removed`));
-  } else {
-    clack.cancel(chalk.red('Failed to remove remote'));
-    console.error(result.error);
-    process.exit(1);
-  }
 };
 
-const renameRemote = async (oldName, newName) => {
+const renameRemote = async (args) => {
+  let oldName = args[0];
+  let newName = args[1];
+
   if (!oldName) {
     oldName = await clack.text({
       message: chalk.cyan('Current remote name:'),
       placeholder: 'origin',
     });
 
-    if (clack.isCancel(oldName)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    if (handleCancel(oldName)) return;
   }
 
   if (!newName) {
@@ -133,104 +113,61 @@ const renameRemote = async (oldName, newName) => {
       placeholder: 'upstream',
     });
 
-    if (clack.isCancel(newName)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    if (handleCancel(newName)) return;
   }
 
-  const spinner = clack.spinner();
-  spinner.start(`Renaming remote ${oldName} to ${newName}`);
-
-  const result = execGit(`remote rename ${oldName} ${newName}`, { silent: true });
-  spinner.stop();
-
-  if (result.success) {
-    clack.outro(chalk.green.bold(`Remote renamed to ${newName}`));
-  } else {
-    clack.cancel(chalk.red('Failed to rename remote'));
-    console.error(result.error);
-    process.exit(1);
-  }
+  await execGitWithSpinner(`remote rename ${oldName} ${newName}`, {
+    spinnerText: `Renaming remote ${oldName} to ${newName}`,
+    successMessage: `Remote renamed to ${newName}`,
+    errorMessage: 'Failed to rename remote',
+    silent: true,
+  });
 };
 
-module.exports = async (args) => {
-  const action = args[0];
+const router = createActionRouter({
+  commandName: 'REMOTE',
+  helpText: [
+    'Available actions:',
+    '  - gittable remote list (or ls)',
+    '  - gittable remote add <name> <url>',
+    '  - gittable remote remove <name> (or rm)',
+    '  - gittable remote rename <old> <new> (or mv)',
+  ],
+  actions: [
+    {
+      value: 'list',
+      label: chalk.cyan('List remotes'),
+      title: 'Remote List',
+      handler: listRemotes,
+      aliases: ['ls'],
+    },
+    {
+      value: 'add',
+      label: chalk.green('Add remote'),
+      title: 'Add Remote',
+      handler: addRemote,
+    },
+    {
+      value: 'remove',
+      label: chalk.red('Remove remote'),
+      title: 'Remove Remote',
+      handler: removeRemote,
+      aliases: ['rm'],
+    },
+    {
+      value: 'rename',
+      label: chalk.yellow('Rename remote'),
+      title: 'Rename Remote',
+      handler: renameRemote,
+      aliases: ['mv'],
+    },
+  ],
+});
 
-  // If no action provided, show interactive menu
-  if (!action) {
-    showBanner('REMOTE');
-    
-    // Check if TTY is available for interactive prompts
-    if (!process.stdin.isTTY) {
-      clack.cancel(chalk.red('Interactive mode required'));
-      console.log(chalk.yellow('This command requires interactive input.'));
-      console.log(chalk.gray('Available actions:'));
-      console.log(chalk.gray('  - gittable remote list (or ls)'));
-      console.log(chalk.gray('  - gittable remote add <name> <url>'));
-      console.log(chalk.gray('  - gittable remote remove <name> (or rm)'));
-      console.log(chalk.gray('  - gittable remote rename <old> <new> (or mv)'));
-      process.exit(1);
-    }
-    
-    const selectedAction = await clack.select({
-      message: chalk.cyan('What would you like to do?'),
-      options: [
-        { value: 'list', label: chalk.cyan('List remotes') },
-        { value: 'add', label: chalk.green('Add remote') },
-        { value: 'remove', label: chalk.red('Remove remote') },
-        { value: 'rename', label: chalk.yellow('Rename remote') },
-      ],
-    });
+// Export the router as main export
+module.exports = router;
 
-    if (clack.isCancel(selectedAction)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
-
-    // Recursively call with the selected action
-    return module.exports([selectedAction, ...args.slice(1)]);
-  }
-
-  if (action === 'list' || action === 'ls') {
-    showBanner('REMOTE');
-    console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Remote List')}`);
-    listRemotes();
-    clack.outro(chalk.green.bold('Done'));
-    return;
-  }
-
-  if (action === 'add') {
-    showBanner('REMOTE');
-    console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Add Remote')}`);
-    await addRemote(args[1], args[2]);
-    return;
-  }
-
-  if (action === 'remove' || action === 'rm') {
-    showBanner('REMOTE');
-    console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Remove Remote')}`);
-    await removeRemote(args[1]);
-    return;
-  }
-
-  if (action === 'rename' || action === 'mv') {
-    showBanner('REMOTE');
-    console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Rename Remote')}`);
-    await renameRemote(args[1], args[2]);
-    return;
-  }
-
-  // Unknown action - show help
-  showBanner('REMOTE');
-  clack.cancel(chalk.red(`Unknown action: ${action}`));
-  console.log(chalk.yellow('\nAvailable actions:'));
-  console.log(chalk.cyan('  list, ls    - List all remotes'));
-  console.log(chalk.cyan('  add         - Add a new remote'));
-  console.log(chalk.cyan('  remove, rm   - Remove a remote'));
-  console.log(chalk.cyan('  rename, mv   - Rename a remote'));
-  process.exit(1);
+// Export addRemote for use in other commands (with original signature)
+module.exports.addRemote = async (name, url) => {
+  return await addRemote([name, url]);
 };
-
-// Export addRemote for use in other commands
-module.exports.addRemote = addRemote;

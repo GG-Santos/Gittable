@@ -5,9 +5,9 @@
   "main": "index.js",
   "types": "index.d.ts",
   "bin": {
-    "gittable": "cli.js",
-    "gitt": "cli.js",
-    "gitx": "cli.js"
+    "gittable": "index.js",
+    "gitt": "index.js",
+    "gitx": "index.js"
   },
   "scripts": {
     "lint": "biome check .",
@@ -15,7 +15,9 @@
     "format": "biome format --write .",
     "test": "node --test test/**/*.test.js",
     "test:watch": "node --test --watch test/**/*.test.js",
-    "commit": "./standalone.js"
+    "publish:github": "npm publish --registry=https://npm.pkg.github.com",
+    "publish:npm": "npm publish --registry=https://registry.npmjs.org/",
+    "publish:both": "npm run publish:github && npm run publish:npm"
   },
   "repository": {
     "type": "git",
@@ -50,10 +52,8 @@
     "commitizen": "^4.3.0"
   },
   "files": [
-    "cli.js",
     "index.js",
     "index.d.ts",
-    "standalone.js",
     "commands",
     "lib"
   ],
@@ -69,8 +69,5 @@
     "lib": "lib",
     "test": "test"
   },
-  "type": "commonjs",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  }
+  "type": "commonjs"
 }

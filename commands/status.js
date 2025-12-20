@@ -2,11 +2,10 @@ const clack = require('@clack/prompts');
 const chalk = require('chalk');
 const { getStatus, getCurrentBranch } = require('../lib/git/exec');
 const { displayStatus } = require('../lib/ui/status-display');
-const { showBanner } = require('../lib/ui/banner');
+const { showCommandHeader } = require('../lib/utils/command-helpers');
 
 module.exports = async (_args) => {
-  showBanner('STATUS');
-  console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Repository Status')}`);
+  showCommandHeader('STATUS', 'Repository Status');
 
   const branch = getCurrentBranch();
   const status = getStatus();

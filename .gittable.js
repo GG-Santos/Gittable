@@ -15,38 +15,44 @@ module.exports = {
     ],
   
     scopes: [
-      // Application Structure
-      { name: "app" },
-      { name: "routing" },
-      { name: "layout" },
-  
-      // Rendering / Next.js Runtime
-      { name: "rsc" },
-      { name: "client" },
-      { name: "server" },
-      { name: "middleware" },
-  
-      // UI & Shared Logic
+      // UI & Components
       { name: "components" },
+      { name: "ui" },
       { name: "styles" },
+      { name: "theme" },
+  
+      // Business Logic
       { name: "hooks" },
       { name: "utils" },
+      { name: "helpers" },
       { name: "types" },
+      { name: "models" },
   
-      // Data, API & Auth
+      // Data & API
       { name: "api" },
+      { name: "services" },
       { name: "auth" },
       { name: "db" },
+      { name: "database" },
       { name: "cache" },
+      { name: "storage" },
   
-      // Tooling & Development
+      // Configuration & Environment
       { name: "config" },
-      { name: "logging" },
+      { name: "env" },
+      { name: "settings" },
+  
+      // Development & Testing
       { name: "test" },
+      { name: "tests" },
+      { name: "logging" },
+      { name: "debug" },
   
       // Infrastructure & Deployment
       { name: "infra" },
-      { name: "env" },
+      { name: "deploy" },
+      { name: "build" },
+      { name: "ci" },
     ],
   
     allowTicketNumber: false,

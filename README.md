@@ -4,11 +4,11 @@
 
 **A modern, interactive Git CLI wrapper with conventional commits**
 
-[![npm version](https://img.shields.io/npm/v/gittable.svg)](https://www.npmjs.com/package/gittable)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen.svg)](https://nodejs.org/)
+[![forthebadge](https://img.shields.io/badge/NPM-PUBLISHED-ff4d4d?style=for-the-badge&logo=npm&logoColor=white)](https://www.npmjs.com/package/gittable)
+[![forthebadge](https://img.shields.io/badge/MADE%20WITH-JAVASCRIPT-ff4d4d?style=for-the-badge&logo=javascript&logoColor=white)](https://www.npmjs.com/package/gittable)
+[![forthebadge](https://img.shields.io/badge/BUILT%20FOR-DEVELOPERS-ff4d4d?style=for-the-badge&logo=git&logoColor=white)](https://github.com/GG-Santos/Gittable)
 
-[Installation](#installation) • [Quick Start](#quick-start) • [Documentation](#documentation) • [Contributing](#contributing)
+[Installation](#installation) • [Quick Start](#quick-start) • [Documentation](#documentation)
 
 </div>
 
@@ -237,178 +237,6 @@ Shows a beautiful, color-coded status display with:
 - Untracked files
 - Ahead/behind information relative to remote
 
-## Development
-
-### Prerequisites
-
-- Node.js >= 14.0.0
-- npm or yarn
-- Git (for testing)
-
-### Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/GG-Santos/Gittable.git
-cd Gittable
-
-# Install dependencies
-npm install
-```
-
-### Available Scripts
-
-```bash
-# Lint code
-npm run lint
-
-# Fix linting issues automatically
-npm run lint:fix
-
-# Format code
-npm run format
-
-# Run tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Create a commit using Gittable
-npm run commit
-```
-
-### Project Structure
-
-```
-gittable/
-├── cli.js              # Main CLI entry point
-├── index.js            # Commitizen adapter
-├── standalone.js       # Standalone commit script
-├── commands/           # Command implementations
-│   ├── add.js
-│   ├── branch.js
-│   ├── commit.js
-│   └── ...
-├── lib/
-│   ├── commit/         # Commit-related utilities
-│   │   ├── build-commit.js
-│   │   ├── get-previous-commit.js
-│   │   └── questions.js
-│   ├── config/         # Configuration handling
-│   │   └── read-config-file.js
-│   ├── git/            # Git execution helpers
-│   │   └── exec.js
-│   ├── ui/             # UI components
-│   │   ├── ascii.js
-│   │   ├── banner.js
-│   │   ├── status-display.js
-│   │   └── table.js
-│   └── utils/          # Utility functions
-│       ├── email-prompt.js
-│       ├── logger.js
-│       ├── spinner.js
-│       └── terminal-link.js
-└── test/               # Test files
-    └── lib/
-```
-
-## Contributing
-
-We welcome contributions to Gittable! This project follows conventional commit standards and uses Biome for code formatting.
-
-### Getting Started
-
-1. **Fork the repository** on GitHub
-2. **Clone your fork** locally:
-   ```bash
-   git clone https://github.com/yourusername/Gittable.git
-   cd Gittable
-   ```
-3. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-### Development Workflow
-
-1. **Create a branch** for your changes:
-   ```bash
-   gittable branch create feature/your-feature-name
-   # or
-   git checkout -b feature/your-feature-name
-   ```
-
-2. **Make your changes** following the coding standards
-
-3. **Run tests** to ensure everything works:
-   ```bash
-   npm test
-   ```
-
-4. **Run linter** to check code quality:
-   ```bash
-   npm run lint
-   ```
-
-5. **Fix any issues** automatically:
-   ```bash
-   npm run lint:fix
-   ```
-
-6. **Commit your changes** using Gittable's commit command:
-   ```bash
-   gittable commit
-   # or
-   npm run commit
-   ```
-
-7. **Push to your fork**:
-   ```bash
-   gittable push origin feature/your-feature-name
-   ```
-
-8. **Open a Pull Request** on GitHub
-
-### Coding Standards
-
-- We use [Biome](https://biomejs.dev/) for linting and formatting
-- Run `npm run format` before committing
-- Follow the existing code style in the project
-- Write tests for new features
-- Update documentation as needed
-
-### Commit Messages
-
-- Use Gittable's commit command for consistent commit messages
-- Follow [Conventional Commits](https://www.conventionalcommits.org/) format
-- Examples:
-  - `feat(commands): add new sync command`
-  - `fix(exec): handle git errors gracefully`
-  - `docs(readme): update installation instructions`
-
-### Reporting Bugs
-
-When reporting bugs, please include:
-
-1. **Description** of the bug
-2. **Steps to reproduce**
-3. **Expected behavior**
-4. **Actual behavior**
-5. **Environment**:
-   - Node.js version
-   - Operating system
-   - Gittable version
-
-### Suggesting Features
-
-Feature suggestions are welcome! Please:
-
-1. Check if the feature already exists or is planned
-2. Open an issue describing the feature
-3. Explain the use case and benefits
-4. Be open to discussion and feedback
-
 ## Dependencies
 
 ### Production Dependencies
@@ -435,11 +263,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Gittable is built with the following excellent open-source projects:
 
 - **[@clack/prompts](https://github.com/natemoo-re/clack)** by [@natemoo-re](https://github.com/natemoo-re) - Beautiful CLI prompts library
-- **[cz-customizable](https://github.com/leoforfree/cz-customizable)** by [@leoforfree](https://github.com/leoforfree) - Commit message helper inspiration
 - **[conventional-changelog](https://github.com/conventional-changelog)** - Conventional commits specification
 - **[chalk](https://github.com/chalk/chalk)** by [@sindresorhus](https://github.com/sindresorhus) - Terminal string styling
 - **[cli-table3](https://github.com/cli-table/cli-table3)** - Beautiful CLI tables
 - **[Biome](https://biomejs.dev/)** - Fast formatter and linter
+- **[cz-customizable](https://github.com/leoforfree/cz-customizable)** - Customizable commitizen adapter for commit message prompts
 
 ## Author
 

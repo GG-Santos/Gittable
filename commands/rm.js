@@ -1,11 +1,9 @@
 const clack = require('@clack/prompts');
 const chalk = require('chalk');
-const { execGit } = require('../lib/git/exec');
-const { showBanner } = require('../lib/ui/banner');
+const { showCommandHeader, execGitWithSpinner, promptConfirm } = require('../lib/utils/command-helpers');
 
 module.exports = async (args) => {
-  showBanner('RM');
-  console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Remove Files')}`);
+  showCommandHeader('RM', 'Remove Files');
 
   const files = args.filter((arg) => !arg.startsWith('--'));
   const cached = args.includes('--cached') || args.includes('--staged');
@@ -18,19 +16,9 @@ module.exports = async (args) => {
   }
 
   if (!force) {
-    const confirm = await clack.confirm({
-      message: chalk.yellow(`Remove ${files.length} file(s) from git?`),
-      initialValue: false,
-    });
-
-    if (clack.isCancel(confirm) || !confirm) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    const confirmed = await promptConfirm(`Remove ${files.length} file(s) from git?`, false);
+    if (!confirmed) return;
   }
-
-  const spinner = clack.spinner();
-  spinner.start(`Removing ${files.length} file(s)`);
 
   let command = 'rm';
   if (cached) {
@@ -44,14 +32,9 @@ module.exports = async (args) => {
   }
   command += ` ${files.join(' ')}`;
 
-  const result = execGit(command, { silent: false });
-  spinner.stop();
-
-  if (result.success) {
-    clack.outro(chalk.green.bold(`Removed ${files.length} file(s)`));
-  } else {
-    clack.cancel(chalk.red('Failed to remove files'));
-    console.error(result.error);
-    process.exit(1);
-  }
+  await execGitWithSpinner(command, {
+    spinnerText: `Removing ${files.length} file(s)`,
+    successMessage: `Removed ${files.length} file(s)`,
+    errorMessage: 'Failed to remove files',
+  });
 };

@@ -1,11 +1,9 @@
 const clack = require('@clack/prompts');
 const chalk = require('chalk');
-const { execGit } = require('../lib/git/exec');
-const { showBanner } = require('../lib/ui/banner');
+const { showCommandHeader, execGitWithSpinner } = require('../lib/utils/command-helpers');
 
 module.exports = async (args) => {
-  showBanner('CHECKOUT');
-  console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Checkout Files')}`);
+  showCommandHeader('CHECKOUT', 'Checkout Files');
 
   const files = args.filter((arg) => !arg.startsWith('--'));
   const from =
@@ -21,23 +19,15 @@ module.exports = async (args) => {
     return;
   }
 
-  const spinner = clack.spinner();
-  spinner.start(`Checking out ${files.length} file(s)`);
-
   let command = 'checkout';
   if (from) {
     command += ` ${from}`;
   }
   command += ` -- ${files.join(' ')}`;
 
-  const result = execGit(command, { silent: false });
-  spinner.stop();
-
-  if (result.success) {
-    clack.outro(chalk.green.bold(`Checked out ${files.length} file(s)`));
-  } else {
-    clack.cancel(chalk.red('Failed to checkout files'));
-    console.error(result.error);
-    process.exit(1);
-  }
+  await execGitWithSpinner(command, {
+    spinnerText: `Checking out ${files.length} file(s)`,
+    successMessage: `Checked out ${files.length} file(s)`,
+    errorMessage: 'Failed to checkout files',
+  });
 };

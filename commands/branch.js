@@ -1,8 +1,9 @@
 const clack = require('@clack/prompts');
 const chalk = require('chalk');
-const { execGit, getBranches, getCurrentBranch } = require('../lib/git/exec');
+const { getBranches, getCurrentBranch } = require('../lib/git/exec');
 const { createTable } = require('../lib/ui/table');
-const { showBanner } = require('../lib/ui/banner');
+const { createActionRouter } = require('../lib/utils/action-router');
+const { execGitWithSpinner, handleCancel, promptConfirm } = require('../lib/utils/command-helpers');
 
 const listBranches = async () => {
   const branches = getBranches();
@@ -24,36 +25,28 @@ const listBranches = async () => {
   }
 };
 
-const createBranch = async (name) => {
+const createBranch = async (args) => {
+  let name = args[0];
   if (!name) {
     name = await clack.text({
       message: chalk.cyan('Branch name:'),
       placeholder: 'feature/new-feature',
     });
 
-    if (clack.isCancel(name)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    if (handleCancel(name)) return;
   }
 
-  const spinner = clack.spinner();
-  spinner.start(`Creating branch ${name}`);
-
-  const result = execGit(`checkout -b ${name}`, { silent: true });
-  spinner.stop();
-
-  if (result.success) {
-    clack.outro(chalk.green.bold(`Branch ${name} created and checked out`));
-  } else {
-    clack.cancel(chalk.red('Failed to create branch'));
-    console.error(result.error);
-    process.exit(1);
-  }
+  await execGitWithSpinner(`checkout -b ${name}`, {
+    spinnerText: `Creating branch ${name}`,
+    successMessage: `Branch ${name} created and checked out`,
+    errorMessage: 'Failed to create branch',
+    silent: true,
+  });
 };
 
-const checkoutBranch = async (name) => {
+const checkoutBranch = async (args) => {
   const branches = getBranches();
+  let name = args[0];
 
   if (!name) {
     const options = branches.local.map((branch) => ({
@@ -66,30 +59,21 @@ const checkoutBranch = async (name) => {
       options,
     });
 
-    if (clack.isCancel(name)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    if (handleCancel(name)) return;
   }
 
-  const spinner = clack.spinner();
-  spinner.start(`Checking out ${name}`);
-
-  const result = execGit(`checkout ${name}`, { silent: true });
-  spinner.stop();
-
-  if (result.success) {
-    clack.outro(chalk.green.bold(`Switched to branch ${name}`));
-  } else {
-    clack.cancel(chalk.red('Failed to checkout branch'));
-    console.error(result.error);
-    process.exit(1);
-  }
+  await execGitWithSpinner(`checkout ${name}`, {
+    spinnerText: `Checking out ${name}`,
+    successMessage: `Switched to branch ${name}`,
+    errorMessage: 'Failed to checkout branch',
+    silent: true,
+  });
 };
 
-const deleteBranch = async (name) => {
+const deleteBranch = async (args) => {
   const branches = getBranches();
   const current = getCurrentBranch();
+  let name = args[0];
 
   if (!name) {
     const options = branches.local
@@ -109,10 +93,7 @@ const deleteBranch = async (name) => {
       options,
     });
 
-    if (clack.isCancel(name)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    if (handleCancel(name)) return;
   }
 
   if (name === current) {
@@ -120,115 +101,71 @@ const deleteBranch = async (name) => {
     process.exit(1);
   }
 
-  const confirm = await clack.confirm({
-    message: chalk.yellow(`Delete branch ${name}?`),
-    initialValue: false,
-  });
+  const confirmed = await promptConfirm(`Delete branch ${name}?`, false);
+  if (!confirmed) return;
 
-  if (clack.isCancel(confirm) || !confirm) {
-    clack.cancel(chalk.yellow('Cancelled'));
-    return;
-  }
-
-  const spinner = clack.spinner();
-  spinner.start(`Deleting branch ${name}`);
-
-  const result = execGit(`branch -d ${name}`, { silent: true });
-  spinner.stop();
-
-  if (result.success) {
-    clack.outro(chalk.green.bold(`Branch ${name} deleted`));
-  } else {
-    // Try force delete
-    const forceConfirm = await clack.confirm({
-      message: chalk.yellow('Branch not fully merged. Force delete?'),
-      initialValue: false,
-    });
-
-    if (forceConfirm) {
-      const forceResult = execGit(`branch -D ${name}`, { silent: true });
-      if (forceResult.success) {
-        clack.outro(chalk.green.bold(`Branch ${name} force deleted`));
+  const result = await execGitWithSpinner(`branch -d ${name}`, {
+    spinnerText: `Deleting branch ${name}`,
+    successMessage: `Branch ${name} deleted`,
+    errorMessage: null, // Handle error case manually
+    silent: true,
+    onError: async (errorResult) => {
+      // Try force delete
+      const forceConfirmed = await promptConfirm('Branch not fully merged. Force delete?', false);
+      if (forceConfirmed) {
+        await execGitWithSpinner(`branch -D ${name}`, {
+          spinnerText: `Force deleting branch ${name}`,
+          successMessage: `Branch ${name} force deleted`,
+          errorMessage: 'Failed to delete branch',
+          silent: true,
+        });
       } else {
-        clack.cancel(chalk.red('Failed to delete branch'));
-        console.error(forceResult.error);
         process.exit(1);
       }
-    } else {
-      clack.cancel(chalk.yellow('Cancelled'));
-    }
-  }
+    },
+  });
 };
 
-module.exports = async (args) => {
-  const action = args[0];
-
-  // If no action provided, show interactive menu
-  if (!action) {
-    showBanner('BRANCH');
-
-    // Check if TTY is available for interactive prompts
-    if (!process.stdin.isTTY) {
-      clack.cancel(chalk.red('Interactive mode required'));
-      console.log(chalk.yellow('This command requires interactive input.'));
-      console.log(chalk.gray('Available actions:'));
-      console.log(chalk.gray('  - gittable branch list'));
-      console.log(chalk.gray('  - gittable branch create <name>'));
-      console.log(chalk.gray('  - gittable branch checkout <name>'));
-      console.log(chalk.gray('  - gittable branch delete <name>'));
-      process.exit(1);
-    }
-
-    const selectedAction = await clack.select({
-      message: chalk.cyan('What would you like to do?'),
-      options: [
-        { value: 'list', label: chalk.cyan('List branches') },
-        { value: 'create', label: chalk.green('Create new branch') },
-        { value: 'checkout', label: chalk.yellow('Checkout branch') },
-        { value: 'delete', label: chalk.red('Delete branch') },
-      ],
-    });
-
-    if (clack.isCancel(selectedAction)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
-
-    // Recursively call with the selected action
-    return module.exports([selectedAction, ...args.slice(1)]);
-  }
-
-  if (action === 'list' || action === 'ls') {
-    showBanner('BRANCH');
-    console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Branch List')}`);
-    await listBranches();
-    clack.outro(chalk.green.bold('Done'));
-    return;
-  }
-
-  if (action === 'create' || action === 'new') {
-    showBanner('BRANCH');
-    console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Create Branch')}`);
-    await createBranch(args[1]);
-    return;
-  }
-
-  if (action === 'checkout' || action === 'co') {
-    showBanner('BRANCH');
-    console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Checkout Branch')}`);
-    await checkoutBranch(args[1]);
-    return;
-  }
-
-  if (action === 'delete' || action === 'del' || action === 'rm') {
-    showBanner('BRANCH');
-    console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Delete Branch')}`);
-    await deleteBranch(args[1]);
-    return;
-  }
-
-  // Default: try to checkout
-  showBanner('BRANCH');
-  console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Checkout Branch')}`);
-  await checkoutBranch(action);
-};
+module.exports = createActionRouter({
+  commandName: 'BRANCH',
+  helpText: [
+    'Available actions:',
+    '  - gittable branch list',
+    '  - gittable branch create <name>',
+    '  - gittable branch checkout <name>',
+    '  - gittable branch delete <name>',
+  ],
+  actions: [
+    {
+      value: 'list',
+      label: chalk.cyan('List branches'),
+      title: 'Branch List',
+      handler: listBranches,
+    },
+    {
+      value: 'create',
+      label: chalk.green('Create new branch'),
+      title: 'Create Branch',
+      handler: createBranch,
+      aliases: ['new'],
+    },
+    {
+      value: 'checkout',
+      label: chalk.yellow('Checkout branch'),
+      title: 'Checkout Branch',
+      handler: checkoutBranch,
+      aliases: ['co'],
+    },
+    {
+      value: 'delete',
+      label: chalk.red('Delete branch'),
+      title: 'Delete Branch',
+      handler: deleteBranch,
+      aliases: ['del', 'rm'],
+    },
+  ],
+  defaultAction: async (args) => {
+    // Default: try to checkout
+    await checkoutBranch(args);
+  },
+});

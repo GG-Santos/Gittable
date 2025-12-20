@@ -1,12 +1,10 @@
 const clack = require('@clack/prompts');
 const chalk = require('chalk');
-const { execGit, isGitRepo } = require('../lib/git/exec');
-const { showBanner } = require('../lib/ui/banner');
-const _path = require('node:path');
+const { isGitRepo } = require('../lib/git/exec');
+const { showCommandHeader, execGitWithSpinner } = require('../lib/utils/command-helpers');
 
 module.exports = async (args) => {
-  showBanner('INIT');
-  console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Initialize Repository')}`);
+  showCommandHeader('INIT', 'Initialize Repository');
 
   if (isGitRepo()) {
     clack.cancel(chalk.yellow('Already a git repository'));
@@ -17,9 +15,6 @@ module.exports = async (args) => {
   const bare = args.includes('--bare');
   const initialBranch =
     args.find((arg) => arg.startsWith('--initial-branch='))?.split('=')[1] || 'main';
-
-  const spinner = clack.spinner();
-  spinner.start(`Initializing repository${dir !== '.' ? ` in ${dir}` : ''}`);
 
   let command = `init`;
   if (bare) {
@@ -32,14 +27,10 @@ module.exports = async (args) => {
     command += ` ${dir}`;
   }
 
-  const result = execGit(command, { silent: true });
-  spinner.stop();
-
-  if (result.success) {
-    clack.outro(chalk.green.bold('Repository initialized'));
-  } else {
-    clack.cancel(chalk.red('Failed to initialize repository'));
-    console.error(result.error);
-    process.exit(1);
-  }
+  await execGitWithSpinner(command, {
+    spinnerText: `Initializing repository${dir !== '.' ? ` in ${dir}` : ''}`,
+    successMessage: 'Repository initialized',
+    errorMessage: 'Failed to initialize repository',
+    silent: true,
+  });
 };

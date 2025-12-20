@@ -1,26 +1,21 @@
 const clack = require('@clack/prompts');
 const chalk = require('chalk');
-const { execGit, getStatus } = require('../lib/git/exec');
-const { showBanner } = require('../lib/ui/banner');
+const { getStatus } = require('../lib/git/exec');
+const { showCommandHeader, requireTTY, execGitWithSpinner, handleCancel } = require('../lib/utils/command-helpers');
 
 module.exports = async (args) => {
-  showBanner('RESTORE');
-  console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Restore Files')}`);
+  showCommandHeader('RESTORE', 'Restore Files');
 
   const staged = args.includes('--staged') || args.includes('--cached');
   const source = args.find((arg) => arg.startsWith('--source='))?.split('=')[1];
-  const files = args.filter((arg) => !arg.startsWith('--'));
+  let files = args.filter((arg) => !arg.startsWith('--'));
 
   if (files.length === 0) {
-    // Check if TTY is available for interactive prompts
-    if (!process.stdin.isTTY) {
-      clack.cancel(chalk.red('Interactive mode required'));
-      console.log(chalk.yellow('This command requires interactive input.'));
-      console.log(chalk.gray('Available options:'));
-      console.log(chalk.gray('  - gittable restore <file1> <file2> ...'));
-      console.log(chalk.gray('  - gittable restore --staged <file1> <file2> ...'));
-      process.exit(1);
-    }
+    requireTTY([
+      'Available options:',
+      '  - gittable restore <file1> <file2> ...',
+      '  - gittable restore --staged <file1> <file2> ...',
+    ]);
 
     // Interactive mode: show files that can be restored
     const status = getStatus();
@@ -43,16 +38,10 @@ module.exports = async (args) => {
       options: availableFiles,
     });
 
-    if (clack.isCancel(selected)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    if (handleCancel(selected)) return;
 
-    files.push(...selected);
+    files = selected;
   }
-
-  const spinner = clack.spinner();
-  spinner.start(`Restoring ${files.length} file(s)`);
 
   let command = 'restore';
   if (staged) {
@@ -63,14 +52,9 @@ module.exports = async (args) => {
   }
   command += ` -- ${files.join(' ')}`;
 
-  const result = execGit(command, { silent: false });
-  spinner.stop();
-
-  if (result.success) {
-    clack.outro(chalk.green.bold(`Restored ${files.length} file(s)`));
-  } else {
-    clack.cancel(chalk.red('Failed to restore files'));
-    console.error(result.error);
-    process.exit(1);
-  }
+  await execGitWithSpinner(command, {
+    spinnerText: `Restoring ${files.length} file(s)`,
+    successMessage: `Restored ${files.length} file(s)`,
+    errorMessage: 'Failed to restore files',
+  });
 };
