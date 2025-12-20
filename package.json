@@ -1,13 +1,13 @@
 {
   "version": "1.0.0",
   "name": "gittable",
-  "description": "Modern Git CLI with conventional commits powered by @clack/prompts",
+  "description": "Modern Git CLI with Conventional Commits",
   "main": "index.js",
   "types": "index.d.ts",
   "bin": {
-    "gittable": "./cli.js",
-    "gitt": "./cli.js",
-    "gitx": "./cli.js"
+    "gittable": "cli.js",
+    "gitt": "cli.js",
+    "gitx": "cli.js"
   },
   "scripts": {
     "lint": "biome check .",
@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/GG-Santos/Gittable.git"
+    "url": "git+https://github.com/GG-Santos/Gittable.git"
   },
   "homepage": "https://github.com/GG-Santos/Gittable#readme",
   "bugs": {
@@ -64,5 +64,10 @@
     "commitizen": {
       "path": "./index.js"
     }
-  }
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "type": "commonjs"
 }
