@@ -19,7 +19,8 @@
     "test:watch": "node --test --watch test/**/*.test.js",
     "publish:github": "npm publish --registry=https://npm.pkg.github.com",
     "publish:npm": "npm publish --registry=https://registry.npmjs.org/",
-    "publish:both": "npm run publish:github && npm run publish:npm"
+    "publish:both": "npm run publish:github && npm run publish:npm",
+    "gittable": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -47,6 +48,7 @@
     "email-prompt": "^0.4.0",
     "find-config": "^1.0.0",
     "prettycli": "^1.1.0",
+    "wcwidth": "^1.0.1",
     "word-wrap": "^1.2.5"
   },
   "devDependencies": {
@@ -55,13 +57,7 @@
   "overrides": {
     "glob": "^10.0.0"
   },
-  "files": [
-    "index.js",
-    "index.d.ts",
-    "commands",
-    "lib",
-    "bin"
-  ],
+  "files": ["index.js", "src", "bin"],
   "engines": {
     "node": ">=14.0.0"
   },
@@ -71,7 +67,7 @@
     }
   },
   "directories": {
-    "lib": "lib",
+    "lib": "src",
     "test": "test"
   },
   "type": "commonjs"

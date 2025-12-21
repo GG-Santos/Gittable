@@ -1,0 +1,51 @@
+// Combined workflow commands
+module.exports = [
+  {
+    name: 'add-commit',
+    aliases: ['ac'],
+    description: 'Stage files and commit in one flow',
+    category: 'dailyWork',
+    subcategory: 'commit',
+    handler: require('./add-commit'),
+  },
+  {
+    name: 'commit-all',
+    aliases: [],
+    description: 'Stage all changes and commit',
+    category: 'dailyWork',
+    subcategory: 'commit',
+    handler: require('./commit-all'),
+  },
+  {
+    name: 'commit-push',
+    aliases: ['cp'],
+    description: 'Commit and push in one flow',
+    category: 'workingWithOthers',
+    subcategory: 'remote',
+    handler: require('./commit-push'),
+  },
+  {
+    name: 'commit-sync',
+    aliases: ['cs'],
+    description: 'Commit and sync (fetch + rebase + push)',
+    category: 'workingWithOthers',
+    subcategory: 'remote',
+    handler: require('./commit-sync'),
+  },
+  {
+    name: 'pull-rebase',
+    aliases: [],
+    description: 'Pull and rebase without pushing',
+    category: 'advanced',
+    subcategory: 'utilities',
+    handler: require('./pull-rebase'),
+  },
+  {
+    name: 'quick',
+    aliases: ['q'],
+    description: 'Quick workflow: add + commit + push',
+    category: 'advanced',
+    subcategory: 'utilities',
+    handler: require('./quick'),
+  },
+];

@@ -22,9 +22,16 @@ Gittable provides a beautiful, user-friendly interface for common Git operations
 - **Conventional Commits** - Enforces conventional commit message format for better project history
 - **Full Git Coverage** - Wraps all major Git commands with enhanced user experience
 - **Smart Defaults** - Context-aware suggestions and shortcuts for common workflows
+- **Combined Commands** - Workflow shortcuts like `quick` (add+commit+push), `commit-push`, `add-commit`
+- **Smart Suggestions** - Context-aware next-step prompts after each command
+- **Context-Aware Commits** - Auto-suggests commit types based on changed files
+- **Enhanced Error Messages** - Actionable error messages with suggested solutions
+- **Safety Features** - Branch protection warnings, backup before destructive operations
+- **Interactive Tutorial** - Learn Git workflows with guided tutorials
 - **Beautiful UI** - Colorful banners, tables, and status displays for better readability
 - **Fast & Lightweight** - Minimal dependencies, maximum performance
 - **Commitizen Compatible** - Built-in git-cz implementation compatible with Commitizen adapters
+- **Modular Architecture** - Well-organized, category-based command structure for easy extension
 
 ## Installation
 
@@ -92,17 +99,28 @@ gittable push
 
 | Command | Aliases | Description |
 |---------|---------|-------------|
-| `status` | `st` | Show repository status with color-coded display |
+| `status` | `st`, `s` | Show repository status with color-coded display |
+| `info` | | Quick repository overview (branch, changes, remote status) |
 | `branch` | `br`, `co` | Branch management (list, create, checkout, delete) |
-| `commit` | `ci` | Create commits with conventional format |
-| `pull` | `pl` | Fetch and merge from remote |
-| `push` | `ps` | Push to remote repository |
+| `commit` | `ci`, `save` | Create commits with conventional format |
+| `pull` | `pl`, `down` | Fetch and merge from remote |
+| `push` | `ps`, `up` | Push to remote repository |
 | `sync` | | Synchronize (pull + rebase + push) |
 | `merge` | | Merge branches with interactive prompts |
 | `rebase` | | Rebase operations with safety checks |
 | `stash` | | Stash management (list, apply, drop) |
 | `log` | | View commit history with formatted output |
 | `undo` | `reset` | Undo operations and reflog browser |
+
+### Combined Workflow Commands ⚡
+
+| Command | Aliases | Description |
+|---------|---------|-------------|
+| `add-commit` | `ac` | Stage files and commit in one flow |
+| `commit-push` | `cp` | Commit and push in one flow |
+| `commit-sync` | `cs` | Commit and sync (fetch + rebase + push) |
+| `quick` | `q` | Full workflow: add + commit + push |
+| `pull-rebase` | `pr` | Pull and rebase without pushing (safer than sync) |
 
 ### File Operations
 
@@ -115,6 +133,84 @@ gittable push
 | `rm` | Remove files from git tracking |
 | `mv` | Move/rename files in git |
 | `clean` | Remove untracked files with confirmation |
+
+### Batch Operations
+
+| Command | Description |
+|---------|-------------|
+| `commit-all` | Stage all changes and commit (with optional message) |
+| `stash-all` | Stash all changes including untracked files |
+
+### Branch Management Enhancements
+
+| Command | Description |
+|---------|-------------|
+| `branch-clean` | Delete merged branches interactively |
+| `branch-rename` | Rename branch locally and remotely |
+| `branch-compare` | Show differences between two branches |
+
+### Tag Management Enhancements
+
+| Command | Description |
+|---------|-------------|
+| `tag-push` | Create and push tag in one flow |
+| `tag-delete` | Delete tag locally and remotely |
+
+### Conflict Resolution
+
+| Command | Description |
+|---------|-------------|
+| `conflicts` | List all conflicted files |
+| `resolve` | Open conflicted file in editor and stage after resolution |
+| `merge-continue` | Continue merge after resolving conflicts |
+| `merge-abort` | Abort merge operation |
+
+### Pattern and Preview Commands
+
+| Command | Description |
+|---------|-------------|
+| `add-pattern` | Stage files matching a pattern (e.g., *.js, src/**/*.ts) |
+| `diff-preview` | Preview changes before committing |
+
+### Remote Management Enhancements
+
+| Command | Description |
+|---------|-------------|
+| `remote-set-url` | Update remote URL interactively |
+
+### Help System
+
+| Command | Description |
+|---------|-------------|
+| `help` | Show detailed help for specific command |
+| `help <command>` | Get help for a specific command with examples |
+| `examples` | Show usage examples for common workflows |
+| `tutorial` | Interactive walkthrough of common Git workflows |
+| `<command> --help` | Show help for any command |
+
+### Command History
+
+| Command | Description |
+|---------|-------------|
+| `history` | Show recent commands executed |
+| `history <n>` | Show last N commands (default: 20) |
+| `history --clear` | Clear command history |
+
+### Git Hooks Integration
+
+| Command | Description |
+|---------|-------------|
+| `hooks` | List all git hooks in repository |
+| Pre-commit hooks are automatically checked before commits |
+| Option to skip hooks with confirmation |
+
+### Repository State
+
+| Command | Description |
+|---------|-------------|
+| `state` | Show current repository state (merge/rebase/cherry-pick) |
+| Displays active operations and conflict status |
+| Provides commands to continue or abort operations |
 
 ### Repository Management
 
@@ -189,7 +285,7 @@ module.exports = {
 | `ticketNumberRegExp` | String | Regex pattern for ticket validation |
 | `subjectLimit` | Number | Maximum subject line length |
 | `allowBreakingChanges` | Array | Types that allow breaking changes |
-| `skipQuestions` | Array | Questions to skip (e.g., `['body', 'footer']`) |
++ | `skipQuestions` | Array | Questions to skip (e.g., `['body', 'footer']`) |
 | `usePreparedCommit` | Boolean | Use previous commit as default |
 
 ## Usage Examples
@@ -227,15 +323,484 @@ gittable branch delete old-branch
 
 ```bash
 gittable status
+# or use short alias
+gittable s
 ```
 
 Shows a beautiful, color-coded status display with:
 
 - Current branch information
+- Last commit message and time
 - Staged files
 - Unstaged files
 - Untracked files
 - Ahead/behind information relative to remote
+- Smart suggestions for next actions
+
+### Quick Workflow
+
+Use the `quick` command for the most common workflow:
+
+```bash
+gittable quick
+# or
+gittable q
+```
+
+This will:
+1. Show changes
+2. Stage files (with confirmation)
+3. Create a commit (interactive)
+4. Push to remote (with confirmation)
+
+### Combined Commands
+
+```bash
+# Stage and commit in one flow
+gittable add-commit
+gittable ac
+
+# Commit and push
+gittable commit-push
+gittable cp
+
+# Commit and sync (fetch + rebase + push)
+gittable commit-sync
+gittable cs
+
+# Pull and rebase (without pushing)
+gittable pull-rebase
+gittable pr
+```
+
+### Smart Suggestions
+
+Gittable provides context-aware suggestions after each command:
+
+- After `status`: suggests adding files if there are unstaged changes
+- After `add`: suggests committing staged files
+- After `commit`: suggests pushing to remote
+- After failed `push`: suggests pulling or syncing if branch is behind
+
+### Quick Info
+
+Get a quick overview of your repository:
+
+```bash
+gittable info
+```
+
+Shows:
+- Current branch
+- Remote status (ahead/behind)
+- File changes summary
+- Last commit info
+- Stash count
+
+### Enhanced Stash Management
+
+Stash commands now support index-based selection:
+
+```bash
+# List stashes with indices
+gittable stash
+
+# Apply stash by index
+gittable stash apply 0
+
+# Pop stash by index
+gittable stash pop 1
+```
+
+### Branch Management
+
+```bash
+# Clean up merged branches
+gittable branch-clean
+
+# Rename branch
+gittable branch-rename old-name new-name
+
+# Compare branches
+gittable branch-compare branch1 branch2
+```
+
+### Conflict Resolution
+
+```bash
+# List all conflicted files
+gittable conflicts
+
+# Resolve a specific file
+gittable resolve file.js
+```
+
+### Pattern-Based File Staging
+
+Stage files using patterns:
+
+```bash
+# Stage all JavaScript files
+gittable add-pattern "*.js"
+
+# Stage all test files
+gittable add-pattern "**/*.test.js"
+
+# Stage files in a specific directory
+gittable add-pattern "src/**/*.ts"
+```
+
+### Diff Preview
+
+Preview changes before committing:
+
+```bash
+# Preview staged changes
+gittable diff-preview
+
+# Preview unstaged changes
+gittable diff-preview --unstaged
+
+# Preview all changes
+gittable diff-preview --all
+```
+
+### Context-Aware Commit Suggestions
+
+Gittable automatically suggests commit types based on changed files:
+- Test files → suggests `test` type
+- Documentation files → suggests `docs` type
+- Config files → suggests `chore` type
+- And more...
+
+### Getting Help
+
+```bash
+# Show help for a specific command
+gittable help commit
+gittable help quick
+gittable help add-commit
+
+# Or use --help flag
+gittable commit --help
+gittable push --help
+
+# View examples
+gittable examples
+
+# Interactive tutorial
+gittable tutorial
+```
+
+### Safety Features
+
+Gittable includes safety features to protect your work:
+
+- **Branch Protection**: Warns when pushing to protected branches (main, master, etc.)
+- **Backup Before Destructive Operations**: Offers to create backup branches before hard resets
+- **Confirmation Prompts**: Always confirms destructive operations like force push, branch deletion
+- **Enhanced Error Messages**: Provides actionable solutions when operations fail
+
+### Enhanced File Selection
+
+File selection now groups files by directory for easier navigation:
+
+- Files are organized by directory with visual separators
+- Modified and untracked files are clearly marked
+- Easier to find files in large repositories
+- Long lists are paginated automatically (use `--all` to show all)
+
+### Recent Commit Messages
+
+When committing, you can now:
+
+- Select from recent commit messages
+- Reuse similar commit messages
+- Speed up repetitive commits
+
+### Commit Message Templates
+
+Save and reuse commit message templates:
+
+```bash
+# List all templates
+gittable template list
+
+# Save a template
+gittable template save feature "feat({scope}): {description}"
+
+# Load a template
+gittable template load feature
+
+# Delete a template
+gittable template delete feature
+```
+
+**Template Variables:**
+- `{branch}` - Current branch name
+- `{date}` - Current date (YYYY-MM-DD)
+- `{time}` - Current time
+
+Templates are automatically offered during the commit flow.
+
+### Workflow Presets
+
+Create and run custom workflow presets:
+
+```bash
+# List all presets (default + custom)
+gittable preset list
+
+# Save a custom preset
+gittable preset save my-workflow "add commit push"
+
+# Run a preset
+gittable preset run feature
+
+# Delete a preset
+gittable preset delete my-workflow
+```
+
+**Default Presets:**
+- `feature` - Feature workflow (branch create → add → commit → push)
+- `hotfix` - Hotfix workflow
+- `release` - Release workflow (add → commit → tag-push → push)
+
+Presets allow you to chain multiple commands together for common workflows.
+
+### Desktop Notifications
+
+Enable desktop notifications for long-running operations:
+
+```bash
+# Enable notifications
+gittable notify enable
+
+# Disable notifications
+gittable notify disable
+
+# Check status
+gittable notify status
+
+# Test notification
+gittable notify test
+```
+
+Notifications are automatically sent for:
+- Successful commits
+- Long-running operations (clone, fetch, etc.)
+- Long operation completions
+
+### Backup and Recovery
+
+Gittable automatically offers to create backup branches before destructive operations:
+
+- **Before rebase**: Automatically prompts to create backup branch
+- **Before hard reset**: Option to create backup branch
+- **Restore from backup**: `gittable restore-backup` command
+
+```bash
+# Restore from a backup branch
+gittable restore-backup backup/feature-rebase-2024-01-15T10-30-00
+
+# Or interactively select from available backups
+gittable restore-backup
+```
+
+Backup branches are created with the pattern: `backup/<branch>-<operation>-<timestamp>`
+
+### Post-Commit Hooks
+
+Post-commit hooks can be configured to run automatically after commits:
+
+- Run tests after commit (optional)
+- Send notifications
+- Update issue trackers
+- Execute custom scripts
+
+Configure via user preferences:
+```bash
+# Enable post-commit hooks
+gittable config set postCommit.enabled true
+gittable config set postCommit.runTests true
+```
+
+### Color Themes
+
+Customize the color theme for better visibility:
+
+```bash
+# List available themes
+gittable theme list
+
+# Set theme
+gittable theme set dark
+gittable theme set light
+gittable theme set highContrast
+
+# Auto-detect theme based on terminal
+gittable theme auto
+```
+
+Available themes:
+- `default` - Standard color scheme
+- `dark` - Bright colors for dark terminals
+- `light` - Muted colors for light terminals
+- `highContrast` - High contrast for accessibility
+
+### Command Chaining
+
+Chain multiple commands together:
+
+```bash
+# Execute commands sequentially (stops on error)
+gittable add . && commit && push
+
+# Execute commands sequentially (continues on error)
+gittable add . | commit | push
+```
+
+### File Metadata
+
+Show file sizes and modification dates when selecting files:
+
+```bash
+# Add files with metadata display
+gittable add --metadata
+```
+
+### Preview Changes
+
+Preview diffs before staging or committing:
+
+```bash
+# Preview staged changes
+gittable preview-diff staged
+
+# Preview unstaged changes
+gittable preview-diff unstaged
+
+# Preview all changes
+gittable preview-diff all
+
+# Preview specific file
+gittable preview-diff <file>
+```
+
+### Sound Alerts
+
+Enable sound alerts for operation completion:
+
+```bash
+# Enable sounds
+gittable config set sound.enabled true
+```
+
+Sounds play automatically for:
+- Successful commits
+- Long operation completions
+- Errors (optional)
+
+### Issue Tracker Integration
+
+Automatic issue linking and PR creation:
+
+```bash
+# Create PR after push (auto-suggested)
+gittable push
+# Then select "Create PR" when prompted
+
+# Or create PR directly
+gittable create-pr
+gittable pr
+```
+
+Features:
+- Auto-detect GitHub/GitLab from remote URL
+- Generate PR/MR creation links
+- Auto-suggest issue numbers from branch names
+- Issue links in commit messages
+
+### CI/CD Integration
+
+View CI/CD status and links:
+
+```bash
+# Info command shows CI/CD links
+gittable info
+```
+
+Automatically detects:
+- GitHub Actions
+- GitLab CI/CD
+- Bitbucket Pipelines
+
+### Parallel Operations
+
+Fetch from multiple remotes in parallel:
+
+```bash
+# Fetch from all remotes (parallel)
+gittable fetch --all
+```
+
+### Verbose Mode
+
+Enable verbose mode for detailed execution information:
+
+```bash
+gittable --verbose commit
+gittable --verbose push
+```
+
+Shows detailed command execution and options.
+
+### Dry Run Mode
+
+Test commands without executing them:
+
+```bash
+gittable --dry-run commit
+gittable --dry-run push
+```
+
+Shows what would happen without actually executing the command.
+
+### Issue Tracker Integration
+
+Gittable automatically suggests issue numbers from branch names:
+
+- Branch `feature/issue-123` → suggests `#123` in commit footer
+- Branch `bugfix/456` → suggests `#456` in commit footer
+- Supports GitHub (#123), JIRA (PROJ-123), and custom formats
+
+### Enhanced Conflict Handling
+
+When merge or rebase conflicts occur, Gittable offers helpful options:
+
+- **Auto-recovery suggestions**: Choose to resolve, use mergetool, continue, or abort
+- **Conflict detection**: Automatically detects conflicts and offers solutions
+- **Continue/Abort helpers**: Easy commands to continue or abort operations
+- **Smart workflow**: Guides you through conflict resolution step-by-step
+
+### Repository State Detection
+
+Status command and `state` command show:
+
+- **Active merge state**: Warns when merge is in progress
+- **Active rebase state**: Warns when rebase is in progress
+- **Active cherry-pick state**: Warns when cherry-pick is in progress
+- **Conflict detection**: Lists conflicted files automatically
+- **Clean state**: Shows when repository is in normal state
+
+Use `gittable state` for detailed state information and conflict status.
+
+### Git Hooks Support
+
+- **Pre-commit hooks**: Automatically run before commits (with option to skip)
+- **Hook listing**: View all installed hooks with `gittable hooks`
+- **Hook execution time**: Shows how long hooks take to run
+- **Skip hooks**: Option to skip hooks with confirmation
 
 ## Dependencies
 
@@ -244,7 +809,7 @@ Shows a beautiful, color-coded status display with:
 - **[@clack/prompts](https://github.com/natemoo-re/clack)** (^0.7.0) - Beautiful CLI prompts and interactive components
 - **[chalk](https://github.com/chalk/chalk)** (^4.1.2) - Terminal string styling
 - **[cli-table3](https://github.com/cli-table/cli-table3)** - Beautiful tables for CLI output
-- **[email-prompt](https://github.com/team-767/email-prompt)** - Email input with autocompletion
+- **[email-prompt](https://github.com/team-767/email-prompt)** - Email input prompts
 - **[find-config](https://github.com/shannonmoeller/find-config)** (^1.0.0) - Find configuration files in directory tree
 - **[prettycli](https://github.com/siddharthkp/prettycli)** - Enhanced CLI logging with better formatting
 - **[word-wrap](https://github.com/jonschlinkert/word-wrap)** (^1.2.5) - Word wrapping utility
@@ -252,6 +817,27 @@ Shows a beautiful, color-coded status display with:
 ### Development Dependencies
 
 - **[@biomejs/biome](https://biomejs.dev/)** (^1.9.4) - Fast formatter and linter
+
+## License
+
+## Architecture
+
+Gittable uses a modular, category-based architecture for better maintainability and extensibility. See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed documentation.
+
+### Project Structure
+
+```
+gittable/
+├── src/
+│   ├── cli/          # CLI layer (entry, parsing, routing)
+│   ├── commands/     # Commands organized by category
+│   ├── core/         # Core business logic
+│   ├── ui/           # UI components
+│   └── utils/        # Shared utilities
+├── test/             # Test suite (unit, integration, fixtures)
+├── bin/              # Executable scripts
+└── shell/            # Shell integration scripts
+```
 
 ## License
 

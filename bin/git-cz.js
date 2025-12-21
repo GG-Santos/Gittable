@@ -1,9 +1,18 @@
 #!/usr/bin/env node
 
 const path = require('node:path');
-const { loadCommitizenConfig, resolveAdapterPath, getPrompter, findGitRoot } = require('../lib/commitizen/config-loader');
-const { commit } = require('../lib/commitizen/git-commit');
-const { loadCommitCache, saveCommitCache, clearCommitCache } = require('../lib/commitizen/commit-cache');
+const {
+  loadCommitizenConfig,
+  resolveAdapterPath,
+  getPrompter,
+  findGitRoot,
+} = require('../src/core/commitizen/config-loader');
+const { commit } = require('../src/core/commitizen/git-commit');
+const {
+  loadCommitCache,
+  saveCommitCache,
+  clearCommitCache,
+} = require('../src/core/commitizen/commit-cache');
 
 /**
  * Main git-cz entry point
@@ -45,7 +54,7 @@ async function main() {
   // Handle retry - load from cache
   if (retry) {
     const cached = loadCommitCache(gitRoot);
-    if (cached && cached.message) {
+    if (cached?.message) {
       console.log('Retrying last commit attempt...\n');
       const result = commit(gitRoot, cached.message, {
         allowEmpty: cached.options?.allowEmpty || allowEmpty,
@@ -115,7 +124,7 @@ async function main() {
   // Our adapter uses async/await, so we need to handle promises
   try {
     const prompterResult = prompter(null, commitCallback);
-    
+
     // If it returns a promise, wait for it
     if (prompterResult && typeof prompterResult.then === 'function') {
       await prompterResult;
@@ -146,4 +155,3 @@ if (require.main === module) {
 }
 
 module.exports = { main };
-
