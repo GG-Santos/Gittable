@@ -1,4 +1,4 @@
-const { requireTTY } = require('../../utils/command-helpers');
+const { requireTTY } = require('../../utils/commands');
 const { commitFlow } = require('../../core/commit/flow');
 
 /**
@@ -23,6 +23,6 @@ module.exports = async (args) => {
     await commitFlow(options);
   } catch (error) {
     // Error handling is done in commitFlow
-    process.exit(1);
+    throw error;
   }
 };

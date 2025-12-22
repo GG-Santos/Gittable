@@ -1,6 +1,6 @@
 const ui = require('../../ui/framework');
 const { isGitRepo } = require('../../core/git');
-const { showCommandHeader, execGitWithSpinner } = require('../../utils/command-helpers');
+const { showCommandHeader, execGitWithSpinner } = require('../../utils/commands');
 
 module.exports = async (args) => {
   showCommandHeader('INIT', 'Initialize Repository');

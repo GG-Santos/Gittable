@@ -1,9 +1,9 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
-const { showCommandHeader, execGitWithSpinner } = require('../../utils/command-helpers');
+const { showCommandHeader } = require('../../utils/commands');
 const { getStatus } = require('../../core/git');
 const { execGit } = require('../../core/git');
-const { getTheme } = require('../../utils/color-theme');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Preview diff before staging or committing

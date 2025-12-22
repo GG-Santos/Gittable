@@ -4,10 +4,10 @@
  */
 module.exports = {
   // Core commit workflow
-  commit: '3.2.0',
+  commit: '3.4.0',
   status: '1.1.0',
   'status-short': '1.0.0',
-  add: '1.1.0',
+  add: '2.0.7',
   diff: '1.1.0',
   info: '1.0.0',
 
@@ -37,12 +37,9 @@ module.exports = {
   clone: '1.0.0',
 
   // Combined workflows
-  'add-commit': '1.0.0',
-  'commit-all': '1.0.0',
   'commit-push': '1.0.0',
   'commit-sync': '1.0.0',
   'pull-rebase': '1.0.0',
-  quick: '1.0.0',
 
   // History & inspection
   log: '1.1.0',
@@ -59,7 +56,6 @@ module.exports = {
   restore: '1.0.0',
   'restore-backup': '1.0.0',
   clean: '1.0.0',
-  'add-pattern': '1.0.0',
   'diff-preview': '1.0.0',
   'preview-diff': '1.0.0',
 
@@ -80,9 +76,7 @@ module.exports = {
   tutorial: '1.0.0',
 
   // Utilities - Customization
-  template: '1.0.0',
-  preset: '1.0.0',
-  theme: '1.0.0',
+  theme: '2.0.1',
 
   // Utilities - Repository Inspection
   state: '1.0.0',
@@ -99,7 +93,4 @@ module.exports = {
   undo: '1.1.0',
   revert: '1.0.0',
   bisect: '1.0.0',
-
-  // Utilities - Notifications
-  notify: '1.0.0',
 };

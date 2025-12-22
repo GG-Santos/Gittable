@@ -1,8 +1,8 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { getBranches, getCurrentBranch, execGit } = require('../../core/git');
-const { showCommandHeader, requireTTY, handleCancel } = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+const { showCommandHeader, requireTTY, handleCancel } = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Branch-compare command - Show differences between two branches

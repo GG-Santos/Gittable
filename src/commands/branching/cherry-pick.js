@@ -1,8 +1,8 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
-const { showBanner } = require('../../ui/banner');
-const { getTheme } = require('../../utils/color-theme');
+const { showBanner } = require('../../ui/components');
+const { getTheme } = require('../../utils/ui');
 
 module.exports = async (args) => {
   showBanner('CHERRY-PICK');
@@ -100,6 +100,9 @@ module.exports = async (args) => {
     ui.warn('You may need to resolve conflicts manually');
     ui.info('Use "gittable cherry-pick --continue" to continue after resolving');
     ui.info('Use "gittable cherry-pick --abort" to abort');
-    process.exit(1);
+    const { GitError } = require('../../core/errors');
+    throw new GitError('Cherry-pick failed', 'cherry-pick', {
+      suggestion: result.error || 'Resolve conflicts and continue',
+    });
   }
 };

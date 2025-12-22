@@ -1,10 +1,10 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { getBranches, getCurrentBranch } = require('../../core/git');
-const { createTable } = require('../../ui/table');
-const { createActionRouter } = require('../../utils/action-router');
-const { execGitWithSpinner, handleCancel, promptConfirm } = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+const { createTable } = require('../../ui/components');
+const { createActionRouter } = require('../../utils/commands/action-router');
+const { execGitWithSpinner, handleCancel, promptConfirm } = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 const listBranches = async (args) => {
   const branches = getBranches();
@@ -136,7 +136,8 @@ const deleteBranch = async (args) => {
           silent: true,
         });
       } else {
-        process.exit(1);
+        const { CancelledError } = require('../../core/errors');
+        throw new CancelledError('Branch deletion cancelled');
       }
     },
   });

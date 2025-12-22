@@ -1,9 +1,9 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
-const { showCommandHeader, handleCancel } = require('../../utils/command-helpers');
-const { loadHistory, clearHistory } = require('../../utils/command-history');
-const { createTable } = require('../../ui/table');
-const { getTheme } = require('../../utils/color-theme');
+const { showCommandHeader, handleCancel, promptConfirm } = require('../../utils/commands');
+const { loadHistory, clearHistory } = require('../../utils/commands/command-history');
+const { createTable } = require('../../ui/components');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * History command - Show recent commands executed
@@ -14,7 +14,6 @@ module.exports = async (args) => {
   const clear = args.includes('--clear') || args.includes('-c');
 
   if (clear) {
-    const { promptConfirm } = require('../../utils/command-helpers');
     const confirmed = await promptConfirm('Clear command history?', false);
     if (confirmed) {
       clearHistory();

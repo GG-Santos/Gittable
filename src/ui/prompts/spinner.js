@@ -7,7 +7,7 @@ const process = require('node:process');
 const sisteransi = require('sisteransi');
 const { block } = require('./block');
 const { SYMBOLS } = require('./theme');
-const { getTheme } = require('../../utils/color-theme');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Check if unicode is supported

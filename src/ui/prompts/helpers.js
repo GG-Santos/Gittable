@@ -5,7 +5,7 @@
 const chalk = require('chalk');
 const process = require('node:process');
 const { SYMBOLS } = require('./theme');
-const { getTheme } = require('../../utils/color-theme');
+const { getTheme } = require('../../utils/ui');
 const { isCancel } = require('./core');
 
 /**

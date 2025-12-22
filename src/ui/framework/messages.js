@@ -29,8 +29,15 @@ function error(message, options = {}) {
 
   console.log();
 
+  // Don't exit here - let caller handle it
+  // If exit is needed, throw an error or return exit code
   if (exit) {
-    process.exit(1);
+    const { GittableError } = require('../../core/errors');
+    throw new GittableError(message, 'ERROR', {
+      suggestion,
+      solution,
+      exitCode: 1,
+    });
   }
 }
 

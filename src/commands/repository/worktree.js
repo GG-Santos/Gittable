@@ -1,15 +1,15 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
-const { createActionRouter } = require('../../utils/action-router');
+const { createActionRouter } = require('../../utils/commands/action-router');
 const {
   showCommandHeader,
   requireTTY,
   execGitWithSpinner,
   handleCancel,
   promptConfirm,
-} = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+} = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 const listWorktrees = async () => {
   const result = execGit('worktree list', { silent: true });

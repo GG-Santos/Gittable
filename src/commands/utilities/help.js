@@ -1,6 +1,6 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
-const { showBanner } = require('../../ui/banner');
+const { showBanner } = require('../../ui/components/banner');
 const VERSION = require('../../../package.json').version;
 
 /**
@@ -19,7 +19,7 @@ const COMMAND_HELP = {
     ],
   },
   commit: {
-    description: 'Create commits with conventional format',
+    description: 'Create commits with conventional format (includes staging, preview, and push/sync options)',
     usage: 'gittable commit [options]',
     aliases: ['ci', 'save'],
     examples: ['gittable commit', 'gittable commit -a', 'gittable commit --amend'],
@@ -31,10 +31,10 @@ const COMMAND_HELP = {
     examples: ['gittable push', 'gittable push origin main', 'gittable push --force'],
   },
   pull: {
-    description: 'Fetch and merge from remote',
-    usage: 'gittable pull [remote] [branch]',
+    description: 'Fetch and merge from remote (use --rebase for rebase instead of merge)',
+    usage: 'gittable pull [remote] [branch] [--rebase]',
     aliases: ['pl', 'down'],
-    examples: ['gittable pull', 'gittable pull origin main'],
+    examples: ['gittable pull', 'gittable pull origin main', 'gittable pull --rebase'],
   },
   status: {
     description: 'Show repository status',
@@ -42,20 +42,8 @@ const COMMAND_HELP = {
     aliases: ['st', 's'],
     examples: ['gittable status', 'gittable st'],
   },
-  quick: {
-    description: 'Quick workflow: add + commit + push',
-    usage: 'gittable quick [options]',
-    aliases: ['q'],
-    examples: ['gittable quick', 'gittable q --all'],
-  },
-  'add-commit': {
-    description: 'Stage files and commit in one flow',
-    usage: 'gittable add-commit [files...]',
-    aliases: ['ac'],
-    examples: ['gittable add-commit', 'gittable ac file1.js'],
-  },
   'commit-push': {
-    description: 'Commit and push in one flow',
+    description: 'Commit and push using enhanced commit command',
     usage: 'gittable commit-push [options]',
     aliases: ['cp'],
     examples: ['gittable commit-push', 'gittable cp --no-push'],

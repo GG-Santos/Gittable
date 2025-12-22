@@ -41,7 +41,7 @@ async function selectKey(options = {}) {
 
       switch (this.state) {
         case 'submit':
-          return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${formatOption(this.options.find((opt) => opt.value === this.value), 'selected')}\n`;
+          return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${formatOption(this.options.find((opt) => opt.value === this.value), 'selected')}`;
         case 'cancel':
           return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${formatOption(this.options[0], 'cancelled')}\n${chalk.gray(SYMBOLS.BAR)}\n`;
         default:

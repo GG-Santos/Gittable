@@ -3,7 +3,7 @@ const path = require('node:path');
 const os = require('node:os');
 const { execGit } = require('../git/executor');
 const chalk = require('chalk');
-const { getTheme } = require('../../utils/color-theme');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Get recent messages file path

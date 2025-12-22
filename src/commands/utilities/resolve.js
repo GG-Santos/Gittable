@@ -7,8 +7,8 @@ const {
   requireTTY,
   handleCancel,
   execGitWithSpinner,
-} = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+} = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Resolve command - Open file in editor with conflict markers highlighted
@@ -73,7 +73,7 @@ module.exports = async (args) => {
   }
 
   // Ask if resolved
-  const { promptConfirm } = require('../../utils/command-helpers');
+  const { promptConfirm } = require('../../utils/commands');
   const resolved = await promptConfirm(`Have you resolved conflicts in ${fileName}?`, true);
 
   if (resolved) {

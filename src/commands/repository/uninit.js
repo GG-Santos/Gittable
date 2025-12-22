@@ -1,8 +1,8 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { isGitRepo } = require('../../core/git');
-const { showBanner } = require('../../ui/banner');
-const { getTheme } = require('../../utils/color-theme');
+const { showBanner } = require('../../ui/components');
+const { getTheme } = require('../../utils/ui');
 const fs = require('node:fs');
 const path = require('node:path');
 

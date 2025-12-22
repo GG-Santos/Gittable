@@ -1,5 +1,5 @@
 const ui = require('../../ui/framework');
-const { showCommandHeader } = require('../../utils/command-helpers');
+const { showCommandHeader } = require('../../utils/commands');
 const { clearAllCaches } = require('../../utils/cache');
 
 /**

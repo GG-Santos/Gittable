@@ -1,9 +1,9 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
-const { showCommandHeader } = require('../../utils/command-helpers');
+const { showCommandHeader } = require('../../utils/commands');
 const { getRepositoryState, getStateDescription } = require('../../core/git/state');
 const { execGit } = require('../../core/git');
-const { getTheme } = require('../../utils/color-theme');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * State command - Show current repository state

@@ -1,8 +1,8 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { execGit, getBranches, getCurrentBranch } = require('../../core/git');
-const { showBanner } = require('../../ui/banner');
-const { getTheme } = require('../../utils/color-theme');
+const { showBanner } = require('../../ui/components');
+const { getTheme } = require('../../utils/ui');
 
 module.exports = async (args) => {
   showBanner('REBASE');
@@ -72,7 +72,10 @@ module.exports = async (args) => {
     } else {
       ui.error('Rebase continue failed');
       console.error(result.error);
-      process.exit(1);
+      const { GitError } = require('../../core/errors');
+      throw new GitError('Rebase continue failed', 'rebase', {
+        suggestion: result.error || 'Resolve conflicts and try again',
+      });
     }
     return;
   }
@@ -113,7 +116,7 @@ module.exports = async (args) => {
   // Offer to create backup before rebase
   if (process.stdin.isTTY) {
     const { createBackupBranch } = require('../../utils/backup-helpers');
-    const { promptConfirm } = require('../../utils/command-helpers');
+    const { promptConfirm } = require('../../utils/commands');
 
     const createBackup = await promptConfirm('Create backup branch before rebase?', true);
 
@@ -143,7 +146,7 @@ module.exports = async (args) => {
     if (hasConflicts && process.stdin.isTTY) {
       console.log(chalk.yellow('\n⚠ Rebase conflicts detected'));
 
-      const { showSmartSuggestion } = require('../../utils/command-helpers');
+      const { showSmartSuggestion } = require('../../utils/commands');
       const nextAction = await showSmartSuggestion('What would you like to do?', [
         {
           value: 'resolve',
@@ -180,7 +183,7 @@ module.exports = async (args) => {
           });
         }
       } else if (nextAction === 'abort') {
-        const { promptConfirm } = require('../../utils/command-helpers');
+        const { promptConfirm } = require('../../utils/commands');
         const confirmed = await promptConfirm(
           'Abort rebase? This will lose any rebase progress.',
           false
@@ -203,7 +206,10 @@ module.exports = async (args) => {
       ui.warn('You may need to resolve conflicts manually');
       ui.info('Use "gittable rebase --continue" to continue after resolving');
       ui.info('Use "gittable rebase --abort" to abort the rebase');
-      process.exit(1);
+      const { GitError } = require('../../core/errors');
+      throw new GitError('Rebase failed', 'rebase', {
+        suggestion: result.error || 'Resolve conflicts and continue',
+      });
     }
   }
 };

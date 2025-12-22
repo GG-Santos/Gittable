@@ -1,9 +1,9 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { getLog } = require('../../core/git');
-const { createTable } = require('../../ui/table');
-const { showCommandHeader } = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+const { createTable } = require('../../ui/components');
+const { showCommandHeader } = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 module.exports = async (args) => {
   showCommandHeader('LOG', 'Commit History');

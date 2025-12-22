@@ -1,8 +1,8 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
-const { showBanner } = require('../../ui/banner');
-const { getTheme } = require('../../utils/color-theme');
+const { showBanner } = require('../../ui/components');
+const { getTheme } = require('../../utils/ui');
 
 module.exports = async (args) => {
   showBanner('CLONE');

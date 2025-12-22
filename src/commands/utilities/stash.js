@@ -1,14 +1,14 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { getStashList } = require('../../core/git');
-const { createTable } = require('../../ui/table');
+const { createTable } = require('../../ui/components');
 const {
   showCommandHeader,
   execGitWithSpinner,
   handleCancel,
   promptConfirm,
-} = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+} = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 const listStashes = () => {
   const stashes = getStashList();

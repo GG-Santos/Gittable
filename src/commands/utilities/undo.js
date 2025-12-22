@@ -1,9 +1,9 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
-const { createTable } = require('../../ui/table');
-const { showBanner } = require('../../ui/banner');
-const { getTheme } = require('../../utils/color-theme');
+const { createTable } = require('../../ui/components');
+const { showBanner } = require('../../ui/components');
+const { getTheme } = require('../../utils/ui');
 
 const getReflog = (limit = 30) => {
   const result = execGit(`reflog --format="%gd|%ar|%gs" -n ${limit}`, { silent: true });
@@ -90,7 +90,7 @@ const resetToRef = async (ref) => {
   if (mode === '--hard') {
     // Offer to create backup before hard reset
     const { createBackupBranch, saveCommitHash } = require('../../utils/backup-helpers');
-    const { promptConfirm } = require('../../utils/command-helpers');
+    const { promptConfirm } = require('../../utils/commands');
 
     const createBackup = await promptConfirm('Create backup branch before hard reset?', true);
 

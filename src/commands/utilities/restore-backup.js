@@ -4,9 +4,9 @@ const {
   showCommandHeader,
   execGitWithSpinner,
   handleCancel,
-} = require('../../utils/command-helpers');
+} = require('../../utils/commands');
 const { execGit, getBranches } = require('../../core/git');
-const { getTheme } = require('../../utils/color-theme');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Restore from backup branch

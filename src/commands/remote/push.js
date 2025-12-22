@@ -6,9 +6,8 @@ const {
   requireTTY,
   execGitWithSpinner,
   promptConfirm,
-} = require('../../utils/command-helpers');
-const { ensureRemoteExists } = require('../../utils/remote-helpers');
-const { getValidBranch } = require('../../utils/branch-helpers');
+} = require('../../utils/commands');
+const { ensureRemoteExists, getValidBranch } = require('../../utils/git');
 
 module.exports = async (args) => {
   showCommandHeader('PUSH', 'Push to Remote');
@@ -25,7 +24,7 @@ module.exports = async (args) => {
   await ensureRemoteExists(remote);
 
   // Check branch protection
-  const { checkBranchProtection } = require('../../utils/branch-protection');
+  const { checkBranchProtection } = require('../../utils/git');
   const protection = checkBranchProtection(branchName, force ? 'force' : 'push');
 
   if (protection.isProtected) {
@@ -63,10 +62,10 @@ module.exports = async (args) => {
     onSuccess: async () => {
       // Suggest creating PR after successful push
       if (process.stdin.isTTY && branchName !== 'main' && branchName !== 'master') {
-        const { getPRUrl, detectCIPlatform } = require('../../utils/ci-status');
+        const { getPRUrl, detectCIPlatform } = require('../../utils/git');
         const platform = detectCIPlatform();
         if (platform) {
-          const { showSmartSuggestion } = require('../../utils/command-helpers');
+          const { showSmartSuggestion } = require('../../utils/commands');
           const nextAction = await showSmartSuggestion(
             'Push successful. What would you like to do next?',
             [
@@ -88,7 +87,7 @@ module.exports = async (args) => {
     onError: async (errorResult) => {
       // Smart suggestion: offer to pull if push fails due to being behind
       if (errorResult.error?.includes('Updates were rejected')) {
-        const { showSmartSuggestion } = require('../../utils/command-helpers');
+        const { showSmartSuggestion } = require('../../utils/commands');
         if (process.stdin.isTTY) {
           const nextAction = await showSmartSuggestion(
             'Push failed. Your branch may be behind. What would you like to do?',

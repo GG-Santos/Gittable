@@ -1,8 +1,8 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
-const { showCommandHeader, handleCancel } = require('../../utils/command-helpers');
+const { showCommandHeader, handleCancel } = require('../../utils/commands');
 const { getPreference, setPreference } = require('../../utils/user-preferences');
-const { getTheme, getThemeWithCustomPrimary } = require('../../utils/color-theme');
+const { getTheme, getThemeWithCustomPrimary } = require('../../utils/ui');
 
 /**
  * Theme management command
@@ -18,7 +18,7 @@ module.exports = async (args) => {
     const currentPrimaryColor = getPreference('primaryColor');
     const theme = getTheme();
     
-    console.log(chalk.dim('\nCurrent Primary Color:'));
+    console.log(chalk.dim('Current Primary Color:'));
     if (currentPrimaryColor) {
       if (typeof currentPrimaryColor === 'string') {
         console.log(`  ${theme.primary(currentPrimaryColor)}`);
@@ -29,7 +29,6 @@ module.exports = async (args) => {
     } else {
       console.log(`  ${chalk.cyan('cyan (default)')}`);
     }
-    console.log();
     
     const selectedAction = await ui.prompt.select({
       message: 'What would you like to do?',
@@ -87,21 +86,6 @@ module.exports = async (args) => {
     
     // Store original color for revert
     const originalColor = getPreference('primaryColor');
-    const theme = getTheme();
-    
-    // Show current color if set
-    if (originalColor) {
-      let currentColorDisplay = '';
-      if (typeof originalColor === 'string') {
-        currentColorDisplay = `Current: ${theme.primary(originalColor)}`;
-      } else if (originalColor.r !== undefined) {
-        const colorPreview = chalk.rgb(originalColor.r, originalColor.g, originalColor.b)('●');
-        currentColorDisplay = `Current: ${colorPreview} RGB(${originalColor.r}, ${originalColor.g}, ${originalColor.b})`;
-      }
-      if (currentColorDisplay) {
-        console.log(chalk.dim(`\n${currentColorDisplay}\n`));
-      }
-    }
     
     // Predefined color options
     const colorOptions = [
@@ -180,25 +164,23 @@ module.exports = async (args) => {
     const previewTheme = getThemeWithCustomPrimary(colorValue);
     
     // Show preview
-    console.log('\n');
     ui.info('Preview:');
     console.log(previewTheme.primary('  This is how the primary color will look'));
     console.log(previewTheme.primary('  ████████████████████████████████████████'));
     console.log(previewTheme.primary('  Example text with primary color'));
-    console.log(previewTheme.primary('  Commands, headers, and highlights will use this color\n'));
+    console.log(previewTheme.primary('  Commands, headers, and highlights will use this color'));
     
     // Build confirmation options
     const confirmOptions = [
       { value: 'yes', label: 'Yes, apply this color' },
-      { value: 'cancel', label: 'Cancel (keep current)' },
     ];
     
-    // Only show revert option if there was a previous color
-    if (originalColor !== undefined && originalColor !== null) {
-      confirmOptions.splice(1, 0, { value: 'revert', label: 'Revert to previous color' });
-    } else {
-      confirmOptions.splice(1, 0, { value: 'reset', label: 'Reset to default (cyan)' });
+    // Add reset option if no previous color, otherwise cancel is sufficient
+    if (originalColor === undefined || originalColor === null) {
+      confirmOptions.push({ value: 'reset', label: 'Reset to default (cyan)' });
     }
+    
+    confirmOptions.push({ value: 'cancel', label: 'Cancel (keep current)' });
     
     // Ask for confirmation
     const confirm = await ui.prompt.select({
@@ -207,12 +189,6 @@ module.exports = async (args) => {
     });
     if (confirm === null) {
       // User cancelled, no changes needed
-      return;
-    }
-    
-    if (confirm === 'revert') {
-      setPreference('primaryColor', originalColor);
-      ui.success('Color reverted to previous');
       return;
     }
     

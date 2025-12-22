@@ -1,8 +1,8 @@
 const chalk = require('chalk');
-const ui = require('../ui/framework');
-const { isGitRepo } = require('../core/git/executor');
-const { showBanner } = require('../ui/banner');
-const { getTheme } = require('../utils/color-theme');
+const ui = require('../../ui/framework');
+const { isGitRepo } = require('../../core/git/executor');
+const { showBanner } = require('../../ui/components');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Base command helper with common functionality

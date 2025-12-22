@@ -7,8 +7,8 @@ const {
   getStashList,
   remoteExists,
 } = require('../../core/git');
-const { showCommandHeader } = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+const { showCommandHeader } = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Info command - Quick repository overview
@@ -44,7 +44,7 @@ module.exports = async (_args) => {
     }
 
     // Show CI/CD and PR links if available
-    const { getCIStatusUrl, getPRUrl } = require('../../utils/ci-status');
+    const { getCIStatusUrl, getPRUrl } = require('../../utils/git');
     const ciUrl = getCIStatusUrl(branch);
     const prUrl = getPRUrl(branch);
 

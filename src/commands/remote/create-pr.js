@@ -1,10 +1,10 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
-const { showCommandHeader } = require('../../utils/command-helpers');
+const { showCommandHeader } = require('../../utils/commands');
 const { getCurrentBranch, execGit } = require('../../core/git');
-const { getPRUrl, detectCIPlatform } = require('../../utils/ci-status');
-const { createLink } = require('../../utils/terminal-link');
-const { getTheme } = require('../../utils/color-theme');
+const { getPRUrl, detectCIPlatform } = require('../../utils/git');
+const { createLink } = require('../../utils/ui');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Create PR/MR command

@@ -1,9 +1,9 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
-const { showCommandHeader } = require('../../utils/command-helpers');
-const { listHooks, getHooksDir } = require('../../utils/git-hooks');
-const { createTable } = require('../../ui/table');
-const { getTheme } = require('../../utils/color-theme');
+const { showCommandHeader } = require('../../utils/commands');
+const { listHooks, getHooksDir } = require('../../utils/git');
+const { createTable } = require('../../ui/components');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Hooks command - List git hooks

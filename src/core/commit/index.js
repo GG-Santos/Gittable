@@ -9,6 +9,11 @@ const { getCommitSuggestions, suggestTypeFromFiles } = require('./context');
 const { getRecentMessages, saveRecentMessage, clearRecentMessages } = require('./recent-messages');
 const { getPreviousCommit } = require('./get-previous-commit');
 
+// Export modular functions
+const { hasStagedChanges, getStagedFilesInfo } = require('./validation');
+const { showCommitPreview } = require('./preview');
+const { handleUnstagedFiles } = require('./staging');
+
 module.exports = {
   // Main flow
   commitFlow,
@@ -29,4 +34,11 @@ module.exports = {
   clearRecentMessages,
   // Previous commit
   getPreviousCommit,
+  // Validation
+  hasStagedChanges,
+  getStagedFilesInfo,
+  // Preview
+  showCommitPreview,
+  // Staging
+  handleUnstagedFiles,
 };

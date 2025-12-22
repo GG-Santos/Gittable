@@ -33,8 +33,9 @@ function formatOption(option, state) {
  * Multi-select prompt
  */
 async function multiselect(options = {}) {
-  const { message, options: opts, initialValues, required = true, cursorAt } = options;
+  const { message, options: opts, initialValues, required = true, cursorAt, maxItems } = options;
   const primaryColor = getPrimaryColor();
+  let startIndex = 0;
 
   return new MultiSelectPrompt({
     options: opts,
@@ -69,33 +70,36 @@ async function multiselect(options = {}) {
             .split('\n')
             .map((line, idx) => (idx === 0 ? `${chalk.yellow(SYMBOLS.BAR_END)}  ${chalk.yellow(line)}` : `   ${line}`))
             .join('\n');
-          return (
-            promptLine +
-            chalk.yellow(SYMBOLS.BAR) +
-            '  ' +
-            this.options
-              .map((opt, idx) => {
-                const isSelected = this.value.includes(opt.value);
-                const isActive = idx === this.cursor;
-                if (isActive && isSelected) {
-                  return formatOption(opt, 'active-selected');
-                }
-                if (isSelected) {
-                  return formatOption(opt, 'selected');
-                }
-                return formatOption(opt, isActive ? 'active' : 'inactive');
-              })
-              .join(`\n${chalk.yellow(SYMBOLS.BAR)}  `) +
-            '\n' +
-            errorLines +
-            '\n'
-          );
-        }
-        default:
-          return `${promptLine}${primaryColor(SYMBOLS.BAR)}  ${this.options
+          
+          // Filter out disabled options for scrolling calculation
+          const selectableOptions = this.options.filter((opt) => !opt.disabled);
+          const selectableCursor = selectableOptions.findIndex((opt) => opt === this.options[this.cursor]);
+          
+          const maxVisible = maxItems === undefined ? Infinity : Math.max(maxItems, 5);
+          const visibleCount = Math.min(maxVisible, selectableOptions.length);
+          
+          // Calculate start index for scrolling (only for selectable options)
+          if (selectableCursor >= 0) {
+            if (selectableCursor >= startIndex + visibleCount - 3) {
+              startIndex = Math.max(Math.min(selectableCursor - visibleCount + 3, selectableOptions.length - visibleCount), 0);
+            } else if (selectableCursor < startIndex + 2) {
+              startIndex = Math.max(selectableCursor - 2, 0);
+            }
+          }
+          
+          const hasMoreBefore = startIndex > 0;
+          const hasMoreAfter = startIndex + visibleCount < selectableOptions.length;
+          const visibleSelectableOptions = selectableOptions.slice(startIndex, startIndex + visibleCount);
+          
+          const optionsText = visibleSelectableOptions
             .map((opt, idx) => {
+              const actualIndex = startIndex + idx;
+              if ((idx === 0 && hasMoreBefore) || (idx === visibleSelectableOptions.length - 1 && hasMoreAfter)) {
+                return chalk.dim('...');
+              }
+              const optIndex = this.options.findIndex((o) => o === opt);
               const isSelected = this.value.includes(opt.value);
-              const isActive = idx === this.cursor;
+              const isActive = optIndex === this.cursor;
               if (isActive && isSelected) {
                 return formatOption(opt, 'active-selected');
               }
@@ -104,7 +108,60 @@ async function multiselect(options = {}) {
               }
               return formatOption(opt, isActive ? 'active' : 'inactive');
             })
-            .join(`\n${primaryColor(SYMBOLS.BAR)}  `)}\n${primaryColor(SYMBOLS.BAR_END)}\n`;
+            .join(`\n${chalk.yellow(SYMBOLS.BAR)}  `);
+          
+          return (
+            promptLine +
+            chalk.yellow(SYMBOLS.BAR) +
+            '  ' +
+            optionsText +
+            '\n' +
+            errorLines +
+            '\n'
+          );
+        }
+        default: {
+          // Filter out disabled options for scrolling calculation
+          const selectableOptions = this.options.filter((opt) => !opt.disabled);
+          const selectableCursor = selectableOptions.findIndex((opt) => opt === this.options[this.cursor]);
+          
+          const maxVisible = maxItems === undefined ? Infinity : Math.max(maxItems, 5);
+          const visibleCount = Math.min(maxVisible, selectableOptions.length);
+          
+          // Calculate start index for scrolling (only for selectable options)
+          if (selectableCursor >= 0) {
+            if (selectableCursor >= startIndex + visibleCount - 3) {
+              startIndex = Math.max(Math.min(selectableCursor - visibleCount + 3, selectableOptions.length - visibleCount), 0);
+            } else if (selectableCursor < startIndex + 2) {
+              startIndex = Math.max(selectableCursor - 2, 0);
+            }
+          }
+          
+          const hasMoreBefore = startIndex > 0;
+          const hasMoreAfter = startIndex + visibleCount < selectableOptions.length;
+          const visibleSelectableOptions = selectableOptions.slice(startIndex, startIndex + visibleCount);
+          
+          const optionsText = visibleSelectableOptions
+            .map((opt, idx) => {
+              const actualIndex = startIndex + idx;
+              if ((idx === 0 && hasMoreBefore) || (idx === visibleSelectableOptions.length - 1 && hasMoreAfter)) {
+                return chalk.dim('...');
+              }
+              const optIndex = this.options.findIndex((o) => o === opt);
+              const isSelected = this.value.includes(opt.value);
+              const isActive = optIndex === this.cursor;
+              if (isActive && isSelected) {
+                return formatOption(opt, 'active-selected');
+              }
+              if (isSelected) {
+                return formatOption(opt, 'selected');
+              }
+              return formatOption(opt, isActive ? 'active' : 'inactive');
+            })
+            .join(`\n${primaryColor(SYMBOLS.BAR)}  `);
+          
+          return `${promptLine}${primaryColor(SYMBOLS.BAR)}  ${optionsText}\n${primaryColor(SYMBOLS.BAR_END)}\n`;
+        }
       }
     },
   }).prompt();

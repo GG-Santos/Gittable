@@ -1,8 +1,8 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { execGit, getLog } = require('../../core/git');
-const { showBanner } = require('../../ui/banner');
-const { getTheme } = require('../../utils/color-theme');
+const { showBanner } = require('../../ui/components');
+const { getTheme } = require('../../utils/ui');
 
 module.exports = async (args) => {
   showBanner('REVERT');
@@ -57,6 +57,6 @@ module.exports = async (args) => {
       suggestion: result.error,
     });
     ui.warn('You may need to resolve conflicts manually');
-    process.exit(1);
+    throw new Error(result.error || 'Revert failed');
   }
 };

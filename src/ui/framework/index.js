@@ -42,10 +42,6 @@ const ui = {
 
   // Standards
   standards,
-
-  // Direct prompts access (for advanced use cases)
-  // Note: Use ui.prompt.* instead for framework integration
-  prompts: require('../prompts'),
 };
 
 module.exports = ui;

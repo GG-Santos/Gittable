@@ -1,5 +1,5 @@
 {
-  "version": "1.0.4",
+  "version": "1.0.6",
   "name": "@gg-santos/gittable",
   "description": "Modern Git CLI with Conventional Commits",
   "main": "index.js",
@@ -18,7 +18,7 @@
     "test": "node --test test/**/*.test.js",
     "test:watch": "node --test --watch test/**/*.test.js",
     "publish:github": "npm publish --registry=https://npm.pkg.github.com",
-    "publish:npm": "npm publish --registry=https://registry.npmjs.org/",
+    "publish:npm": "node scripts/publish-npm.js",
     "publish:both": "npm run publish:github && npm run publish:npm",
     "gittable": "node index.js"
   },
@@ -43,7 +43,6 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "cli-table3": "^0.6.5",
-    "email-prompt": "^0.4.0",
     "find-config": "^1.0.0",
     "prettycli": "^1.1.0",
     "sisteransi": "^1.0.5",
@@ -56,7 +55,11 @@
   "overrides": {
     "glob": "^10.0.0"
   },
-  "files": ["index.js", "src", "bin"],
+  "files": [
+    "index.js",
+    "src",
+    "bin"
+  ],
   "engines": {
     "node": ">=14.0.0"
   },

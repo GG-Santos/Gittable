@@ -1,9 +1,9 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
-const { showBanner } = require('../../ui/banner');
+const { showBanner } = require('../../ui/components');
 const VERSION = require('../../../package.json').version;
-const { requireTTY } = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+const { requireTTY } = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Tutorial command - Interactive walkthrough of common workflows
@@ -18,11 +18,6 @@ const TUTORIALS = [
       { text: 'Create a commit', cmd: 'gittable commit' },
       { text: 'Push to remote', cmd: 'gittable push' },
     ],
-  },
-  {
-    name: 'Quick Workflow',
-    description: 'Use the quick command for common workflow',
-    steps: [{ text: 'Stage, commit, and push in one command', cmd: 'gittable quick' }],
   },
   {
     name: 'Branch Workflow',

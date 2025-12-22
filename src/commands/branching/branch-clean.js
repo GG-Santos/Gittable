@@ -7,7 +7,7 @@ const {
   execGitWithSpinner,
   promptConfirm,
   handleCancel,
-} = require('../../utils/command-helpers');
+} = require('../../utils/commands');
 
 /**
  * Branch-clean command - Delete merged branches interactively
@@ -57,7 +57,8 @@ module.exports = async (args) => {
   // Delete branches
   let deleted = 0;
   let failed = 0;
-  const theme = require('../../utils/color-theme').getTheme();
+  const { getTheme } = require('../../utils/ui');
+  const theme = getTheme();
 
   for (const branch of mergedBranches) {
     const result = execGit(`branch -d ${branch}`, { silent: true });

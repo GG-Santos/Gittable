@@ -2,11 +2,11 @@ const prompts = require('../ui/prompts');
 const chalk = require('chalk');
 const router = require('./router');
 const { showBanner } = require('../ui/components');
-const { createLink } = require('../utils/terminal-link');
+const { createLink, getTheme } = require('../utils/ui');
 const readConfigFile = require('../core/config/loader');
-const { sortCommandsByPriority, getQuickActions } = require('../utils/command-prioritizer');
+const { sortCommandsByPriority, getQuickActions } = require('../utils/commands');
 const { fuzzySearchCommands } = require('../utils/fuzzy-search');
-const { getTheme } = require('../utils/color-theme');
+const { INTERACTIVE_MARKERS } = require('../core/constants');
 
 const VERSION = require('../../package.json').version;
 
@@ -68,184 +68,144 @@ function getWorkflowMap() {
     },
     maintenanceUtilities: {
       label: 'Maintenance & Utilities',
-      description: 'File operations, repository management, and customization',
+      description: 'File operations, repository management, and utilities',
       subcategories: {
         fileOps: 'File Operations',
         repoManagement: 'Repository Management',
         tagging: 'Tagging',
-        customization: 'Customization',
         helpLearning: 'Help & Learning',
         quickActions: 'Quick Actions',
+        undo: 'Undo & Recovery',
+        inspection: 'Inspection',
+      },
+    },
+    gittableSettings: {
+      label: 'Gittable Settings',
+      description: 'Configure Gittable appearance and behavior',
+      subcategories: {
+        appearance: 'Appearance',
+        behavior: 'Behavior',
       },
     },
   };
 }
 
 /**
- * Map command from old category/subcategory to new workflow/subcategory
+ * Map command from category/subcategory to workflow/subcategory
+ * Uses direct category-to-workflow mapping based on folder structure
  * Returns { workflow, subcategory } or null if not found
  */
-function mapCommandToWorkflow(commandName, oldCategory, oldSubcategory) {
-  // Command name to workflow mapping
-  const commandMap = {
-    // Starting a Project
-    init: { workflow: 'startingProject', subcategory: 'initialize' },
-    clone: { workflow: 'startingProject', subcategory: 'initialize' },
-    config: { workflow: 'startingProject', subcategory: 'configuration' },
-    notify: { workflow: 'startingProject', subcategory: 'configuration' },
-
-    // Daily Development - Check Status
-    status: { workflow: 'dailyDevelopment', subcategory: 'checkStatus' },
-    'status-short': { workflow: 'dailyDevelopment', subcategory: 'checkStatus' },
-    info: { workflow: 'dailyDevelopment', subcategory: 'checkStatus' },
-
-    // Daily Development - Stage Files
-    add: { workflow: 'dailyDevelopment', subcategory: 'stageFiles' },
-    'add-pattern': { workflow: 'dailyDevelopment', subcategory: 'stageFiles' },
-
-    // Daily Development - Create Commits
-    commit: { workflow: 'dailyDevelopment', subcategory: 'createCommits' },
-    'add-commit': { workflow: 'dailyDevelopment', subcategory: 'createCommits' },
-    'commit-all': { workflow: 'dailyDevelopment', subcategory: 'createCommits' },
-
-    // Daily Development - Preview Changes
-    diff: { workflow: 'dailyDevelopment', subcategory: 'previewChanges' },
-    'diff-preview': { workflow: 'dailyDevelopment', subcategory: 'previewChanges' },
-    'preview-diff': { workflow: 'dailyDevelopment', subcategory: 'previewChanges' },
-
-    // Collaboration - Remote Operations
-    push: { workflow: 'collaboration', subcategory: 'remoteOps' },
-    pull: { workflow: 'collaboration', subcategory: 'remoteOps' },
-    fetch: { workflow: 'collaboration', subcategory: 'remoteOps' },
-    sync: { workflow: 'collaboration', subcategory: 'remoteOps' },
-    remote: { workflow: 'collaboration', subcategory: 'remoteOps' },
-    'commit-push': { workflow: 'collaboration', subcategory: 'remoteOps' },
-    'commit-sync': { workflow: 'collaboration', subcategory: 'remoteOps' },
-    'remote-set-url': { workflow: 'collaboration', subcategory: 'remoteOps' },
-    'create-pr': { workflow: 'collaboration', subcategory: 'remoteOps' },
-    'clear-cache': { workflow: 'collaboration', subcategory: 'remoteOps' },
-
-    // Collaboration - Branch Management
-    branch: { workflow: 'collaboration', subcategory: 'branchManagement' },
-    checkout: { workflow: 'collaboration', subcategory: 'branchManagement' },
-    switch: { workflow: 'collaboration', subcategory: 'branchManagement' },
-    merge: { workflow: 'collaboration', subcategory: 'branchManagement' },
-    'branch-rename': { workflow: 'collaboration', subcategory: 'branchManagement' },
-    'branch-compare': { workflow: 'collaboration', subcategory: 'branchManagement' },
-    'branch-clean': { workflow: 'collaboration', subcategory: 'branchManagement' },
-
-    // Collaboration - Advanced Branching
-    rebase: { workflow: 'collaboration', subcategory: 'advancedBranching' },
-    'cherry-pick': { workflow: 'collaboration', subcategory: 'advancedBranching' },
-    'pull-rebase': { workflow: 'collaboration', subcategory: 'advancedBranching' },
-
-    // History & Inspection - View History
-    log: { workflow: 'historyInspection', subcategory: 'viewHistory' },
-    show: { workflow: 'historyInspection', subcategory: 'viewHistory' },
-    shortlog: { workflow: 'historyInspection', subcategory: 'viewHistory' },
-    describe: { workflow: 'historyInspection', subcategory: 'viewHistory' },
-
-    // History & Inspection - Search & Analyze
-    blame: { workflow: 'historyInspection', subcategory: 'searchAnalyze' },
-    grep: { workflow: 'historyInspection', subcategory: 'searchAnalyze' },
-    'range-diff': { workflow: 'historyInspection', subcategory: 'searchAnalyze' },
-
-    // History & Inspection - Repository State
-    state: { workflow: 'historyInspection', subcategory: 'repositoryState' },
-    hooks: { workflow: 'historyInspection', subcategory: 'repositoryState' },
-    conflicts: { workflow: 'historyInspection', subcategory: 'repositoryState' },
-    resolve: { workflow: 'historyInspection', subcategory: 'repositoryState' },
-
-    // Advanced Operations - Undo & Recovery
-    undo: { workflow: 'advancedOperations', subcategory: 'undoRecovery' },
-    revert: { workflow: 'advancedOperations', subcategory: 'undoRecovery' },
-    restore: { workflow: 'advancedOperations', subcategory: 'undoRecovery' },
-    'restore-backup': { workflow: 'advancedOperations', subcategory: 'undoRecovery' },
-
-    // Advanced Operations - Stash Operations
-    stash: { workflow: 'advancedOperations', subcategory: 'stashOps' },
-    'stash-all': { workflow: 'advancedOperations', subcategory: 'stashOps' },
-
-    // Advanced Operations - Merge Conflicts
-    mergetool: { workflow: 'advancedOperations', subcategory: 'mergeConflicts' },
-    'merge-continue': { workflow: 'advancedOperations', subcategory: 'mergeConflicts' },
-    'merge-abort': { workflow: 'advancedOperations', subcategory: 'mergeConflicts' },
-
-    // Advanced Operations - Debugging
-    bisect: { workflow: 'advancedOperations', subcategory: 'debugging' },
-
-    // Maintenance & Utilities - File Operations
-    rm: { workflow: 'maintenanceUtilities', subcategory: 'fileOps' },
-    mv: { workflow: 'maintenanceUtilities', subcategory: 'fileOps' },
-    clean: { workflow: 'maintenanceUtilities', subcategory: 'fileOps' },
-
-    // Maintenance & Utilities - Repository Management
-    archive: { workflow: 'maintenanceUtilities', subcategory: 'repoManagement' },
-    worktree: { workflow: 'maintenanceUtilities', subcategory: 'repoManagement' },
-    submodule: { workflow: 'maintenanceUtilities', subcategory: 'repoManagement' },
-    uninit: { workflow: 'maintenanceUtilities', subcategory: 'repoManagement' },
-
-    // Maintenance & Utilities - Tagging
-    tag: { workflow: 'maintenanceUtilities', subcategory: 'tagging' },
-    'tag-push': { workflow: 'maintenanceUtilities', subcategory: 'tagging' },
-    'tag-delete': { workflow: 'maintenanceUtilities', subcategory: 'tagging' },
-
-    // Maintenance & Utilities - Customization
-    theme: { workflow: 'maintenanceUtilities', subcategory: 'customization' },
-    template: { workflow: 'maintenanceUtilities', subcategory: 'customization' },
-    preset: { workflow: 'maintenanceUtilities', subcategory: 'customization' },
-
-    // Maintenance & Utilities - Help & Learning
-    help: { workflow: 'maintenanceUtilities', subcategory: 'helpLearning' },
-    examples: { workflow: 'maintenanceUtilities', subcategory: 'helpLearning' },
-    tutorial: { workflow: 'maintenanceUtilities', subcategory: 'helpLearning' },
-    history: { workflow: 'maintenanceUtilities', subcategory: 'helpLearning' },
-
-    // Maintenance & Utilities - Quick Actions
-    quick: { workflow: 'maintenanceUtilities', subcategory: 'quickActions' },
-  };
-
-  // First try direct command name mapping
-  if (commandMap[commandName]) {
-    return commandMap[commandName];
+function mapCommandToWorkflow(commandName, category, subcategory) {
+  // Special handling for settings commands (utilities category with settings subcategory)
+  if (category === 'utilities' && subcategory === 'settings') {
+    // Map settings commands to gittableSettings workflow
+    if (commandName === 'theme') {
+      return { workflow: 'gittableSettings', subcategory: 'appearance' };
+    }
+    // config goes to behavior
+    return { workflow: 'gittableSettings', subcategory: 'behavior' };
   }
 
-  // Fallback: try to map based on old category/subcategory
-  // This handles any commands not explicitly mapped above
-  const categoryFallback = {
-    gettingStarted: { workflow: 'startingProject', subcategory: 'initialize' },
-    dailyWork: {
-      statusChanges: { workflow: 'dailyDevelopment', subcategory: 'checkStatus' },
-      commit: { workflow: 'dailyDevelopment', subcategory: 'createCommits' },
-    },
-    workingWithOthers: {
-      remote: { workflow: 'collaboration', subcategory: 'remoteOps' },
-      branching: { workflow: 'collaboration', subcategory: 'branchManagement' },
-    },
-    history: { workflow: 'historyInspection', subcategory: 'viewHistory' },
-    advanced: {
-      undo: { workflow: 'advancedOperations', subcategory: 'undoRecovery' },
-      fileOps: { workflow: 'maintenanceUtilities', subcategory: 'fileOps' },
-      advancedBranching: { workflow: 'collaboration', subcategory: 'advancedBranching' },
-      tagging: { workflow: 'maintenanceUtilities', subcategory: 'tagging' },
-      repo: { workflow: 'maintenanceUtilities', subcategory: 'repoManagement' },
-      help: { workflow: 'maintenanceUtilities', subcategory: 'helpLearning' },
-      customization: { workflow: 'maintenanceUtilities', subcategory: 'customization' },
-      inspection: { workflow: 'historyInspection', subcategory: 'repositoryState' },
-      commandHistory: { workflow: 'maintenanceUtilities', subcategory: 'helpLearning' },
-    },
-  };
-
-  if (oldCategory && categoryFallback[oldCategory]) {
-    if (oldSubcategory && categoryFallback[oldCategory][oldSubcategory]) {
-      return categoryFallback[oldCategory][oldSubcategory];
+  // Map workflow category based on subcategory
+  if (category === 'workflow') {
+    if (subcategory === 'commit') {
+      return { workflow: 'dailyDevelopment', subcategory: 'createCommits' };
     }
-    if (typeof categoryFallback[oldCategory] === 'object' && categoryFallback[oldCategory].workflow) {
-      return categoryFallback[oldCategory];
+    if (subcategory === 'remote') {
+      return { workflow: 'collaboration', subcategory: 'remoteOps' };
     }
+    return { workflow: 'dailyDevelopment', subcategory: 'createCommits' };
   }
 
-  // Default fallback to maintenance utilities
+  // Map utilities category based on subcategory
+  if (category === 'utilities') {
+    // Special handling for development-related utilities
+    if (commandName === 'diff-preview' || commandName === 'preview-diff') {
+      return { workflow: 'dailyDevelopment', subcategory: 'previewChanges' };
+    }
+    // Special handling for stash commands
+    if (commandName === 'stash' || commandName === 'stash-all') {
+      return { workflow: 'advancedOperations', subcategory: 'stashOps' };
+    }
+    // Special handling for bisect (debugging tool)
+    if (commandName === 'bisect') {
+      return { workflow: 'advancedOperations', subcategory: 'debugging' };
+    }
+    if (subcategory === 'undo') {
+      return { workflow: 'advancedOperations', subcategory: 'undoRecovery' };
+    }
+    if (subcategory === 'fileOps') {
+      return { workflow: 'maintenanceUtilities', subcategory: 'fileOps' };
+    }
+    if (subcategory === 'tagging') {
+      return { workflow: 'maintenanceUtilities', subcategory: 'tagging' };
+    }
+    if (subcategory === 'help' || subcategory === 'commandHistory') {
+      return { workflow: 'maintenanceUtilities', subcategory: 'helpLearning' };
+    }
+    if (subcategory === 'inspection') {
+      return { workflow: 'historyInspection', subcategory: 'repositoryState' };
+    }
+    if (subcategory === 'commit') {
+      // diff-preview and preview-diff already handled above, but fallback
+      return { workflow: 'dailyDevelopment', subcategory: 'previewChanges' };
+    }
+    return { workflow: 'maintenanceUtilities', subcategory: 'helpLearning' };
+  }
+
+  // Map core category
+  if (category === 'core') {
+    if (subcategory === 'history') {
+      // History commands in core folder (log, show)
+      if (commandName === 'log' || commandName === 'show') {
+        return { workflow: 'historyInspection', subcategory: 'viewHistory' };
+      }
+      return { workflow: 'historyInspection', subcategory: 'viewHistory' };
+    }
+    if (subcategory === 'statusChanges') {
+      return { workflow: 'dailyDevelopment', subcategory: 'checkStatus' };
+    }
+    if (subcategory === 'commit') {
+      return { workflow: 'dailyDevelopment', subcategory: 'createCommits' };
+    }
+    return { workflow: 'dailyDevelopment', subcategory: 'checkStatus' };
+  }
+
+  // Map branching category
+  if (category === 'branching') {
+    // Special handling for merge conflict commands
+    if (commandName === 'mergetool' || commandName === 'merge-continue' || commandName === 'merge-abort') {
+      return { workflow: 'advancedOperations', subcategory: 'mergeConflicts' };
+    }
+    if (subcategory === 'advancedBranching') {
+      return { workflow: 'collaboration', subcategory: 'advancedBranching' };
+    }
+    return { workflow: 'collaboration', subcategory: 'branchManagement' };
+  }
+
+  // Map remote category
+  if (category === 'remote') {
+    return { workflow: 'collaboration', subcategory: 'remoteOps' };
+  }
+
+  // Map history category
+  if (category === 'history') {
+    // Map history commands based on command name for better categorization
+    if (commandName === 'blame' || commandName === 'grep' || commandName === 'range-diff') {
+      return { workflow: 'historyInspection', subcategory: 'searchAnalyze' };
+    }
+    return { workflow: 'historyInspection', subcategory: 'viewHistory' };
+  }
+
+  // Map repository category
+  if (category === 'repository') {
+    if (subcategory === 'repo') {
+      return { workflow: 'maintenanceUtilities', subcategory: 'repoManagement' };
+    }
+    return { workflow: 'startingProject', subcategory: 'initialize' };
+  }
+
+  // Default fallback
   return { workflow: 'maintenanceUtilities', subcategory: 'helpLearning' };
 }
 
@@ -303,8 +263,8 @@ function getCommandsByWorkflow(workflow, subcategory = null, config = null) {
 }
 
 /**
- * Get commands by category and subcategory (legacy function for backward compatibility)
- * Now uses workflow mapping internally
+ * Get commands by category and subcategory
+ * Uses workflow mapping internally
  */
 function getCommandsByCategory(category, subcategory = null, config = null, prioritize = false) {
   const allCommands = router.registry.getAll();
@@ -366,7 +326,7 @@ function hasEnabledWorkflowCommands(workflow, config, workflowMap) {
 }
 
 /**
- * Check if a category has any enabled commands (legacy function for backward compatibility)
+ * Check if a category has any enabled commands
  */
 function hasEnabledCommands(category, config, categoryMap) {
   const categoryInfo = categoryMap[category];
@@ -495,15 +455,37 @@ async function showSubcategoryMenu(workflowKey, workflowInfo) {
   const theme = getTheme();
 
   const subcategoryOptions = [];
+  const directCommandSubcategories = [];
+  const regularSubcategories = [];
+  
   for (const [subKey, subLabel] of Object.entries(workflowInfo.subcategories)) {
     const commands = getCommandsByWorkflow(workflowKey, subKey, config);
     if (commands.length === 0) continue;
 
-    subcategoryOptions.push({
-      value: subKey,
-      label: `${theme.primary(subLabel)} ${chalk.dim(`(${commands.length})`)}`,
-    });
+    // If subcategory has 2 or fewer commands, skip subcategory and show commands directly
+    if (commands.length <= 2) {
+      directCommandSubcategories.push({ subKey, commands });
+    } else {
+      regularSubcategories.push({
+        value: subKey,
+        label: `${theme.primary(subLabel)} ${chalk.dim(`(${commands.length})`)}`,
+      });
+    }
   }
+
+  // Add direct commands first (for better visibility)
+  for (const { commands } of directCommandSubcategories) {
+    for (const command of commands) {
+      const aliases = command.aliases.length > 0 ? chalk.dim(` (${command.aliases.join(', ')})`) : '';
+      subcategoryOptions.push({
+        value: `${INTERACTIVE_MARKERS.DIRECT}${command.name}`,
+        label: `${theme.primary(command.name)}${aliases} ${chalk.gray(`- ${command.description}`)}`,
+      });
+    }
+  }
+
+  // Then add regular subcategories
+  subcategoryOptions.push(...regularSubcategories);
 
   if (subcategoryOptions.length === 0) {
     prompts.cancel(chalk.yellow('No commands available in this workflow'));
@@ -511,7 +493,7 @@ async function showSubcategoryMenu(workflowKey, workflowInfo) {
   }
 
   subcategoryOptions.push({
-    value: '__back__',
+    value: INTERACTIVE_MARKERS.BACK,
     label: chalk.dim('← Previous Menu'),
   });
 
@@ -520,8 +502,19 @@ async function showSubcategoryMenu(workflowKey, workflowInfo) {
     options: subcategoryOptions,
   });
 
-  if (prompts.isCancel(subcategory) || subcategory === '__back__') {
+  if (prompts.isCancel(subcategory) || subcategory === INTERACTIVE_MARKERS.BACK) {
     return showWorkflowMenu();
+  }
+
+  // Handle direct command execution (for subcategories with 2 or fewer commands)
+  if (subcategory.startsWith(INTERACTIVE_MARKERS.DIRECT)) {
+    const commandName = subcategory.replace(INTERACTIVE_MARKERS.DIRECT, '');
+    const success = await router.execute(commandName, []);
+    if (!success) {
+      const { CommandError } = require('../core/errors');
+      throw new CommandError(`Command "${commandName}" failed`, commandName);
+    }
+    return;
   }
 
   // Navigate to Level 3: command selection
@@ -551,7 +544,7 @@ async function showCommandMenu(workflowKey, subcategory, workflowInfo) {
   });
 
   commandOptions.push({
-    value: '__back__',
+    value: INTERACTIVE_MARKERS.BACK,
     label: chalk.dim('← Previous Menu'),
   });
 
@@ -562,14 +555,15 @@ async function showCommandMenu(workflowKey, subcategory, workflowInfo) {
     options: commandOptions,
   });
 
-  if (prompts.isCancel(selectedCommand) || selectedCommand === '__back__') {
+  if (prompts.isCancel(selectedCommand) || selectedCommand === INTERACTIVE_MARKERS.BACK) {
     return showSubcategoryMenu(workflowKey, workflowInfo);
   }
 
   // Execute the selected command
   const success = await router.execute(selectedCommand, []);
   if (!success) {
-    process.exit(1);
+    const { CommandError } = require('../core/errors');
+    throw new CommandError(`Command "${selectedCommand}" failed`, selectedCommand);
   }
 }
 
@@ -689,7 +683,7 @@ async function showWorkflowMenu() {
     }
 
     searchOptions.push({
-      value: '__back__',
+      value: INTERACTIVE_MARKERS.BACK,
       label: chalk.dim('← Previous Menu'),
     });
 
@@ -698,13 +692,14 @@ async function showWorkflowMenu() {
       options: searchOptions,
     });
 
-    if (prompts.isCancel(selectedCommand) || selectedCommand === '__back__') {
+    if (prompts.isCancel(selectedCommand) || selectedCommand === INTERACTIVE_MARKERS.BACK) {
       return showWorkflowMenu();
     }
 
     const success = await router.execute(selectedCommand, []);
     if (!success) {
-      process.exit(1);
+      const { CommandError } = require('../core/errors');
+      throw new CommandError(`Command "${selectedCommand}" failed`, selectedCommand);
     }
     return;
   }

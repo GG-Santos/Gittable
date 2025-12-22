@@ -6,8 +6,8 @@ const {
   requireTTY,
   execGitWithSpinner,
   handleCancel,
-} = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+} = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Remote-set-url command - Update remote URL

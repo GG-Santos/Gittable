@@ -1,7 +1,7 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
-const { showCommandHeader } = require('../../utils/command-helpers');
+const { showCommandHeader } = require('../../utils/commands');
 
 module.exports = async (args) => {
   showCommandHeader('SHORTLOG', 'Summarize Commit Log');

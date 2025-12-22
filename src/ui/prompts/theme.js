@@ -5,7 +5,7 @@
 
 const chalk = require('chalk');
 const process = require('node:process');
-const { getTheme } = require('../../utils/color-theme');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Check if unicode is supported

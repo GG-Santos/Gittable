@@ -6,8 +6,8 @@ const {
   requireTTY,
   execGitWithSpinner,
   handleCancel,
-} = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+} = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 module.exports = async (args) => {
   showCommandHeader('RESTORE', 'Restore Files');
@@ -41,6 +41,7 @@ module.exports = async (args) => {
     const selected = await ui.prompt.multiselect({
       message: `Select files to restore${staged ? ' (from staging)' : ''}:`,
       options: availableFiles,
+      maxItems: 7,
     });
 
     if (selected === null || selected.length === 0) return;

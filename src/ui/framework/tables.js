@@ -168,11 +168,11 @@ function create(options = {}) {
     table.push(row);
   }
 
-  // Apply gray color to border characters
+  // Apply gray color to border characters (always gray, independent of theme)
   let tableString = table.toString();
   if (borders) {
     const borderCharPattern = /([─┬┌┐┴└┘│├┼┤])/g;
-    tableString = tableString.replace(borderCharPattern, (match) => theme.dim(match));
+    tableString = tableString.replace(borderCharPattern, (match) => chalk.gray(match));
   }
 
   // Add spacing

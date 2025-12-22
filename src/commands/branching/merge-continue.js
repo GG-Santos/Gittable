@@ -1,6 +1,6 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
-const { showCommandHeader, execGitWithSpinner } = require('../../utils/command-helpers');
+const { showCommandHeader, execGitWithSpinner } = require('../../utils/commands');
 const { execGit } = require('../../core/git');
 
 /**
@@ -24,10 +24,14 @@ module.exports = async (_args) => {
       suggestion: 'Resolve conflicts first',
     });
     ui.info('Resolve conflicts first:');
-    const theme = require('../../utils/color-theme').getTheme();
+    const { getTheme } = require('../../utils/ui');
+    const theme = getTheme();
     console.log(theme.primary('  gittable conflicts'));
     console.log(theme.primary('  gittable resolve <file>'));
-    process.exit(1);
+    const { ValidationError } = require('../../core/errors');
+    throw new ValidationError('Cannot continue merge with unresolved conflicts', null, {
+      suggestion: 'Resolve all conflicts before continuing',
+    });
   }
 
   await execGitWithSpinner('merge --continue', {

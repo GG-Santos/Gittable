@@ -1,10 +1,10 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
-const { createTable } = require('../../ui/table');
-const { createActionRouter } = require('../../utils/action-router');
-const { execGitWithSpinner, handleCancel, promptConfirm } = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+const { createTable } = require('../../ui/components');
+const { createActionRouter } = require('../../utils/commands/action-router');
+const { execGitWithSpinner, handleCancel, promptConfirm } = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 const listRemotes = () => {
   const result = execGit('remote -v', { silent: true });

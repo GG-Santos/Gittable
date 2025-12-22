@@ -25,7 +25,7 @@ async function confirm(options = {}) {
 
       switch (this.state) {
         case 'submit':
-          return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${chalk.dim(selectedText)}\n`;
+          return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${chalk.dim(selectedText)}`;
         case 'cancel':
           return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${chalk.strikethrough(chalk.dim(selectedText))}\n${chalk.gray(SYMBOLS.BAR)}\n`;
         default:

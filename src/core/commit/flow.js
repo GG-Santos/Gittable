@@ -1,173 +1,19 @@
 const prompts = require('../../ui/prompts');
 const chalk = require('chalk');
-const { execSync } = require('node:child_process');
-const { execGit } = require('../git/executor');
-const { getStatus } = require('../git/status');
 const { promptQuestions, CancelError } = require('./questions');
 const buildCommit = require('./builder');
 const readConfigFile = require('../config/loader');
 const { getCommitSuggestions } = require('./context');
-const { getTheme } = require('../../utils/color-theme');
+const { getTheme } = require('../../utils/ui');
+const { ConfigError, CancelledError: GittableCancelledError, GitError, ValidationError } = require('../errors');
 
-/**
- * Check if there are staged changes or if --all flag is used
- */
-function hasStagedChanges(options = {}) {
-  const { all = false, allowEmpty = false } = options;
-
-  if (allowEmpty || all) {
-    return true; // Skip check if these flags are set
-  }
-
-  // Check if staging area has changes
-  const result = execGit('diff --cached --quiet', { silent: true });
-  return !result.success; // Exit code 1 means there are staged changes
-}
-
-/**
- * Get staged files count and names for display
- */
-function getStagedFilesInfo() {
-  const result = execGit('diff --cached --name-only', { silent: true });
-  if (!result.success) {
-    return { count: 0, files: [] };
-  }
-
-  const files = result.output.trim().split('\n').filter(Boolean);
-  return {
-    count: files.length,
-    files: files.slice(0, 10), // Show first 10 files
-    hasMore: files.length > 10,
-  };
-}
-
-/**
- * Validate staging area before commit
- */
-function validateStagingArea(options = {}) {
-  const { all = false, allowEmpty = false } = options;
-
-  if (allowEmpty) {
-    return { valid: true };
-  }
-
-  if (all) {
-    // Check if there are any changes at all
-    const status = getStatus();
-    if (
-      !status ||
-      (status.staged.length === 0 && status.unstaged.length === 0 && status.untracked.length === 0)
-    ) {
-      return {
-        valid: false,
-        error: 'No changes to commit. Use --allow-empty to create an empty commit.',
-      };
-    }
-    return { valid: true };
-  }
-
-  // Check for staged changes
-  if (!hasStagedChanges(options)) {
-    const stagedInfo = getStagedFilesInfo();
-    return {
-      valid: false,
-      error: 'No files added to staging! Did you forget to run git add?',
-      suggestion: 'Run "gittable add" to stage files, or use "git cz -a" to commit all changes.',
-    };
-  }
-
-  return { valid: true };
-}
-
-/**
- * Execute git commit with improved error handling
- */
-function executeCommit(message, options = {}) {
-  const {
-    allowEmpty = false,
-    amend = false,
-    all = false,
-    noVerify = false,
-    noGpgSign = false,
-    gitRoot = process.cwd(),
-  } = options;
-
-  // Build git commit command
-  const args = ['commit'];
-
-  if (amend) {
-    args.push('--amend');
-  }
-
-  if (all) {
-    args.push('-a');
-  }
-
-  if (noVerify) {
-    args.push('--no-verify');
-  }
-
-  if (noGpgSign) {
-    args.push('--no-gpg-sign');
-  }
-
-  // Use -F - to read message from stdin
-  args.push('-F', '-');
-
-  try {
-    execSync(`git ${args.join(' ')}`, {
-      cwd: gitRoot,
-      input: message,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return { success: true };
-  } catch (error) {
-    const stderr = error.stderr?.toString() || '';
-    const stdout = error.stdout?.toString() || '';
-
-    // Parse common git errors for better messages
-    let errorMessage = stderr || error.message || 'Failed to create commit';
-
-    // Improve error messages
-    if (stderr.includes('nothing to commit')) {
-      errorMessage =
-        'No changes to commit. Stage files first with "gittable add" or use --allow-empty.';
-    } else if (stderr.includes('no changes added to commit')) {
-      errorMessage = 'No changes staged for commit. Use "gittable add" to stage files.';
-    } else if (stderr.includes('hook')) {
-      errorMessage = `Git hook failed: ${stderr.trim()}`;
-    }
-
-    return {
-      success: false,
-      error: errorMessage,
-      stdout,
-      stderr,
-    };
-  }
-}
-
-/**
- * Show commit preview with staged files info
- */
-function showCommitPreview(message, options = {}) {
-  const { showStagedFiles = true } = options;
-
-  if (showStagedFiles) {
-    const stagedInfo = getStagedFilesInfo();
-    if (stagedInfo.count > 0) {
-      const filesPreview = stagedInfo.files.join(', ');
-      const moreText = stagedInfo.hasMore ? ` and ${stagedInfo.count - 10} more` : '';
-      prompts.note(
-        `${stagedInfo.count} file(s) staged: ${filesPreview}${moreText}`,
-        chalk.dim('Staged Files')
-      );
-    }
-  }
-
-  prompts.note(message, chalk.bold('Commit Preview'));
-}
+// Import modular functions
+const { validateStagingArea, hasStagedChanges, getStagedFilesInfo } = require('./validation');
+const { executeCommit } = require('./execution');
+const { handleUnstagedFiles } = require('./staging');
+const { showCommitPreview, reviewCommitMessage } = require('./preview');
+const { runPostCommitActions } = require('./post-commit');
+const { handlePushIntegration } = require('./push-integration');
 
 /**
  * Main commit flow - shared between commit command and commitizen adapter
@@ -182,18 +28,21 @@ async function commitFlow(options = {}) {
 
   // Show header if requested
   if (showHeader) {
-    const { showCommandHeader } = require('../../utils/command-helpers');
+    const { showCommandHeader } = require('../../utils/commands');
     showCommandHeader('COMMIT', 'Create Commit');
   }
 
   // Load config
   const config = readConfigFile();
   if (!config) {
-    prompts.cancel(chalk.red('No configuration found'));
-    throw new Error('No commit configuration found');
+    throw new ConfigError('No commit configuration found', {
+      suggestion: 'Run "gittable setup" to create a configuration file',
+      solution: 'gittable setup',
+    });
   }
 
-  config.subjectLimit = config.subjectLimit || 100;
+  const { DEFAULT_SUBJECT_LIMIT } = require('../constants');
+  config.subjectLimit = config.subjectLimit || DEFAULT_SUBJECT_LIMIT;
 
   // Get context-aware suggestions
   const suggestions = getCommitSuggestions();
@@ -207,7 +56,7 @@ async function commitFlow(options = {}) {
 
   // Check for pre-commit hook if not skipping verification
   if (!options.noVerify && process.stdin.isTTY) {
-    const { checkPreCommitHook } = require('../../utils/git-hooks');
+    const { checkPreCommitHook } = require('../../utils/git');
     const hookCheck = await checkPreCommitHook();
 
     if (hookCheck.exists && hookCheck.skip) {
@@ -215,13 +64,13 @@ async function commitFlow(options = {}) {
       options.noVerify = true;
     } else if (hookCheck.exists && hookCheck.shouldRun) {
       // Run pre-commit hook
-      const { runHook } = require('../../utils/git-hooks');
+      const { runHook } = require('../../utils/git');
       const hookResult = runHook('pre-commit');
 
       if (!hookResult.success) {
-        prompts.cancel(chalk.red('Pre-commit hook failed'));
-        console.error(hookResult.error);
-        throw new Error('Pre-commit hook failed');
+        throw new GitError('Pre-commit hook failed', 'pre-commit', {
+          suggestion: hookResult.error || 'Check your pre-commit hook configuration',
+        });
       }
 
       if (hookResult.duration) {
@@ -234,11 +83,32 @@ async function commitFlow(options = {}) {
   if (!skipValidation) {
     const validation = validateStagingArea(options);
     if (!validation.valid) {
-      prompts.cancel(chalk.red(validation.error));
-      if (validation.suggestion) {
-        console.log(chalk.yellow(validation.suggestion));
+      throw new ValidationError(validation.error, null, {
+        suggestion: validation.suggestion,
+      });
+    }
+  }
+
+  // Check for unstaged files and offer staging options
+  if (!skipValidation && process.stdin.isTTY) {
+    try {
+      const stagingResult = await handleUnstagedFiles(options);
+      if (stagingResult.cancelled) {
+        return { cancelled: true };
       }
-      throw new Error(validation.error);
+      // If files were staged, refresh status
+      if (stagingResult.staged) {
+      // Clear status cache to get fresh data
+      const { STATUS_CACHE_TTL } = require('../constants');
+      const { getCache } = require('../../utils');
+      const statusCache = getCache('status', { ttl: STATUS_CACHE_TTL });
+      statusCache.clear();
+      }
+    } catch (error) {
+      if (error instanceof GittableCancelledError) {
+        return { cancelled: true };
+      }
+      throw error;
     }
   }
 
@@ -248,23 +118,17 @@ async function commitFlow(options = {}) {
     const answers = await promptQuestions(config);
     message = buildCommit(answers, config);
 
+    // Show commit preview and allow editing
     showCommitPreview(message, { showStagedFiles });
-
-    const action = await prompts.select({
-      message: chalk.yellow('Proceed?'),
-      options: [
-        { value: 'yes', label: chalk.green('Commit') },
-        { value: 'no', label: chalk.red('Cancel') },
-      ],
-    });
-
-    if (prompts.isCancel(action) || action === 'no') {
-      prompts.cancel(chalk.yellow('Cancelled'));
+    const reviewResult = await reviewCommitMessage(message, { showStagedFiles });
+    
+    if (reviewResult.cancelled) {
       return { cancelled: true };
     }
+    
+    message = reviewResult.message;
   } catch (error) {
-    if (error instanceof CancelError || error.isCancel) {
-      prompts.cancel(chalk.yellow('Operation cancelled'));
+    if (error instanceof CancelError || error.isCancel || error instanceof GittableCancelledError) {
       return { cancelled: true };
     }
     throw error;
@@ -303,64 +167,19 @@ async function commitFlow(options = {}) {
   if (result.success) {
     prompts.outro(chalk.green.bold('Commit created successfully'));
 
-    // Play success sound if enabled
-    const { playSound } = require('../../utils/sound-alert');
-    playSound('success');
+    // Run post-commit actions (hooks, notifications, message saving)
+    await runPostCommitActions(message, options);
 
-    // Run post-commit hooks if enabled
-    if (!options.skipPostCommit && process.stdin.isTTY) {
-      const { runPostCommitHooks, sendNotification } = require('../../utils/post-commit');
-      const { getPreference } = require('../../utils/user-preferences');
-
-      const runPostCommit = getPreference('postCommit.enabled', false);
-      if (runPostCommit) {
-        await runPostCommitHooks({
-          runTests: getPreference('postCommit.runTests', false),
-          sendNotifications: getPreference('postCommit.sendNotifications', false),
-        });
-      }
-
-      // Send notification if enabled
-      const notificationsEnabled = getPreference('notifications.enabled', false);
-      if (notificationsEnabled) {
-        const shortMessage = message.split('\n')[0];
-        sendNotification('Commit Created', `Commit created successfully: ${shortMessage}`, {
-          type: 'success',
-        });
-      }
-
-      // Save commit message to recent messages
-      const { saveRecentMessage } = require('./recent-messages');
-      saveRecentMessage(message);
-    }
-
-    // Smart suggestion: offer to push after successful commit
-    if (process.stdin.isTTY && !options.skipPushSuggestion) {
-      const { showSmartSuggestion } = require('../../utils/command-helpers');
-      const theme = getTheme();
-      const nextAction = await showSmartSuggestion(
-        'Commit created. What would you like to do next?',
-        [
-          { value: 'push', label: chalk.green('Push') + chalk.dim(' - Push to remote') },
-          { value: 'sync', label: theme.primary('Sync') + chalk.dim(' - Fetch, rebase, and push') },
-          { value: 'skip', label: chalk.gray('Skip') },
-        ]
-      );
-
-      if (nextAction === 'push') {
-        const router = require('../../cli/router');
-        await router.execute('push', []);
-      } else if (nextAction === 'sync') {
-        const router = require('../../cli/router');
-        await router.execute('sync', []);
-      }
-    }
+    // Handle push/sync integration
+    await handlePushIntegration(options);
 
     return { success: true, message };
   }
-  prompts.cancel(chalk.red('Failed to create commit'));
-  console.error(result.error);
-  throw new Error(result.error);
+  
+  // Commit failed
+  throw new GitError(result.error || 'Failed to create commit', 'commit', {
+    suggestion: 'Check the error message above for details',
+  });
 }
 
 /**
@@ -380,14 +199,18 @@ async function prompter(_, commit) {
     });
 
     if (result?.cancelled) {
-      process.exit(0);
+      // Return cancellation status instead of exiting
+      return { cancelled: true };
     }
+    return result;
   } catch (error) {
-    // Error handling is done in commitFlow
-    process.exit(1);
+    // Re-throw error instead of exiting
+    // Caller should handle error appropriately
+    throw error;
   }
 }
 
+// Re-export functions for backward compatibility
 module.exports = {
   commitFlow,
   executeCommit,

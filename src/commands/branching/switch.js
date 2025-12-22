@@ -1,9 +1,9 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { getBranches, getCurrentBranch } = require('../../core/git');
-const { createActionRouter } = require('../../utils/action-router');
-const { execGitWithSpinner, handleCancel } = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+const { createActionRouter } = require('../../utils/commands/action-router');
+const { execGitWithSpinner, handleCancel } = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 const switchToBranch = async (args) => {
   const branches = getBranches();

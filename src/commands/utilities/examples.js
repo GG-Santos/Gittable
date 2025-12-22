@@ -1,29 +1,20 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
-const { showBanner } = require('../../ui/banner');
+const { showBanner } = require('../../ui/components');
 const VERSION = require('../../../package.json').version;
 
 /**
  * Examples command - Show usage examples
  */
 const EXAMPLES = {
-  'Quick Workflow': [
-    { cmd: 'gittable quick', desc: 'Stage, commit, and push in one command' },
-    { cmd: 'gittable q', desc: 'Short alias for quick' },
-    { cmd: 'gittable q --all', desc: 'Quick with all files' },
-  ],
   'Combined Commands': [
-    { cmd: 'gittable add-commit', desc: 'Stage files and commit' },
     { cmd: 'gittable commit-push', desc: 'Commit and push' },
     { cmd: 'gittable commit-sync', desc: 'Commit and sync (fetch + rebase + push)' },
-    { cmd: 'gittable ac file1.js', desc: 'Stage specific file and commit' },
     { cmd: 'gittable cp', desc: 'Short alias for commit-push' },
   ],
   'File Operations': [
-    { cmd: 'gittable add', desc: 'Interactively stage files' },
+    { cmd: 'gittable add', desc: 'Interactively stage files (with pattern option)' },
     { cmd: 'gittable add --all', desc: 'Stage all changes' },
-    { cmd: 'gittable add-pattern "*.js"', desc: 'Stage files matching pattern' },
-    { cmd: 'gittable add-pattern "src/**/*.ts"', desc: 'Stage TypeScript files in src' },
     { cmd: 'gittable diff-preview', desc: 'Preview changes before committing' },
   ],
   'Status and Info': [

@@ -3,7 +3,7 @@ const {
   showCommandHeader,
   execGitWithSpinner,
   promptConfirm,
-} = require('../../utils/command-helpers');
+} = require('../../utils/commands');
 
 module.exports = async (args) => {
   showCommandHeader('RM', 'Remove Files');

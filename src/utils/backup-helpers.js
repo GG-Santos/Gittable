@@ -1,4 +1,4 @@
-const { execGit, getCurrentBranch } = require('../core/git');
+const { execGit, getCurrentBranch } = require('../../core/git');
 const prompts = require('../ui/prompts');
 const chalk = require('chalk');
 

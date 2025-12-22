@@ -14,17 +14,16 @@ const {
   promptConfirm,
   handleCancel,
   showSmartSuggestion,
-} = require('./command-helpers');
+} = require('./commands');
 
 // Cache utilities
 const { Cache, getCache, clearAllCaches } = require('./cache');
 
 // Error helpers
-const { parseGitError, displayEnhancedError } = require('./error-helpers');
+const { parseGitError, displayEnhancedError } = require('./validation');
 
 // Branch utilities
-const { checkBranchProtection } = require('./branch-protection');
-const { validateBranch, getValidBranch } = require('./branch-helpers');
+const { checkBranchProtection, validateBranch, getValidBranch } = require('./git');
 
 // File utilities
 const { groupFilesByDirectory, createFileOptions, filterFileOptions } = require('./file-selection');
@@ -46,7 +45,7 @@ const {
   autoSelectTheme,
   applyTheme,
   getPrimaryColor,
-} = require('./color-theme');
+} = require('./ui');
 
 // Logger
 const logger = require('./logger');

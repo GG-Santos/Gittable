@@ -8,7 +8,7 @@ const process = require('node:process');
 const tty = require('node:tty');
 const chalk = require('chalk');
 const sisteransi = require('sisteransi');
-const { getTheme } = require('../../utils/color-theme');
+const { getTheme } = require('../../utils/ui');
 
 // Cancel symbol
 const CANCEL = Symbol('gittable:cancel');

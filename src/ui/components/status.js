@@ -35,7 +35,7 @@ const displayStatus = (status, branch) => {
 
   // Branch info
   if (branch) {
-    const { getTheme } = require('../../utils/color-theme');
+    const { getTheme } = require('../../utils/ui');
     const theme = getTheme();
     sections.push(chalk.bold(theme.primary(`\nOn branch ${branch}`)));
   }

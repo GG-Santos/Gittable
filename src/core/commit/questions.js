@@ -1,8 +1,9 @@
 const prompts = require('../../ui/prompts');
 const chalk = require('chalk');
-const { getTheme } = require('../../utils/color-theme');
+const { getTheme } = require('../../utils/ui');
 const _fs = require('node:fs');
 const getPreviousCommit = require('./get-previous-commit');
+const { INTERACTIVE_MARKERS } = require('../../core/constants');
 
 // Custom error for cancellation
 class CancelError extends Error {
@@ -129,7 +130,7 @@ async function promptQuestions(config) {
               label: t.name,
               hint: t.value,
             })),
-            { value: '__back__', label: chalk.dim('← Previous Menu'), hint: 'Return to start' },
+            { value: INTERACTIVE_MARKERS.BACK, label: chalk.dim('← Previous Menu'), hint: 'Return to start' },
           ],
         });
       },
@@ -146,9 +147,9 @@ async function promptQuestions(config) {
         }));
 
         options.push(
-          { value: '__empty__', label: chalk.dim('No scope') },
-          { value: '__custom__', label: chalk.dim('Custom scope') },
-          { value: '__back__', label: chalk.dim('← Previous Menu'), hint: 'Previous question' }
+          { value: INTERACTIVE_MARKERS.EMPTY, label: chalk.dim('No scope') },
+          { value: INTERACTIVE_MARKERS.CUSTOM, label: chalk.dim('Custom scope') },
+          { value: INTERACTIVE_MARKERS.BACK, label: chalk.dim('← Previous Menu'), hint: 'Previous question' }
         );
 
         const theme = getTheme();
@@ -162,11 +163,11 @@ async function promptQuestions(config) {
       name: 'scope',
       condition: ({ results }) =>
         results.scopeCategory &&
-        results.scopeCategory !== '__empty__' &&
-        results.scopeCategory !== '__back__',
+        results.scopeCategory !== INTERACTIVE_MARKERS.EMPTY &&
+        results.scopeCategory !== INTERACTIVE_MARKERS.BACK,
       prompt: ({ results }) => {
         const theme = getTheme();
-        if (results.scopeCategory === '__custom__') {
+        if (results.scopeCategory === INTERACTIVE_MARKERS.CUSTOM) {
           return prompts.text({
             message: theme.primary('Enter custom scope:'),
             placeholder: 'e.g., auth, api, ui (or press Ctrl+C to go back)',
@@ -179,7 +180,7 @@ async function promptQuestions(config) {
           return { value: name, label: name };
         });
         options.push({
-          value: '__back__',
+          value: INTERACTIVE_MARKERS.BACK,
           label: chalk.dim('← Previous Menu'),
           hint: 'Previous question',
         });
@@ -200,7 +201,7 @@ async function promptQuestions(config) {
           placeholder: config.ticketNumberPrefix || 'TICKET-',
           defaultValue: config.fallbackTicketNumber || '',
           validate: (value) => {
-            if (value === '__back__') return null;
+            if (value === INTERACTIVE_MARKERS.BACK) return null;
             return createValidator(config, 'ticket')(value);
           },
         });
@@ -232,17 +233,17 @@ async function promptQuestions(config) {
               message: theme.primary('Select template:'),
               options: [
                 ...templates.map((t) => ({ value: t, label: t })),
-                { value: '__custom__', label: chalk.dim('Enter custom message') },
-                { value: '__back__', label: chalk.dim('← Previous Menu') },
+                { value: INTERACTIVE_MARKERS.CUSTOM, label: chalk.dim('Enter custom message') },
+                { value: INTERACTIVE_MARKERS.BACK, label: chalk.dim('← Previous Menu') },
               ],
             });
 
-            if (prompts.isCancel(selectedTemplate) || selectedTemplate === '__back__') {
+            if (prompts.isCancel(selectedTemplate) || selectedTemplate === INTERACTIVE_MARKERS.BACK) {
               // Go back to previous step
-              return '__back__';
+              return INTERACTIVE_MARKERS.BACK;
             }
 
-            if (selectedTemplate && selectedTemplate !== '__custom__') {
+            if (selectedTemplate && selectedTemplate !== INTERACTIVE_MARKERS.CUSTOM) {
               const template = loadTemplate(selectedTemplate);
               if (template) {
                 const expanded = expandTemplate(template);
@@ -271,17 +272,17 @@ async function promptQuestions(config) {
               message: theme.primary('Select recent commit message:'),
               options: [
                 ...recentOptions,
-                { value: '__custom__', label: chalk.dim('Enter custom message') },
-                { value: '__back__', label: chalk.dim('← Previous Menu') },
+                { value: INTERACTIVE_MARKERS.CUSTOM, label: chalk.dim('Enter custom message') },
+                { value: INTERACTIVE_MARKERS.BACK, label: chalk.dim('← Previous Menu') },
               ],
             });
 
-            if (prompts.isCancel(selected) || selected === '__back__') {
+            if (prompts.isCancel(selected) || selected === INTERACTIVE_MARKERS.BACK) {
               // Go back to previous step
-              return '__back__';
+              return INTERACTIVE_MARKERS.BACK;
             }
 
-            if (selected && selected !== '__custom__') {
+            if (selected && selected !== INTERACTIVE_MARKERS.CUSTOM) {
               return selected;
             }
           }
@@ -292,7 +293,7 @@ async function promptQuestions(config) {
           placeholder: 'add user authentication',
           defaultValue,
           validate: (value) => {
-            if (value === '__back__') return null;
+            if (value === INTERACTIVE_MARKERS.BACK) return null;
             return createValidator(config, 'subject')(value);
           },
         });
@@ -312,7 +313,7 @@ async function promptQuestions(config) {
           placeholder: 'Use "|" for new lines',
           defaultValue,
           validate: (value) => {
-            if (value === '__back__') return null;
+            if (value === INTERACTIVE_MARKERS.BACK) return null;
             return null;
           },
         });
@@ -327,7 +328,7 @@ async function promptQuestions(config) {
           message: chalk.red('Breaking changes (optional):'),
           placeholder: 'Describe breaking changes',
           validate: (value) => {
-            if (value === '__back__') return null;
+            if (value === INTERACTIVE_MARKERS.BACK) return null;
             return null;
           },
         }),
@@ -348,7 +349,7 @@ async function promptQuestions(config) {
           placeholder: suggestedIssue ? `#${suggestedIssue} (from branch)` : '#31, #34',
           defaultValue,
           validate: (value) => {
-            if (value === '__back__') return null;
+            if (value === INTERACTIVE_MARKERS.BACK) return null;
             return null;
           },
         });
@@ -374,7 +375,7 @@ async function promptQuestions(config) {
       }
 
       // Handle go back
-      if (result === '__back__' || (typeof result === 'string' && result.trim() === '__back__')) {
+      if (result === INTERACTIVE_MARKERS.BACK || (typeof result === 'string' && result.trim() === INTERACTIVE_MARKERS.BACK)) {
         if (currentStep > 0) {
           // Find the previous non-skipped step
           let prevStep = currentStep - 1;
@@ -402,7 +403,7 @@ async function promptQuestions(config) {
       }
 
       // Store answer
-      if (result !== null && result !== undefined && result !== '' && result !== '__back__') {
+      if (result !== null && result !== undefined && result !== '' && result !== INTERACTIVE_MARKERS.BACK) {
         answers[step.name] = result;
         if (!stepHistory.includes(step.name)) {
           stepHistory.push(step.name);

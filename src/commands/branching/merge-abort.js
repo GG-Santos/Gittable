@@ -4,7 +4,7 @@ const {
   requireTTY,
   execGitWithSpinner,
   promptConfirm,
-} = require('../../utils/command-helpers');
+} = require('../../utils/commands');
 const { execGit } = require('../../core/git');
 
 /**

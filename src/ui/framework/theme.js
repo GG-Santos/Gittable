@@ -4,7 +4,7 @@
  */
 
 const chalk = require('chalk');
-const { getTheme: getBaseTheme, THEMES } = require('../../utils/color-theme');
+const { getTheme: getBaseTheme, THEMES } = require('../../utils/ui');
 const { MESSAGE_TYPES } = require('./standards');
 
 /**
@@ -32,11 +32,11 @@ function getTheme() {
       },
       table: {
         header: baseTheme.primary,
-        border: baseTheme.dim,
+        border: chalk.gray, // Always gray, independent of theme
         cell: chalk => chalk,
       },
       banner: {
-        border: baseTheme.dim,
+        border: chalk.gray, // Always gray, independent of theme
         content: baseTheme.primary,
         version: baseTheme.dim,
       },

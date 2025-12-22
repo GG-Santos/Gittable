@@ -1,14 +1,14 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
-const { createActionRouter } = require('../../utils/action-router');
+const { createActionRouter } = require('../../utils/commands/action-router');
 const {
   showCommandHeader,
   requireTTY,
   execGitWithSpinner,
   handleCancel,
   promptConfirm,
-} = require('../../utils/command-helpers');
+} = require('../../utils/commands');
 
 const startBisect = async (args) => {
   requireTTY('Please use: git bisect start <bad> <good> for non-interactive mode');

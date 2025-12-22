@@ -7,9 +7,9 @@ const {
   execGitWithSpinner,
   promptConfirm,
   handleCancel,
-} = require('../../utils/command-helpers');
-const { ensureRemoteExists } = require('../../utils/remote-helpers');
-const { getTheme } = require('../../utils/color-theme');
+} = require('../../utils/commands');
+const { ensureRemoteExists } = require('../../utils/git');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Tag-delete command - Delete tag locally and remotely

@@ -1,7 +1,7 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
-const { showCommandHeader, execGitWithSpinner } = require('../../utils/command-helpers');
-const { ensureRemoteExists } = require('../../utils/remote-helpers');
+const { showCommandHeader, execGitWithSpinner } = require('../../utils/commands');
+const { ensureRemoteExists } = require('../../utils/git');
 
 module.exports = async (args) => {
   showCommandHeader('FETCH', 'Fetch from Remote');

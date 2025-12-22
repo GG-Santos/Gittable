@@ -1,9 +1,9 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
-const { showCommandHeader, handleCancel } = require('../../utils/command-helpers');
-const { createTable } = require('../../ui/table');
-const { getTheme } = require('../../utils/color-theme');
+const { showCommandHeader, handleCancel } = require('../../utils/commands');
+const { createTable } = require('../../ui/components');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Conflicts command - List all conflicted files

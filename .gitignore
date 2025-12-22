@@ -13,3 +13,4 @@ build/
 *.test.js.snap
 .env
 .env.local
+.npmrc

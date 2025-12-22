@@ -1,7 +1,6 @@
 const { getCurrentBranch } = require('../../core/git');
-const { showCommandHeader, execGitWithSpinner } = require('../../utils/command-helpers');
-const { ensureRemoteExists } = require('../../utils/remote-helpers');
-const { getValidBranch } = require('../../utils/branch-helpers');
+const { showCommandHeader, execGitWithSpinner } = require('../../utils/commands');
+const { ensureRemoteExists, getValidBranch } = require('../../utils/git');
 const chalk = require('chalk');
 
 module.exports = async (args) => {

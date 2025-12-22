@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const findConfig = require('find-config');
 const prompts = require('../../ui/prompts');
 const chalk = require('chalk');
-const { getTheme } = require('../../utils/color-theme');
+const { getTheme } = require('../../utils/ui');
 
 const CONFIG_NAMES = ['.gittable.js', '.gittable.json'];
 const EXAMPLE_CONFIG = '.gittable.example.js';
@@ -121,7 +121,7 @@ async function runSetup() {
   }
 
   // Show welcome message
-  const { showBanner } = require('../../ui/banner');
+  const { showBanner } = require('../../ui/components');
   showBanner('GITTABLE', { version: require('../../../package.json').version });
   const theme = getTheme();
   console.log();

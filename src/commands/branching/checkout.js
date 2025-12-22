@@ -1,5 +1,5 @@
 const ui = require('../../ui/framework');
-const { showCommandHeader, execGitWithSpinner } = require('../../utils/command-helpers');
+const { showCommandHeader, execGitWithSpinner } = require('../../utils/commands');
 
 module.exports = async (args) => {
   showCommandHeader('CHECKOUT', 'Checkout Files');

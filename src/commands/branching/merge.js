@@ -6,8 +6,8 @@ const {
   requireTTY,
   execGitWithSpinner,
   handleCancel,
-} = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+} = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 module.exports = async (args) => {
   showCommandHeader('MERGE', 'Merge Branch');
@@ -60,7 +60,7 @@ module.exports = async (args) => {
       if (hasConflicts && process.stdin.isTTY) {
         ui.warn('Merge conflicts detected');
 
-        const { showSmartSuggestion } = require('../../utils/command-helpers');
+        const { showSmartSuggestion } = require('../../utils/commands');
         const nextAction = await showSmartSuggestion('What would you like to do?', [
           {
             value: 'resolve',
@@ -79,7 +79,7 @@ module.exports = async (args) => {
           const router = require('../../cli/router');
           await router.execute(nextAction, []);
         } else if (nextAction === 'abort') {
-          const { promptConfirm } = require('../../utils/command-helpers');
+          const { promptConfirm } = require('../../utils/commands');
           const confirmed = await promptConfirm('Abort merge?', false);
           if (confirmed) {
             await execGitWithSpinner('merge --abort', {

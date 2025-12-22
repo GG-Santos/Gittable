@@ -16,7 +16,7 @@ async function executeParallel(operations) {
  * Fetch from multiple remotes in parallel
  */
 async function fetchFromMultipleRemotes(remotes) {
-  const { execGit } = require('../core/git');
+  const { execGit } = require('../../core/git');
 
   const operations = remotes.map((remote) => () => {
     const result = execGit(`fetch ${remote}`, { silent: true });
@@ -30,7 +30,7 @@ async function fetchFromMultipleRemotes(remotes) {
  * Check multiple branch statuses in parallel
  */
 async function checkMultipleBranchStatuses(branches) {
-  const { execGit } = require('../core/git');
+  const { execGit } = require('../../core/git');
 
   const operations = branches.map((branch) => () => {
     const result = execGit(`rev-list --left-right --count HEAD...${branch}`, { silent: true });

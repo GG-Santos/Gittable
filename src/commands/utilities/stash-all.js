@@ -4,7 +4,7 @@ const {
   requireTTY,
   execGitWithSpinner,
   promptConfirm,
-} = require('../../utils/command-helpers');
+} = require('../../utils/commands');
 
 /**
  * Stash-all command - Stash all changes including untracked files

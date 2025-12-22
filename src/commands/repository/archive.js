@@ -6,8 +6,8 @@ const {
   requireTTY,
   execGitWithSpinner,
   handleCancel,
-} = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+} = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 module.exports = async (args) => {
   showCommandHeader('ARCHIVE', 'Create Archive');

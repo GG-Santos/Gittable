@@ -3,8 +3,8 @@ const chalk = require('chalk');
 const registry = require('../commands/registry');
 const { isGitRepo } = require('../core/git');
 const { showBanner } = require('../ui/components');
-const { saveToHistory } = require('../utils/command-history');
-const { getTheme } = require('../utils/color-theme');
+const { saveToHistory } = require('../utils/commands');
+const { getTheme } = require('../utils/ui');
 
 /**
  * CLI Router
@@ -58,15 +58,15 @@ class Router {
     }
 
     // Check git repo requirement (except for init, uninit, clone, and internal commands)
-    const noRepoCommands = ['init', 'uninit', 'clone', 'help'];
-    if (!noRepoCommands.includes(commandName) && !isGitRepo()) {
+    const { NO_REPO_COMMANDS, NO_HISTORY_COMMANDS } = require('../core/constants');
+    if (!NO_REPO_COMMANDS.includes(commandName) && !isGitRepo()) {
       this.showNotGitRepo();
       return false;
     }
 
     try {
       // Save to history (except for help, history itself, and internal commands)
-      if (commandName !== 'help' && commandName !== 'history' && !commandName.startsWith('__')) {
+      if (!NO_HISTORY_COMMANDS.includes(commandName) && !commandName.startsWith('__')) {
         saveToHistory(commandName, args);
       }
 
@@ -74,9 +74,10 @@ class Router {
       await command.handler(args, context);
       return true;
     } catch (error) {
-      prompts.cancel(chalk.red('Command failed'));
-      console.error(error);
-      return false;
+      // Use centralized error handler
+      const { handleError } = require('../core/errors');
+      const exitCode = handleError(error, { exitCode: 1 });
+      return exitCode === 0;
     }
   }
 
@@ -119,8 +120,9 @@ class Router {
     console.log(chalk.gray('│'));
 
     // Show some common commands as suggestions
+    const { COMMAND_SUGGESTIONS_LIMIT } = require('../core/constants');
     const theme = getTheme();
-    const suggestions = this.registry.getAll().slice(0, 10);
+    const suggestions = this.registry.getAll().slice(0, COMMAND_SUGGESTIONS_LIMIT);
     for (const cmd of suggestions) {
       console.log(`${chalk.gray('│')}  ${theme.primary(`  ${cmd.name}`)}`);
     }
@@ -151,4 +153,15 @@ class Router {
   }
 }
 
+/**
+ * Singleton Pattern
+ * 
+ * The Router is exported as a singleton instance to ensure:
+ * - Single command routing system across the application
+ * - Consistent command execution and error handling
+ * - Shared registry access for all routing operations
+ * 
+ * This singleton is created at module load time and shared across all imports.
+ * For testing, consider creating a factory function if fresh instances are needed.
+ */
 module.exports = new Router();

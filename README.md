@@ -14,21 +14,23 @@
 
 ---
 
-Gittable provides a beautiful, user-friendly interface for common Git operations while maintaining full compatibility with standard Git commands. Built with a unified, native prompt system integrated with Gittable's theme system, Gittable enforces conventional commit message formats and offers intelligent, context-aware suggestions.
+Gittable (`@gg-santos/gittable`) provides a beautiful, user-friendly interface for common Git operations while maintaining full compatibility with standard Git commands. Built with a unified, native prompt system (no external UI dependencies) integrated with Gittable's theme system, Gittable enforces conventional commit message formats and offers intelligent, context-aware suggestions.
 
 ## Features
 
-- **Interactive Prompts** - Beautiful, intuitive command-line interface with native prompt system
+- **Native Prompt System** - Beautiful, intuitive command-line interface with zero external UI dependencies
+- **Unified UI Framework** - Consistent theming, layouts, and components across all commands
 - **Conventional Commits** - Enforces conventional commit message format for better project history
 - **Full Git Coverage** - Wraps all major Git commands with enhanced user experience
 - **Smart Defaults** - Context-aware suggestions and shortcuts for common workflows
-- **Combined Commands** - Workflow shortcuts like `quick` (add+commit+push), `commit-push`, `add-commit`
+- **Combined Commands** - Workflow shortcuts like `commit-push` and `commit-sync`
 - **Smart Suggestions** - Context-aware next-step prompts after each command
 - **Context-Aware Commits** - Auto-suggests commit types based on changed files
 - **Enhanced Error Messages** - Actionable error messages with suggested solutions
 - **Safety Features** - Branch protection warnings, backup before destructive operations
 - **Interactive Tutorial** - Learn Git workflows with guided tutorials
 - **Beautiful UI** - Colorful banners, tables, and status displays for better readability
+- **Theme Support** - Multiple themes (default, dark, light, highContrast) with automatic detection
 - **Fast & Lightweight** - Minimal dependencies, maximum performance
 - **Commitizen Compatible** - Built-in git-cz implementation for backward compatibility with Commitizen adapters
 - **Modular Architecture** - Well-organized, category-based command structure for easy extension
@@ -102,8 +104,8 @@ gittable push
 | `status` | `st`, `s` | Show repository status with color-coded display |
 | `info` | | Quick repository overview (branch, changes, remote status) |
 | `branch` | `br`, `co` | Branch management (list, create, checkout, delete) |
-| `commit` | `ci`, `save` | Create commits with conventional format |
-| `pull` | `pl`, `down` | Fetch and merge from remote |
+| `commit` | `ci`, `save` | Create commits with conventional format (includes staging, preview, and push/sync options) |
+| `pull` | `pl`, `down` | Fetch and merge from remote (use `--rebase` for rebase instead of merge) |
 | `push` | `ps`, `up` | Push to remote repository |
 | `sync` | | Synchronize (pull + rebase + push) |
 | `merge` | | Merge branches with interactive prompts |
@@ -114,13 +116,13 @@ gittable push
 
 ### Combined Workflow Commands ⚡
 
+> **Note**: These commands are now integrated into the main `commit` command. They are kept for backward compatibility but `gittable commit` now handles all these workflows automatically.
+
 | Command | Aliases | Description |
 |---------|---------|-------------|
-| `add-commit` | `ac` | Stage files and commit in one flow |
-| `commit-push` | `cp` | Commit and push in one flow |
-| `commit-sync` | `cs` | Commit and sync (fetch + rebase + push) |
-| `quick` | `q` | Full workflow: add + commit + push |
-| `pull-rebase` | `pr` | Pull and rebase without pushing (safer than sync) |
+| `commit-push` | `cp` | Commit and push in one flow (deprecated: use `commit`) |
+| `commit-sync` | `cs` | Commit and sync (deprecated: use `commit` and select sync) |
+| `pull-rebase` | `pr` | Pull and rebase (deprecated: use `pull --rebase`) |
 
 ### File Operations
 
@@ -138,7 +140,6 @@ gittable push
 
 | Command | Description |
 |---------|-------------|
-| `commit-all` | Stage all changes and commit (with optional message) |
 | `stash-all` | Stash all changes including untracked files |
 
 ### Branch Management Enhancements
@@ -296,15 +297,28 @@ module.exports = {
 gittable commit
 ```
 
-This interactive command guides you through:
+This enhanced interactive command guides you through:
 
-1. Selecting commit type (feat, fix, docs, etc.)
-2. Choosing scope (optional)
-3. Entering ticket number (if enabled)
-4. Writing commit message
-5. Adding extended description (optional)
-6. Breaking changes (if applicable)
-7. Issues closed (optional)
+1. **Staging files** (if unstaged files exist):
+   - Stage more files (interactive selection)
+   - Stage all files
+   - Proceed with only staged files
+2. **Commit message creation**:
+   - Selecting commit type (feat, fix, docs, etc.)
+   - Choosing scope (optional)
+   - Entering ticket number (if enabled)
+   - Writing commit message
+   - Adding extended description (optional)
+   - Breaking changes (if applicable)
+   - Issues closed (optional)
+3. **Commit preview and editing**:
+   - Review full commit message
+   - Edit message if needed
+   - Confirm and commit
+4. **Post-commit actions** (optional):
+   - Push to remote
+   - Sync (fetch + rebase + push)
+   - Skip
 
 ### Branch Management
 
@@ -337,40 +351,52 @@ Shows a beautiful, color-coded status display with:
 - Ahead/behind information relative to remote
 - Smart suggestions for next actions
 
-### Quick Workflow
+### Enhanced Commit Workflow
 
-Use the `quick` command for the most common workflow:
+The `commit` command now handles the complete workflow automatically:
 
 ```bash
-gittable quick
-# or
-gittable q
+gittable commit
 ```
 
-This will:
-1. Show changes
-2. Stage files (with confirmation)
-3. Create a commit (interactive)
-4. Push to remote (with confirmation)
+This enhanced flow will:
+1. **Check for unstaged files** and offer to:
+   - Stage more files (interactive selection)
+   - Stage all files
+   - Proceed with only staged files
+2. **Create commit** with conventional format (interactive prompts)
+3. **Preview commit message** with option to:
+   - Edit the message
+   - View full message
+   - Proceed with commit
+4. **Post-commit options**:
+   - Push to remote
+   - Sync (fetch + rebase + push)
+   - Skip
 
-### Combined Commands
+### Legacy Workflow Commands (Backward Compatibility)
+
+The following commands still work but are now thin wrappers around the enhanced `commit` command:
 
 ```bash
-# Stage and commit in one flow
-gittable add-commit
-gittable ac
+# These all now use the enhanced commit flow internally
+gittable commit-push     # Commit and push
+gittable commit-sync     # Commit and sync
+```
 
-# Commit and push
-gittable commit-push
-gittable cp
+### Pull with Rebase
 
-# Commit and sync (fetch + rebase + push)
-gittable commit-sync
-gittable cs
+The `pull` command now supports rebase:
 
-# Pull and rebase (without pushing)
+```bash
+# Interactive: choose merge or rebase
+gittable pull
+
+# Direct rebase
+gittable pull --rebase
+
+# Legacy command (still works)
 gittable pull-rebase
-gittable pr
 ```
 
 ### Smart Suggestions
@@ -379,7 +405,8 @@ Gittable provides context-aware suggestions after each command:
 
 - After `status`: suggests adding files if there are unstaged changes
 - After `add`: suggests committing staged files
-- After `commit`: suggests pushing to remote
+- After `commit`: integrated push/sync options (no separate suggestion needed)
+- After `push`: suggests creating PR if on feature branch
 - After failed `push`: suggests pulling or syncing if branch is behind
 
 ### Quick Info
@@ -478,8 +505,7 @@ Gittable automatically suggests commit types based on changed files:
 ```bash
 # Show help for a specific command
 gittable help commit
-gittable help quick
-gittable help add-commit
+gittable help commit-push
 
 # Or use --help flag
 gittable commit --help
@@ -517,79 +543,6 @@ When committing, you can now:
 - Select from recent commit messages
 - Reuse similar commit messages
 - Speed up repetitive commits
-
-### Commit Message Templates
-
-Save and reuse commit message templates:
-
-```bash
-# List all templates
-gittable template list
-
-# Save a template
-gittable template save feature "feat({scope}): {description}"
-
-# Load a template
-gittable template load feature
-
-# Delete a template
-gittable template delete feature
-```
-
-**Template Variables:**
-- `{branch}` - Current branch name
-- `{date}` - Current date (YYYY-MM-DD)
-- `{time}` - Current time
-
-Templates are automatically offered during the commit flow.
-
-### Workflow Presets
-
-Create and run custom workflow presets:
-
-```bash
-# List all presets (default + custom)
-gittable preset list
-
-# Save a custom preset
-gittable preset save my-workflow "add commit push"
-
-# Run a preset
-gittable preset run feature
-
-# Delete a preset
-gittable preset delete my-workflow
-```
-
-**Default Presets:**
-- `feature` - Feature workflow (branch create → add → commit → push)
-- `hotfix` - Hotfix workflow
-- `release` - Release workflow (add → commit → tag-push → push)
-
-Presets allow you to chain multiple commands together for common workflows.
-
-### Desktop Notifications
-
-Enable desktop notifications for long-running operations:
-
-```bash
-# Enable notifications
-gittable notify enable
-
-# Disable notifications
-gittable notify disable
-
-# Check status
-gittable notify status
-
-# Test notification
-gittable notify test
-```
-
-Notifications are automatically sent for:
-- Successful commits
-- Long-running operations (clone, fetch, etc.)
-- Long operation completions
 
 ### Backup and Recovery
 
@@ -806,13 +759,15 @@ Use `gittable state` for detailed state information and conflict status.
 
 ### Production Dependencies
 
-- **[@clack/prompts](https://github.com/natemoo-re/clack)** (^0.7.0) - Beautiful CLI prompts and interactive components
 - **[chalk](https://github.com/chalk/chalk)** (^4.1.2) - Terminal string styling
-- **[cli-table3](https://github.com/cli-table/cli-table3)** - Beautiful tables for CLI output
-- **[email-prompt](https://github.com/team-767/email-prompt)** - Email input prompts
+- **[cli-table3](https://github.com/cli-table/cli-table3)** (^0.6.5) - Beautiful tables for CLI output
 - **[find-config](https://github.com/shannonmoeller/find-config)** (^1.0.0) - Find configuration files in directory tree
-- **[prettycli](https://github.com/siddharthkp/prettycli)** - Enhanced CLI logging with better formatting
+- **[prettycli](https://github.com/siddharthkp/prettycli)** (^1.1.0) - Enhanced CLI logging with better formatting
+- **[sisteransi](https://github.com/lukeed/sisteransi)** (^1.0.5) - ANSI escape sequences for terminal control
+- **[wcwidth](https://github.com/jquast/wcwidth)** (^1.0.1) - Determine the printable width of a string
 - **[word-wrap](https://github.com/jonschlinkert/word-wrap)** (^1.2.5) - Word wrapping utility
+
+**Note**: Gittable uses a native prompt system (`src/ui/prompts/`) with no external UI dependencies. All prompts are self-contained implementations using only Node.js built-ins and chalk.
 
 ### Development Dependencies
 
@@ -822,22 +777,55 @@ Use `gittable state` for detailed state information and conflict status.
 
 ## Architecture
 
-Gittable uses a modular, category-based architecture for better maintainability and extensibility. See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed documentation.
+Gittable uses a modular, category-based architecture with a unified native UI framework for better maintainability and extensibility. The codebase has been refactored for improved organization, error handling, and maintainability.
+
+### Key Architectural Features
+
+- **Unified Native Prompts**: Self-contained prompt system with no external UI dependencies
+- **UI Framework**: High-level framework for consistent theming, layouts, and components
+- **Category-Based Commands**: Commands organized by domain (core, branching, remote, workflow, etc.)
+- **Modular Core**: Git operations split by domain (status, branch, commit, remote, state)
+- **Command Registry**: Auto-discovery system for easy command registration
+- **Error Handling**: Centralized error system with custom error classes
+- **Organized Utilities**: Utilities organized by concern (git, ui, commands, validation, cache)
+- **Constants Management**: Centralized constants for better maintainability
 
 ### Project Structure
 
 ```
 gittable/
 ├── src/
-│   ├── cli/          # CLI layer (entry, parsing, routing)
+│   ├── cli/          # CLI layer (entry, parsing, routing, interactive menu)
 │   ├── commands/     # Commands organized by category
+│   │   ├── core/     # Core workflow (status, add, commit, etc.)
+│   │   ├── branching/# Branch operations (branch, merge, rebase)
+│   │   ├── remote/   # Remote operations (push, pull, fetch)
+│   │   ├── workflow/ # Combined workflows (commit-push, commit-sync)
+│   │   ├── history/  # History & inspection (log, show, blame)
+│   │   ├── repository/# Repository management (init, clone)
+│   │   └── utilities/# Utility commands (help, config, theme)
 │   ├── core/         # Core business logic
-│   ├── ui/           # UI components
-│   └── utils/        # Shared utilities
-├── test/             # Test suite (unit, integration, fixtures)
-├── bin/              # Executable scripts
-└── shell/            # Shell integration scripts
+│   │   ├── git/      # Git operations (executor, status, branch, commit, remote, state)
+│   │   ├── commit/   # Commit flow (modular: flow, validation, execution, staging, preview, etc.)
+│   │   ├── errors/   # Error handling system (custom error classes)
+│   │   ├── constants.js # Application constants
+│   │   └── config/   # Configuration (loader, setup, mode-filter, adapter-loader)
+│   ├── ui/           # UI system
+│   │   ├── framework/# High-level UI framework (theme, layout, messages, prompts, tables, results)
+│   │   ├── prompts/  # Unified native prompt system (text, select, multiselect, confirm, etc.)
+│   │   └── components/# Reusable components (banner, status, table)
+│   └── utils/        # Shared utilities (organized by concern)
+│       ├── git/      # Git-related utilities
+│       ├── ui/        # UI-related utilities
+│       ├── commands/  # Command helpers
+│       ├── validation/# Validation utilities
+│       └── cache/     # Caching system
+├── test/             # Test suite (unit, integration, fixtures, helpers)
+├── bin/              # Executable scripts (git-cz adapter)
+└── scripts/          # Build and publish scripts
 ```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for complete architecture documentation.
 
 ## License
 
@@ -847,11 +835,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Gittable is built with the following excellent open-source projects:
 
-- **[@clack/prompts](https://github.com/natemoo-re/clack)** by [@natemoo-re](https://github.com/natemoo-re) - Beautiful CLI prompts library
 - **[conventional-changelog](https://github.com/conventional-changelog)** - Conventional commits specification
 - **[chalk](https://github.com/chalk/chalk)** by [@sindresorhus](https://github.com/sindresorhus) - Terminal string styling
 - **[cli-table3](https://github.com/cli-table/cli-table3)** - Beautiful CLI tables
 - **[Biome](https://biomejs.dev/)** - Fast formatter and linter
+
+**Note**: Gittable features a native prompt system built from scratch, eliminating external UI dependencies while maintaining a beautiful, consistent user experience.
 
 ## Author
 

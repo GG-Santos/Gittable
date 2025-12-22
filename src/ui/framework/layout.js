@@ -10,6 +10,14 @@ const commandVersions = require('../../utils/versions');
 const { BANNER_STANDARDS, SPACING } = require('./standards');
 
 /**
+ * Strip ANSI codes from string to get actual visual length
+ */
+function stripAnsi(str) {
+  const ansiRegex = /[\u001B\u009B][[\]()#;?]*(?:(?:(?:;[-a-zA-Z\d\/#&.:=?%@~_]+)*|[a-zA-Z\d]+(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-nq-uy=><~]))/g;
+  return str.replace(ansiRegex, '');
+}
+
+/**
  * Create a standardized banner
  */
 function createBanner(commandName, options = {}) {
@@ -25,9 +33,10 @@ function createBanner(commandName, options = {}) {
   const primaryColor = contentColor ? chalk[contentColor] : theme.primary;
   const borderChar = BANNER_STANDARDS.borderChar;
 
-  // Get border color - use gray to match prompt borders (same as ┌ character)
+  // Get border color - always use gray to match prompt borders (same as ┌ character)
+  // Border color should remain constant regardless of theme changes
   const border = borderColor 
-    ? (typeof borderColor === 'string' && chalk[borderColor] ? chalk[borderColor] : theme[borderColor] || theme.dim)
+    ? (typeof borderColor === 'string' && chalk[borderColor] ? chalk[borderColor] : chalk.gray)
     : chalk.gray;
 
   // Get ASCII art
@@ -46,14 +55,21 @@ function createBanner(commandName, options = {}) {
     return '';
   }
 
-  // Calculate width
-  const WIDTH = Math.max(...asciiLines.map((line) => line.length), 50);
+  // Calculate width - strip ANSI codes first to get actual visual width
+  // This ensures border width remains constant regardless of theme color
+  const WIDTH = Math.max(...asciiLines.map((line) => stripAnsi(line).length), 50);
 
   const content = primaryColor;
 
+  // Calculate the actual content width inside framed lines
+  // framedLine structure: │ ${content} │
+  // Content is `   ${line}` where line is ASCII art, so content width = WIDTH + 3 (3-space prefix)
+  // Total framed line width = 1 (left border) + 1 (space) + (WIDTH + 3) (content) + 1 (space) + 1 (right border) = WIDTH + 6
+  const CONTENT_PADDED_WIDTH = WIDTH + 3; // ASCII art width + 3-space prefix
+  const TOTAL_FRAMED_WIDTH = 1 + 1 + CONTENT_PADDED_WIDTH + 1 + 1; // │ + space + content + space + │ = WIDTH + 6
+
   // Helper functions
-  const _TOTAL_WIDTH = WIDTH + 4;
-  const pad = (text = '') => text.padEnd(WIDTH - 21);
+  const pad = (text = '') => text.padEnd(CONTENT_PADDED_WIDTH);
   const framedLine = (text = '') => {
     const padded = pad(text);
     const colored = content(padded);
@@ -61,13 +77,25 @@ function createBanner(commandName, options = {}) {
   };
 
   const topBorder = (title) => {
-    const titleText = `${title}  `;
-    const titleLen = titleText.length;
-    const dashCount = WIDTH - 21 - titleLen;
-    return border(`${titleText}${borderChar.horizontal.repeat(dashCount)}${borderChar.topRight}`);
+    // Top border structure: ┌  ${coloredTitle}  ${dashes}╮
+    // Total width should match TOTAL_FRAMED_WIDTH
+    const coloredTitle = primaryColor(title);
+    const coloredTitleText = `${coloredTitle}  `;
+    // Calculate width using plain text (strip ANSI codes from colored version)
+    const titleLen = stripAnsi(coloredTitleText).length;
+    // Top border: ┌ (1) + space (1) + coloredTitleText + dashes + ╮ (1) = TOTAL_FRAMED_WIDTH
+    // So: 1 + 1 + titleLen + dashCount + 1 = TOTAL_FRAMED_WIDTH
+    // dashCount = TOTAL_FRAMED_WIDTH - 3 - titleLen
+    const dashCount = TOTAL_FRAMED_WIDTH - 3 - titleLen;
+    const dashes = borderChar.horizontal.repeat(Math.max(0, dashCount));
+    // Build border: left border (gray) + space + colored title + dashes (gray) + right border (gray)
+    return `${border(borderChar.topLeft)} ${coloredTitleText}${border(dashes)}${border(borderChar.topRight)}`;
   };
 
-  const bottomBorder = () => border(`${borderChar.bottomLeft}${borderChar.horizontal.repeat(WIDTH - 19)}${borderChar.bottomRight}`);
+  // Bottom border: ├ + dashes + ╯ = TOTAL_FRAMED_WIDTH
+  // So: 1 + dashCount + 1 = TOTAL_FRAMED_WIDTH
+  // dashCount = TOTAL_FRAMED_WIDTH - 2
+  const bottomBorder = () => border(`${borderChar.bottomLeft}${borderChar.horizontal.repeat(TOTAL_FRAMED_WIDTH - 2)}${borderChar.bottomRight}`);
 
   // Build banner
   const banner = [
@@ -99,8 +127,8 @@ function showBanner(commandName, options = {}) {
   
   const banner = createBanner(commandName, options);
   if (banner) {
-    const prompts = require('../prompts');
-    prompts.intro(banner);
+    // Write banner directly - don't use intro() as it adds its own border character
+    process.stdout.write(`${banner}\n`);
   }
 }
 

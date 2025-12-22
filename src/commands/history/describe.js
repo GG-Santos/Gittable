@@ -1,8 +1,8 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
-const { showCommandHeader } = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+const { showCommandHeader } = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 module.exports = async (args) => {
   showCommandHeader('DESCRIBE', 'Describe Commit');
@@ -40,6 +40,9 @@ module.exports = async (args) => {
     if (!always) {
       ui.info('Tip: Use --always to show commit hash even if no tag is found');
     }
-    process.exit(1);
+    const { GitError } = require('../../core/errors');
+    throw new GitError('Failed to describe commit', 'describe', {
+      suggestion: result.error || 'Check that the commit exists',
+    });
   }
 };

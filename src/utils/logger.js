@@ -37,7 +37,6 @@ const logger = {
   },
 
   success: createLogger('green', '✔'),
-  warning: createLogger('yellow', '⚠'),
 
   // Simple loggers (backward compatible)
   log: (...args) => console.log(...args),

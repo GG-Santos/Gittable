@@ -1,8 +1,8 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { getStatus, getCurrentBranch } = require('../../core/git');
-const { showCommandHeader } = require('../../utils/command-helpers');
-const { getTheme } = require('../../utils/color-theme');
+const { showCommandHeader } = require('../../utils/commands');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Short status - One-line summary

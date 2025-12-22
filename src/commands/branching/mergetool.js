@@ -1,7 +1,7 @@
 const chalk = require('chalk');
 const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
-const { showCommandHeader, execGitWithSpinner } = require('../../utils/command-helpers');
+const { showCommandHeader, execGitWithSpinner } = require('../../utils/commands');
 
 module.exports = async (args) => {
   showCommandHeader('MERGETOOL', 'Launch Merge Tool');

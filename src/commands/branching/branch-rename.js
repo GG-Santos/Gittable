@@ -7,9 +7,9 @@ const {
   execGitWithSpinner,
   promptConfirm,
   handleCancel,
-} = require('../../utils/command-helpers');
-const { ensureRemoteExists } = require('../../utils/remote-helpers');
-const { getTheme } = require('../../utils/color-theme');
+} = require('../../utils/commands');
+const { ensureRemoteExists } = require('../../utils/git');
+const { getTheme } = require('../../utils/ui');
 
 /**
  * Branch-rename command - Rename branch locally and remotely

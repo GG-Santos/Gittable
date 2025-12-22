@@ -30,15 +30,32 @@ function groupFilesByDirectory(files) {
  */
 function createFileOptions(files, statusMap = {}, options = {}) {
   const { showMetadata = false } = options;
-  const { groups, rootFiles } = groupFilesByDirectory(files);
   const fileOptions = [];
 
-  // Add root files first
-  for (const file of rootFiles) {
+  // Sort files for consistent ordering
+  const sortedFiles = [...files].sort();
+
+  for (const file of sortedFiles) {
     const status = statusMap[file] || '';
     const statusColor = status === 'M' ? chalk.yellow : status === '?' ? chalk.green : chalk.gray;
-
-    const label = `${statusColor(status || ' ')} ${file}`;
+    
+    // Extract filename and directory
+    const filename = path.basename(file);
+    const directory = path.dirname(file);
+    
+    // Format: filename (prominent) + directory (dimmed)
+    // For root files, show just filename
+    let label;
+    if (directory === '.' || directory === '') {
+      label = `${statusColor(status || ' ')} ${filename}`;
+    } else {
+      // Normalize directory path separators (use backslashes on Windows, forward slashes on Unix)
+      const normalizedDir = process.platform === 'win32' 
+        ? directory.replace(/\//g, '\\')
+        : directory.replace(/\\/g, '/');
+      label = `${statusColor(status || ' ')} ${filename} ${chalk.dim(normalizedDir)}`;
+    }
+    
     let hint = status === 'M' ? 'modified' : status === '?' ? 'untracked' : '';
 
     if (showMetadata) {
@@ -51,39 +68,6 @@ function createFileOptions(files, statusMap = {}, options = {}) {
       label,
       hint,
     });
-  }
-
-  // Add grouped files by directory
-  const sortedDirs = Object.keys(groups).sort();
-  for (const dir of sortedDirs) {
-    // Add directory header (non-selectable)
-    fileOptions.push({
-      value: `__dir__${dir}`,
-      label: chalk.dim(`📁 ${dir}/`),
-      hint: `${groups[dir].length} file(s)`,
-      disabled: true,
-    });
-
-    // Add files in this directory
-    for (const file of groups[dir].sort()) {
-      const status = statusMap[file] || '';
-      const statusColor = status === 'M' ? chalk.yellow : status === '?' ? chalk.green : chalk.gray;
-      const relativePath = path.relative(dir, file) || path.basename(file);
-
-      const label = `  ${statusColor(status || ' ')} ${relativePath}`;
-      let hint = status === 'M' ? 'modified' : status === '?' ? 'untracked' : '';
-
-      if (showMetadata) {
-        const metadata = getFileMetadata(file);
-        hint = `${hint ? `${hint}, ` : ''}${metadata.sizeFormatted}, ${metadata.modifiedFormatted}`;
-      }
-
-      fileOptions.push({
-        value: file,
-        label,
-        hint,
-      });
-    }
   }
 
   return fileOptions;

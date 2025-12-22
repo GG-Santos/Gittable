@@ -119,7 +119,7 @@ class CommandRegistry {
    * Get enabled commands based on config
    */
   getEnabledCommands(config) {
-    const { isCommandEnabled } = require('../core/config/mode-filter');
+      const { isCommandEnabled } = require('../core/config/mode-filter');
     const allCommands = this.getAll();
 
     if (!config) {
@@ -140,7 +140,7 @@ class CommandRegistry {
       return commandDefs;
     }
 
-    const { isCommandEnabled } = require('../core/config/mode-filter');
+      const { isCommandEnabled } = require('../core/config/mode-filter');
     return commandDefs.filter((cmd) => isCommandEnabled(cmd.name, config));
   }
 
@@ -148,15 +148,8 @@ class CommandRegistry {
    * Auto-discover commands from category directories
    */
   discoverCommands(baseDir = path.join(__dirname)) {
-    const categoryDirs = [
-      'core',
-      'branching',
-      'remote',
-      'workflow',
-      'history',
-      'repository',
-      'utilities',
-    ];
+      const { COMMAND_CATEGORIES } = require('../core/constants');
+    const categoryDirs = COMMAND_CATEGORIES;
 
     for (const category of categoryDirs) {
       const categoryPath = path.join(baseDir, category, 'index.js');
@@ -177,7 +170,17 @@ class CommandRegistry {
   }
 }
 
-// Create singleton instance
+/**
+ * Singleton Pattern
+ * 
+ * The CommandRegistry is exported as a singleton instance to ensure:
+ * - Single source of truth for command registration
+ * - Commands are registered once at application startup
+ * - Consistent command resolution across the application
+ * 
+ * This singleton is created at module load time and shared across all imports.
+ * For testing, consider creating a factory function if fresh instances are needed.
+ */
 const registry = new CommandRegistry();
 
 module.exports = registry;
