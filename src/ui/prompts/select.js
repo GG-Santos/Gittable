@@ -42,7 +42,7 @@ async function select(options = {}) {
 
       switch (this.state) {
         case 'submit':
-          return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${formatOption(this.options[this.cursor], 'selected')}`;
+          return `${promptLine}${chalk.gray(SYMBOLS.BAR_END)}  ${formatOption(this.options[this.cursor], 'selected')}`;
         case 'cancel':
           return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${formatOption(this.options[this.cursor], 'cancelled')}\n${chalk.gray(SYMBOLS.BAR)}\n`;
         default: {

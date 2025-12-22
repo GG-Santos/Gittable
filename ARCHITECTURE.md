@@ -108,7 +108,6 @@ gittable/
 │   │   │   ├── spinner.js     # Spinner utilities
 │   │   │   ├── progress-indicator.js # Progress indicators
 │   │   │   ├── prompt-helpers.js # Prompt helpers
-│   │   │   ├── sound-alert.js # Sound alerts
 │   │   │   ├── terminal-link.js # Terminal link utilities
 │   │   │   └── index.js       # Barrel export
 │   │   ├── commands/          # Command-related utilities

@@ -53,11 +53,17 @@ async function multiselect(options = {}) {
       let promptLine = `${chalk.gray(SYMBOLS.BAR)}\n${symbol}  ${message}\n`;
 
       switch (this.state) {
-        case 'submit':
-          return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${this.options
-            .filter((opt) => this.value.includes(opt.value))
+        case 'submit': {
+          const selectedOptions = this.options.filter((opt) => this.value.includes(opt.value));
+          if (selectedOptions.length === 0) {
+            return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${chalk.dim('none')}`;
+          }
+          // Format as a list, one per line
+          const selectedList = selectedOptions
             .map((opt) => formatOption(opt, 'submitted'))
-            .join(chalk.dim(', ')) || chalk.dim('none')}\n`;
+            .join(`\n${chalk.gray(SYMBOLS.BAR)}  `);
+          return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${selectedList}`;
+        }
         case 'cancel': {
           const cancelled = this.options
             .filter((opt) => this.value.includes(opt.value))

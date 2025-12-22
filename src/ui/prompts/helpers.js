@@ -29,7 +29,7 @@ function intro(message = '') {
  */
 function outro(message = '') {
   const theme = getTheme();
-  process.stdout.write(`${chalk.gray(SYMBOLS.BAR)}\n${chalk.gray(SYMBOLS.BAR_END)}  ${theme.success(message)}\n\n`);
+  process.stdout.write(`${chalk.gray(SYMBOLS.BAR)}\n${chalk.gray(SYMBOLS.CONNECT_LEFT)}  ${theme.success(message)}\n${chalk.gray(SYMBOLS.BAR)}\n`);
 }
 
 /**

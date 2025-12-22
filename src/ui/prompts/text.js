@@ -32,11 +32,11 @@ async function text(options = {}) {
         case 'error':
           return `${promptLine.trim()}\n${chalk.yellow(SYMBOLS.BAR)}  ${valueText}\n${chalk.yellow(SYMBOLS.BAR_END)}  ${chalk.yellow(this.error)}\n`;
         case 'submit':
-          return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${chalk.dim(this.value || placeholder)}\n`;
+          return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${chalk.dim(this.value || placeholder)}`;
         case 'cancel':
           return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${chalk.strikethrough(chalk.dim(this.value || ''))}${this.value?.trim() ? `\n${chalk.gray(SYMBOLS.BAR)}` : ''}\n`;
         default:
-          return `${promptLine}${primaryColor(SYMBOLS.BAR)}  ${valueText}\n${primaryColor(SYMBOLS.BAR_END)}\n`;
+          return `${promptLine}${primaryColor(SYMBOLS.BAR)}  ${valueText}\n${primaryColor(SYMBOLS.BAR_END)}`;
       }
     },
   }).prompt();
