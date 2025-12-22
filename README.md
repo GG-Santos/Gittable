@@ -640,20 +640,6 @@ gittable preview-diff all
 gittable preview-diff <file>
 ```
 
-### Sound Alerts
-
-Enable sound alerts for operation completion:
-
-```bash
-# Enable sounds
-gittable config set sound.enabled true
-```
-
-Sounds play automatically for:
-- Successful commits
-- Long operation completions
-- Errors (optional)
-
 ### Issue Tracker Integration
 
 Automatic issue linking and PR creation:

@@ -14,10 +14,6 @@ async function runPostCommitActions(message, options = {}) {
     return;
   }
 
-  // Play success sound if enabled
-  const { playSound } = require('../../utils/sound-alert');
-  playSound('success');
-
   // Run post-commit hooks if enabled
   const { runPostCommitHooks, sendNotification } = require('../../utils/post-commit');
   const { getPreference } = require('../../utils/user-preferences');

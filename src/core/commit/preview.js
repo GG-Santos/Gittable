@@ -16,10 +16,11 @@ function showCommitPreview(message, options = {}) {
   if (showStagedFiles) {
     const stagedInfo = getStagedFilesInfo();
     if (stagedInfo.count > 0) {
-      const filesPreview = stagedInfo.files.join(', ');
-      const moreText = stagedInfo.hasMore ? ` and ${stagedInfo.count - 10} more` : '';
+      // Format files as a list, one per line
+      const filesList = stagedInfo.files.map(file => `  ${file}`).join('\n');
+      const moreText = stagedInfo.hasMore ? `\n  ... and ${stagedInfo.count - stagedInfo.files.length} more` : '';
       prompts.note(
-        `${stagedInfo.count} file(s) staged: ${filesPreview}${moreText}`,
+        `${stagedInfo.count} file(s) staged:\n${filesList}${moreText}`,
         chalk.dim('Staged Files')
       );
     }
@@ -40,10 +41,9 @@ async function reviewCommitMessage(message, options = {}) {
     const action = await prompts.select({
       message: chalk.yellow('Review commit message'),
       options: [
-        { value: 'commit', label: chalk.green('✓ Commit') + chalk.dim(' - Proceed with this message') },
-        { value: 'edit', label: chalk.cyan('✎ Edit') + chalk.dim(' - Edit the commit message') },
-        { value: 'view-full', label: chalk.blue('👁 View Full') + chalk.dim(' - View complete message') },
-        { value: 'cancel', label: chalk.red('✖ Cancel') },
+        { value: 'commit', label: chalk.green('Commit') + chalk.dim(' - Proceed with this message') },
+        { value: 'edit', label: chalk.cyan('Edit') + chalk.dim(' - Edit the commit message') },
+        { value: 'cancel', label: chalk.red('Cancel') },
       ],
     });
 
@@ -55,14 +55,6 @@ async function reviewCommitMessage(message, options = {}) {
       proceedWithCommit = true;
       finalMessage = message;
       break;
-    }
-
-    if (action === 'view-full') {
-      console.log('\n' + chalk.bold('Full Commit Message:'));
-      console.log(chalk.gray('─'.repeat(60)));
-      console.log(finalMessage);
-      console.log(chalk.gray('─'.repeat(60)) + '\n');
-      continue;
     }
 
     if (action === 'edit') {

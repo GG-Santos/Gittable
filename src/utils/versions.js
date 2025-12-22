@@ -4,7 +4,7 @@
  */
 module.exports = {
   // Core commit workflow
-  commit: '3.4.0',
+  commit: '3.4.2',
   status: '1.1.0',
   'status-short': '1.0.0',
   add: '2.0.7',

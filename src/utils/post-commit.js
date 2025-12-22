@@ -107,7 +107,7 @@ async function runPostCommitHooks(options = {}) {
  * Send notification (if enabled)
  */
 function sendNotification(title, message, options = {}) {
-  const { type = 'info', sound = false } = options;
+  const { type = 'info' } = options;
 
   // Check if notifications are enabled
   const { getPreference } = require('./user-preferences');
