@@ -50,11 +50,13 @@ async function execGitWithSpinner(gitCommand, options = {}) {
   const { verboseCommand } = require('../verbose-mode');
   const { isDryRun, dryRunLog, executeOrSimulate } = require('../dry-run-mode');
 
-  verboseCommand(gitCommand, options);
+  // Convert array to string for verbose logging if needed
+  const commandForLogging = Array.isArray(gitCommand) ? gitCommand.join(' ') : gitCommand;
+  verboseCommand(commandForLogging, options);
 
   // Handle dry run mode
   if (isDryRun()) {
-    dryRunLog(spinnerText || 'Would execute command', gitCommand);
+    dryRunLog(spinnerText || 'Would execute command', commandForLogging);
     return {
       success: true,
       dryRun: true,
@@ -82,7 +84,7 @@ async function execGitWithSpinner(gitCommand, options = {}) {
 
   // Show enhanced error message with suggestions
   const { parseGitError } = require('../validation');
-  const parsedError = parseGitError(result.error, gitCommand);
+  const parsedError = parseGitError(result.error, commandForLogging);
   
   ui.error(errorMsg, {
     suggestion: parsedError.suggestion,

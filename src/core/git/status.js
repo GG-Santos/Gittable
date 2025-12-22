@@ -17,7 +17,8 @@ const getStatus = (useCache = true) => {
   const result = execGit('status --porcelain', { silent: true });
   if (!result.success) return null;
 
-  const lines = result.output.trim().split('\n').filter(Boolean);
+  // Split by newlines and filter empty lines, but preserve leading spaces
+  const lines = result.output.split(/\r?\n/).filter(line => line.length > 0);
   const status = {
     staged: [],
     unstaged: [],
@@ -32,13 +33,19 @@ const getStatus = (useCache = true) => {
     const unstaged = line[1];
     const file = line.slice(3);
 
+    // Handle staged files (first char is not space and not '?')
+    // '?' in first position means untracked, which we handle separately
     if (staged !== ' ' && staged !== '?') {
       status.staged.push({ status: staged, file });
     }
-    if (unstaged !== ' ' && unstaged !== '?') {
+    
+    // Handle unstaged and untracked files
+    if (unstaged !== ' ') {
       if (unstaged === '?') {
+        // Untracked file (shows as ?? in porcelain format)
         status.untracked.push(file);
       } else {
+        // Unstaged modification
         status.unstaged.push({ status: unstaged, file });
       }
     }

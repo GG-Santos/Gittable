@@ -18,8 +18,28 @@ function hasStagedChanges(options = {}) {
   }
 
   // Check if staging area has changes
+  // diff --cached --quiet returns:
+  //   - Exit code 0: no staged changes (success: true)
+  //   - Exit code 1: has staged changes (success: false, but this is expected)
+  //   - Error: not a git repo or other error (success: false, with error message)
   const result = execGit('diff --cached --quiet', { silent: true });
-  return !result.success; // Exit code 1 means there are staged changes
+  
+  // If there's a real error message (not just "Command failed" from non-zero exit),
+  // it means the command actually failed (not a git repo, etc.)
+  // For git diff --cached --quiet, exit code 1 with no stderr is expected when there are staged changes
+  // The generic "Command failed" message is set when exit code is non-zero but stderr is empty
+  const hasRealError = result.error && 
+    result.error.trim() && 
+    result.error !== 'Command failed' &&
+    result.output === '';
+  
+  if (hasRealError) {
+    return false; // Real error, no staged changes
+  }
+  
+  // If success is false but no real error, it means exit code 1 (has staged changes)
+  // If success is true, it means exit code 0 (no staged changes)
+  return !result.success;
 }
 
 /**
@@ -67,9 +87,37 @@ function validateStagingArea(options = {}) {
 
   // Check for staged changes
   if (!hasStagedChanges(options)) {
-    const stagedInfo = getStagedFilesInfo();
+    // Only check for unstaged files if we're in a git repo
+    // getStatus() returns null if not a git repo
+    // Force fresh status check (don't use cache) to ensure we have latest data
+    const status = getStatus(false);
+    if (!status) {
+      // Not a git repo - this should have been caught earlier, but handle gracefully
+      return {
+        valid: false,
+        hasUnstagedFiles: false,
+        error: 'No files added to staging! Did you forget to run git add?',
+        suggestion: 'Run "gittable add" to stage files, or use "git cz -a" to commit all changes.',
+      };
+    }
+    
+    const unstagedCount = status.unstaged.length + status.untracked.length;
+    
+    // If there are unstaged files, return a special flag to offer staging options
+    if (unstagedCount > 0) {
+      return {
+        valid: false,
+        hasUnstagedFiles: true,
+        unstagedCount,
+        error: 'No files added to staging!',
+        suggestion: 'Stage files to continue with commit.',
+      };
+    }
+    
+    // No staged files and no unstaged files - show error
     return {
       valid: false,
+      hasUnstagedFiles: false,
       error: 'No files added to staging! Did you forget to run git add?',
       suggestion: 'Run "gittable add" to stage files, or use "git cz -a" to commit all changes.',
     };

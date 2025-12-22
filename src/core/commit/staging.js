@@ -19,7 +19,8 @@ async function handleUnstagedFiles(options = {}) {
     return { staged: false, cancelled: false };
   }
 
-  const status = getStatus();
+  // Force fresh status check (don't use cache) to ensure accurate counts
+  const status = getStatus(false);
   if (!status) {
     return { staged: false, cancelled: false };
   }
@@ -126,7 +127,9 @@ async function handlePartialStaging(status, stagedCount, unstagedCount) {
   }
 
   if (action === 'stage-more') {
-    return await stageSelectedFiles(status, true);
+    // Get fresh status to ensure we have the latest file list
+    const freshStatus = getStatus(false);
+    return await stageSelectedFiles(freshStatus || status, true);
   }
 
   return { staged: false, cancelled: false };
@@ -169,13 +172,25 @@ async function stageSelectedFiles(status, isAdditional = false) {
     return { staged: false, cancelled: false };
   }
 
-  await execGitWithSpinner(`add ${selected.join(' ')}`, {
+  // Pass files as array to handle spaces and special characters safely
+  const gitArgs = ['add', ...selected];
+  const result = await execGitWithSpinner(gitArgs, {
     spinnerText: isAdditional 
       ? `Staging ${selected.length} additional file(s)`
       : `Staging ${selected.length} file(s)`,
     successMessage: null,
     errorMessage: 'Failed to stage files',
   });
+
+  // Verify that staging actually succeeded
+  if (!result.success) {
+    return { staged: false, cancelled: false };
+  }
+
+  // Clear status cache after successful staging
+  const { getCache } = require('../../utils');
+  const statusCache = getCache('status');
+  statusCache.clear();
 
   return { staged: true, cancelled: false };
 }

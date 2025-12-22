@@ -41,8 +41,12 @@ async function select(options = {}) {
       const promptLine = `${chalk.gray(SYMBOLS.BAR)}\n${symbol}  ${message}\n`;
 
       switch (this.state) {
-        case 'submit':
-          return `${promptLine}${chalk.gray(SYMBOLS.BAR_END)}  ${formatOption(this.options[this.cursor], 'selected')}`;
+        case 'submit': {
+          // Use └ (BAR_END) only for the last option, otherwise use ├ (CONNECT_LEFT)
+          const isLastOption = this.cursor === this.options.length - 1;
+          const symbol = isLastOption ? SYMBOLS.BAR_END : SYMBOLS.CONNECT_LEFT;
+          return `${promptLine}${chalk.gray(symbol)}  ${formatOption(this.options[this.cursor], 'selected')}`;
+        }
         case 'cancel':
           return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${formatOption(this.options[this.cursor], 'cancelled')}\n${chalk.gray(SYMBOLS.BAR)}\n`;
         default: {

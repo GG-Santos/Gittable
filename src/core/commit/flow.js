@@ -79,17 +79,9 @@ async function commitFlow(options = {}) {
     }
   }
 
-  // Validate staging area
-  if (!skipValidation) {
-    const validation = validateStagingArea(options);
-    if (!validation.valid) {
-      throw new ValidationError(validation.error, null, {
-        suggestion: validation.suggestion,
-      });
-    }
-  }
-
-  // Check for unstaged files and offer staging options
+  // Check for unstaged files and offer staging options FIRST
+  // This handles both cases: no staged files (with unstaged available) and partial staging
+  // We do this before validation so we can show staging options instead of errors
   if (!skipValidation && process.stdin.isTTY) {
     try {
       const stagingResult = await handleUnstagedFiles(options);
@@ -98,17 +90,39 @@ async function commitFlow(options = {}) {
       }
       // If files were staged, refresh status
       if (stagingResult.staged) {
-      // Clear status cache to get fresh data
-      const { STATUS_CACHE_TTL } = require('../constants');
-      const { getCache } = require('../../utils');
-      const statusCache = getCache('status', { ttl: STATUS_CACHE_TTL });
-      statusCache.clear();
+        // Clear status cache to get fresh data
+        const { STATUS_CACHE_TTL } = require('../constants');
+        const { getCache } = require('../../utils');
+        const statusCache = getCache('status', { ttl: STATUS_CACHE_TTL });
+        statusCache.clear();
+        
+        // Force a fresh status check to ensure cache is updated
+        const { getStatus } = require('../git/status');
+        getStatus(false); // Don't use cache, force fresh check
       }
     } catch (error) {
       if (error instanceof GittableCancelledError) {
         return { cancelled: true };
       }
       throw error;
+    }
+  }
+
+  // Validate staging area AFTER handling unstaged files
+  // Only throw error if there are still no staged files and no unstaged files to stage
+  if (!skipValidation) {
+    // Clear cache before validation to ensure we have fresh data
+    const { getCache } = require('../../utils');
+    const statusCache = getCache('status');
+    statusCache.clear();
+    
+    const validation = validateStagingArea(options);
+    if (!validation.valid) {
+      // If there are unstaged files, we should have handled them above
+      // If we get here and validation fails, it means no files to stage at all
+      throw new ValidationError(validation.error, null, {
+        suggestion: validation.suggestion,
+      });
     }
   }
 

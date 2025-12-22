@@ -1,25 +1,62 @@
-const { execSync } = require('node:child_process');
+const { execSync, spawnSync } = require('node:child_process');
 
 /**
  * Low-level Git command executor
  */
+/**
+ * Filter out Git CRLF/LF warnings from output
+ */
+function filterGitWarnings(text) {
+  if (!text) return text;
+  return text
+    .split('\n')
+    .filter(line => {
+      const trimmed = line.trim();
+      // Filter out CRLF/LF line ending warnings
+      return !trimmed.includes('CRLF will be replaced by LF') && 
+             !trimmed.includes('LF will be replaced by CRLF');
+    })
+    .join('\n');
+}
+
 const execGit = (command, options = {}) => {
   const { silent = false, encoding = 'utf8' } = options;
+  
+  // If command is already an array, use it directly; otherwise split by spaces
+  const args = Array.isArray(command) 
+    ? command 
+    : command.split(/\s+/).filter(Boolean);
 
-  try {
-    const result = execSync(`git ${command}`, {
-      encoding,
-      stdio: silent ? ['pipe', 'pipe', 'pipe'] : 'inherit',
-      ...options,
-    });
-    return { success: true, output: result, error: null };
-  } catch (error) {
-    const stdout = error.stdout?.toString() || '';
-    const stderr = error.stderr?.toString() || '';
+  // Use spawnSync to capture stderr separately
+  const result = spawnSync('git', args, {
+    encoding,
+    stdio: ['pipe', silent ? 'pipe' : 'inherit', 'pipe'],
+    ...options,
+  });
+
+  let stdout = result.stdout?.toString() || '';
+  let stderr = result.stderr?.toString() || '';
+  
+  // Filter out CRLF/LF warnings from stderr
+  stderr = filterGitWarnings(stderr);
+  
+  // If there's filtered stderr and not silent, print it (but warnings are already filtered)
+  if (!silent && stderr && stderr.trim()) {
+    process.stderr.write(stderr);
+  }
+  
+  // Filter warnings from stdout if in silent mode
+  if (silent && stdout) {
+    stdout = filterGitWarnings(stdout);
+  }
+
+  if (result.status === 0) {
+    return { success: true, output: stdout, error: null };
+  } else {
     return {
       success: false,
       output: stdout,
-      error: stderr || error.message,
+      error: stderr || result.error?.message || 'Command failed',
     };
   }
 };
