@@ -36,10 +36,7 @@ module.exports = {
   'clear-cache': '1.0.0',
   clone: '1.0.0',
 
-  // Combined workflows
-  'commit-push': '1.0.0',
-  'commit-sync': '1.0.0',
-  'pull-rebase': '1.0.0',
+  // Combined workflows (removed - use pull --rebase instead)
 
   // History & inspection
   log: '1.1.0',
@@ -51,8 +48,8 @@ module.exports = {
   'range-diff': '1.0.0',
 
   // File operations
-  rm: '1.0.0',
-  mv: '1.0.0',
+  remove: '1.0.0',
+  move: '1.0.0',
   restore: '1.0.0',
   'restore-backup': '1.0.0',
   clean: '1.0.0',

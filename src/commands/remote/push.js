@@ -110,7 +110,12 @@ module.exports = async (args) => {
 
           if (nextAction && nextAction !== 'skip') {
             const router = require('../../cli/router');
-            await router.execute(nextAction, remote ? [remote] : []);
+            // Handle pull-rebase by redirecting to pull with --rebase flag
+            if (nextAction === 'pull-rebase') {
+              await router.execute('pull', remote ? [remote, '--rebase'] : ['--rebase']);
+            } else {
+              await router.execute(nextAction, remote ? [remote] : []);
+            }
           }
         }
       }

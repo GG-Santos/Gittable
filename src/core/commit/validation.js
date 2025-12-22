@@ -97,7 +97,7 @@ function validateStagingArea(options = {}) {
         valid: false,
         hasUnstagedFiles: false,
         error: 'No files added to staging! Did you forget to run git add?',
-        suggestion: 'Run "gittable add" to stage files, or use "git cz -a" to commit all changes.',
+        suggestion: 'Run "gittable add" to stage files, or use "gittable commit -a" to commit all changes.',
       };
     }
     

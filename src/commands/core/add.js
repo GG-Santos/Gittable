@@ -89,11 +89,7 @@ const stageAll = async () => {
     const nextAction = await showSmartSuggestion(
       'All changes staged. What would you like to do next?',
       [
-        { value: 'commit', label: chalk.green('Commit') + chalk.dim(' - Create a commit') },
-        {
-          value: 'commit-push',
-          label: chalk.cyan('Commit & Push') + chalk.dim(' - Commit and push'),
-        },
+        { value: 'commit', label: chalk.green('Commit') + chalk.dim(' - Create a commit (with push/sync options)') },
         { value: 'skip', label: chalk.gray('Skip') },
       ]
     );

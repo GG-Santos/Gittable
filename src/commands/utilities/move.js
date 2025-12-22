@@ -6,14 +6,14 @@ const { getTheme } = require('../../utils/ui');
 
 module.exports = async (args) => {
   const theme = getTheme();
-  showBanner('MV');
+  showBanner('MOVE');
   console.log(`${chalk.gray('├')}  ${chalk.bold(theme.primary('Move/Rename Files'))}`);
 
   const force = args.includes('--force') || args.includes('-f');
   const files = args.filter((arg) => !arg.startsWith('--'));
 
   if (files.length < 2) {
-    ui.warn('Usage: mv <source> <destination>');
+    ui.warn('Usage: move <source> <destination>');
     return;
   }
 
@@ -41,3 +41,4 @@ module.exports = async (args) => {
     });
   }
 };
+

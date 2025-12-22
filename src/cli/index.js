@@ -95,10 +95,6 @@ async function main() {
 // Export main function for programmatic use
 module.exports.main = main;
 
-// Export for programmatic use (Commitizen compatibility)
-const { prompter } = require('../core/commit/flow');
-module.exports.prompter = prompter;
-
 // Run CLI if executed directly
 if (require.main === module) {
   main()

@@ -31,8 +31,12 @@ module.exports = [
   {
     name: 'range-diff',
     aliases: [],
-    description: 'Compare two commit ranges',
+    description: 'Compare two commit ranges (alias for: diff --range-diff)',
     category: 'history',
-    handler: require('./range-diff'),
+    handler: async (args) => {
+      // Redirect to diff command with --range-diff flag
+      const router = require('../../cli/router');
+      await router.execute('diff', ['--range-diff', ...args]);
+    },
   },
 ];

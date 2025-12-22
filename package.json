@@ -6,10 +6,7 @@
   "types": "index.d.ts",
   "bin": {
     "gittable": "index.js",
-    "gitt": "index.js",
-    "gitx": "index.js",
-    "git-cz": "bin/git-cz.js",
-    "cz": "bin/git-cz.js"
+    "gg-gitz": "index.js"
   },
   "scripts": {
     "lint": "biome check .",
@@ -57,16 +54,10 @@
   },
   "files": [
     "index.js",
-    "src",
-    "bin"
+    "src"
   ],
   "engines": {
     "node": ">=14.0.0"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./index.js"
-    }
   },
   "directories": {
     "lib": "src",

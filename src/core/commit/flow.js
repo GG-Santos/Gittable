@@ -16,7 +16,7 @@ const { runPostCommitActions } = require('./post-commit');
 const { handlePushIntegration } = require('./push-integration');
 
 /**
- * Main commit flow - shared between commit command and commitizen adapter
+ * Main commit flow for creating commits with conventional format
  */
 async function commitFlow(options = {}) {
   const {
@@ -126,6 +126,29 @@ async function commitFlow(options = {}) {
     }
   }
 
+  // Show diff preview before committing (if TTY and not skipped)
+  if (process.stdin.isTTY && !options.skipDiffPreview) {
+    const showDiff = await prompts.confirm({
+      message: 'View diff before committing?',
+      initialValue: true,
+    });
+
+    // Handle cancellation
+    if (prompts.isCancel(showDiff) || showDiff === null) {
+      return { cancelled: true };
+    }
+
+    if (showDiff) {
+      const { showInteractiveDiff } = require('./diff-display');
+      const diffResult = await showInteractiveDiff({ staged: true, skipPrompt: false });
+
+      // Handle cancellation
+      if (diffResult.cancelled) {
+        return { cancelled: true };
+      }
+    }
+  }
+
   // Prompt for commit message
   let message;
   try {
@@ -154,7 +177,7 @@ async function commitFlow(options = {}) {
 
   let result;
   if (commitCallback) {
-    // Use provided callback (for commitizen adapter)
+    // Use provided callback for programmatic use
     try {
       await new Promise((resolve, reject) => {
         try {

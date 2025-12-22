@@ -6,7 +6,7 @@ const {
 } = require('../../utils/commands');
 
 module.exports = async (args) => {
-  showCommandHeader('RM', 'Remove Files');
+  showCommandHeader('REMOVE', 'Remove Files');
 
   const files = args.filter((arg) => !arg.startsWith('--'));
   const cached = args.includes('--cached') || args.includes('--staged');
@@ -41,3 +41,4 @@ module.exports = async (args) => {
     errorMessage: 'Failed to remove files',
   });
 };
+

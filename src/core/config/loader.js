@@ -15,8 +15,6 @@ const showError = () => {
   }
   console.log(chalk.cyan('    • package.json config'));
   console.log();
-  console.log(chalk.gray('  Docs: github.com/leonardoanalista/cz-customizable'));
-  console.log();
 };
 
 const readConfigFile = () => {
@@ -36,18 +34,8 @@ const readConfigFile = () => {
     return normalizeConfig(jsonConfig);
   }
 
-  // Try package.json
-  const pkgPath = findConfig('package.json', { home: false });
-  if (pkgPath) {
-    const pkg = require(pkgPath);
-    const configPath = pkg.config?.['cz-customizable']?.config;
-
-    if (configPath) {
-      const fullPath = path.resolve(path.dirname(pkgPath), configPath);
-      log.success(chalk.green(`Using: ${chalk.bold(fullPath)}`));
-      return normalizeConfig(require(fullPath));
-    }
-  }
+  // Try package.json (for future package.json config support)
+  // Currently not implemented - use .gittable.js or .gittable.json instead
 
   showError();
   return null;

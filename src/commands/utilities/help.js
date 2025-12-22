@@ -42,12 +42,6 @@ const COMMAND_HELP = {
     aliases: ['st', 's'],
     examples: ['gittable status', 'gittable st'],
   },
-  'commit-push': {
-    description: 'Commit and push using enhanced commit command',
-    usage: 'gittable commit-push [options]',
-    aliases: ['cp'],
-    examples: ['gittable commit-push', 'gittable cp --no-push'],
-  },
   branch: {
     description: 'Branch management',
     usage: 'gittable branch [action] [name]',
