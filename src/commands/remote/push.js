@@ -8,6 +8,7 @@ const {
   promptConfirm,
 } = require('../../utils/commands');
 const { ensureRemoteExists, getValidBranch } = require('../../utils/git');
+const prompts = require('../../ui/prompts');
 
 module.exports = async (args) => {
   showCommandHeader('PUSH', 'Push to Remote');
@@ -16,6 +17,10 @@ module.exports = async (args) => {
   const remote = args[0] || 'origin';
   let branchName = args[1] || branch;
   const force = args.includes('--force') || args.includes('-f');
+  const forceWithLease = args.includes('--force-with-lease') || args.includes('--lease');
+  const pushTags = args.includes('--tags') || args.includes('-t');
+  const pushAll = args.includes('--all') || args.includes('-a');
+  const setUpstream = args.includes('--set-upstream') || args.includes('-u') || args.includes('--upstream');
 
   // Validate branch exists
   branchName = getValidBranch(branchName, 'pushing');
@@ -23,9 +28,70 @@ module.exports = async (args) => {
   // Ensure remote exists (prompts to add if missing)
   await ensureRemoteExists(remote);
 
+  // Determine push type from flags first, or show interactive menu if no flags
+  let pushType = null;
+  
+  // Check flags first (flags take priority)
+  if (force) {
+    pushType = 'force';
+  } else if (forceWithLease) {
+    pushType = 'force-with-lease';
+  } else if (pushTags) {
+    pushType = 'tags';
+  } else if (pushAll) {
+    pushType = 'all';
+  } else if (setUpstream) {
+    pushType = 'upstream';
+  }
+  
+  // If no push type specified via flags and TTY, show interactive menu
+  if (!pushType && process.stdin.isTTY) {
+    const action = await prompts.select({
+      message: 'How would you like to push?',
+      options: [
+        { 
+          value: 'normal', 
+          label: chalk.green('Normal Push') + chalk.dim(' - Standard push (default)') 
+        },
+        { 
+          value: 'upstream', 
+          label: chalk.cyan('Set Upstream & Push') + chalk.dim(' - Push and set upstream tracking') 
+        },
+        { 
+          value: 'force-with-lease', 
+          label: chalk.yellow('Force Push (Lease)') + chalk.dim(' - Safer force push') 
+        },
+        { 
+          value: 'force', 
+          label: chalk.red('Force Push') + chalk.dim(' - Overwrite remote (dangerous)') 
+        },
+        { 
+          value: 'tags', 
+          label: chalk.blue('Push Tags') + chalk.dim(' - Push all tags') 
+        },
+        { 
+          value: 'all', 
+          label: chalk.magenta('Push All Branches') + chalk.dim(' - Push all branches') 
+        },
+      ],
+    });
+
+    if (prompts.isCancel(action)) {
+      prompts.cancel(chalk.yellow('Cancelled'));
+      return;
+    }
+
+    pushType = action;
+  }
+  
+  // Default to normal push if nothing specified
+  if (!pushType) {
+    pushType = 'normal';
+  }
+
   // Check branch protection
   const { checkBranchProtection } = require('../../utils/git');
-  const protection = checkBranchProtection(branchName, force ? 'force' : 'push');
+  const protection = checkBranchProtection(branchName, (pushType === 'force' || pushType === 'force-with-lease') ? 'force' : 'push');
 
   if (protection.isProtected) {
     ui.warn(protection.warning, {
@@ -42,21 +108,46 @@ module.exports = async (args) => {
   }
 
   // Handle force push confirmation
-  if (force) {
+  if (pushType === 'force' || pushType === 'force-with-lease') {
     requireTTY([
       'Force push requires confirmation.',
-      'Please use: gittable push <remote> <branch> --force (with confirmation)',
+      'Please use: gittable push <remote> <branch> --force or --force-with-lease (with confirmation)',
     ]);
 
-    const confirmed = await promptConfirm('Force push? This can overwrite remote history.', false);
+    const warning = pushType === 'force-with-lease'
+      ? 'Force push with lease? This will overwrite remote history only if remote hasn\'t changed since last fetch (safer).'
+      : 'Force push? This can overwrite remote history.';
+
+    const confirmed = await promptConfirm(warning, false);
     if (!confirmed) return;
   }
 
   // Execute push with spinner
-  const command = force ? `push ${remote} ${branchName} --force` : `push ${remote} ${branchName}`;
+  let command = 'push';
+  
+  if (pushType === 'tags') {
+    command += ` ${remote} --tags`;
+  } else if (pushType === 'all') {
+    command += ` ${remote} --all`;
+  } else {
+    command += ` ${remote} ${branchName}`;
+    if (pushType === 'upstream') {
+      command += ' --set-upstream';
+    } else if (pushType === 'force-with-lease') {
+      command += ' --force-with-lease';
+    } else if (pushType === 'force') {
+      command += ' --force';
+    }
+  }
+
+  const spinnerText = pushType === 'tags' 
+    ? `Pushing tags to ${remote}`
+    : pushType === 'all'
+    ? `Pushing all branches to ${remote}`
+    : `Pushing to ${remote}/${branchName}`;
 
   const result = await execGitWithSpinner(command, {
-    spinnerText: `Pushing to ${remote}/${branchName}`,
+    spinnerText,
     successMessage: 'Push completed',
     errorMessage: 'Push failed',
     onSuccess: async () => {
@@ -85,7 +176,7 @@ module.exports = async (args) => {
       }
     },
     onError: async (errorResult) => {
-      // Smart suggestion: offer to pull if push fails due to being behind
+      // Smart suggestion: offer to pull or force push if push fails due to being behind
       if (errorResult.error?.includes('Updates were rejected')) {
         const { showSmartSuggestion } = require('../../utils/commands');
         if (process.stdin.isTTY) {
@@ -104,6 +195,14 @@ module.exports = async (args) => {
                 value: 'sync',
                 label: chalk.cyan('Sync') + chalk.dim(' - Fetch, rebase, and push'),
               },
+              {
+                value: 'force-with-lease',
+                label: chalk.yellow('Force Push (Lease)') + chalk.dim(' - Safer force push'),
+              },
+              {
+                value: 'force',
+                label: chalk.red('Force Push') + chalk.dim(' - Overwrite remote (dangerous)'),
+              },
               { value: 'skip', label: chalk.gray('Skip') },
             ]
           );
@@ -113,6 +212,10 @@ module.exports = async (args) => {
             // Handle pull-rebase by redirecting to pull with --rebase flag
             if (nextAction === 'pull-rebase') {
               await router.execute('pull', remote ? [remote, '--rebase'] : ['--rebase']);
+            } else if (nextAction === 'force' || nextAction === 'force-with-lease') {
+              // Handle force push options
+              const forceArgs = remote ? [remote, branchName, `--${nextAction}`] : [branchName, `--${nextAction}`];
+              await router.execute('push', forceArgs);
             } else {
               await router.execute(nextAction, remote ? [remote] : []);
             }

@@ -1,415 +1,359 @@
 # Gittable
 
-> Modern Git CLI with Conventional Commits
+<div align="center">
 
-[![npm version](https://img.shields.io/npm/v/@gg-santos/gittable.svg)](https://www.npmjs.com/package/@gg-santos/gittable)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen.svg)](https://nodejs.org/)
+**A modern, interactive Git CLI wrapper with conventional commits**
 
-## Introduction
+[![forthebadge](https://img.shields.io/badge/NPM-PUBLISHED-ff4d4d?style=for-the-badge&logo=npm&logoColor=white)](https://www.npmjs.com/package/gittable)
+[![forthebadge](https://img.shields.io/badge/MADE%20WITH-JAVASCRIPT-ff4d4d?style=for-the-badge&logo=javascript&logoColor=white)](https://www.npmjs.com/package/gittable)
+[![forthebadge](https://img.shields.io/badge/BUILT%20FOR-DEVELOPERS-ff4d4d?style=for-the-badge&logo=git&logoColor=white)](https://github.com/GG-Santos/Gittable)
 
-**Gittable** is a powerful, workflow-oriented Git CLI tool that transforms your Git experience with an intuitive interface and intelligent commit workflow. Unlike traditional Git wrappers, Gittable organizes commands by development workflows, making it easier to find and execute the right command at the right time.
+[Installation](#installation) • [Quick Start](#quick-start) • [Documentation](#documentation) • [Architecture](./ARCHITECTURE.md)
 
-### Key Highlights
+</div>
 
-- **Workflow-Oriented Design**: Interactive menu system organized by development workflows (Starting a Project, Daily Development, Collaboration, History & Inspection, Advanced Operations, Maintenance & Utilities)
-- **50+ Git Commands**: Complete coverage of Git operations including core commands, branching, remote operations, history inspection, and utilities
-- **Intelligent Commit Workflow**: Interactive file staging with pattern matching, conventional commits with configurable types and scopes, commit preview and review before execution, and automatic staging area validation
-- **Combined Workflow Commands**: Use `pull --rebase` for rebasing workflows (commit includes push/sync options automatically)
-- **Rich Terminal UI**: Color-coded output with theme customization, interactive prompts and tables, progress indicators and spinners, and clear error messages with suggestions
-- **Auto-Discovery System**: Commands automatically discovered and registered from category directories
-- **Configurable**: Customize commit types, scopes, ticket numbers, and more via `.gittable.js` or `.gittable.json`
-- **Advanced Features**: Branch management, stash operations, undo/recovery tools, repository inspection, command history tracking, and help system
-- **Standalone Tool**: No external dependencies on Commitizen or other commit message tools
+---
 
-## Features
+Gittable is a modern, interactive Git CLI wrapper that enhances the standard Git experience with beautiful prompts, conventional commits enforcement, and intelligent workflow suggestions. It provides a user-friendly interface for common Git operations while maintaining full compatibility with standard Git commands.
 
-### Workflow-Oriented Interface
+## ✨ Features
 
-Gittable organizes commands into intuitive workflow categories:
+- **🎨 Beautiful CLI Interface** - Native prompt system with colorful banners, tables, and status displays
+- **📝 Conventional Commits** - Enforces conventional commit message format for better project history
+- **⚡ Workflow Shortcuts** - Combined commands like `quick` (add+commit+push), `commit-push`, `add-commit`
+- **🧠 Smart Suggestions** - Context-aware next-step prompts after each command
+- **🛡️ Safety Features** - Branch protection warnings, backup before destructive operations
+- **🔧 Fully Configurable** - Customize commit types, scopes, and command behavior
+- **📚 Interactive Tutorial** - Learn Git workflows with guided tutorials
+- **🚀 Fast & Lightweight** - Minimal dependencies, maximum performance
 
-- **Starting a Project**: Initialize repositories and configure Git
-- **Daily Development**: Check status, stage files, and create commits
-- **Collaboration**: Push, pull, sync, and manage branches
-- **History & Inspection**: View history, search, and inspect repository
-- **Advanced Operations**: Undo, stash, merge conflicts, and debugging
-- **Maintenance & Utilities**: File operations, repository management, and utilities
+## 📦 Installation
 
-### 50+ Git Commands
-
-Complete coverage of Git operations:
-
-- **Core Commands**: `status`, `add`, `commit`, `diff`, `log`, `show`, `info`
-- **Branching**: `branch`, `checkout`, `switch`, `merge`, `rebase`, `cherry-pick`, `branch-clean`, `branch-rename`, `branch-compare`
-- **Remote Operations**: `push`, `pull`, `fetch`, `sync`, `remote`, `create-pr`
-- **History & Inspection**: `blame`, `grep`, `shortlog`, `describe`, `diff` (includes range-diff)
-- **File Operations**: `remove` / `rm`, `move` / `mv`, `restore`, `clean`, `diff-preview`
-- **Repository Management**: `init`, `clone`, `archive`, `worktree`, `submodule`, `tag`
-- **Utilities**: `stash`, `undo`, `revert`, `bisect`, `config`, `theme`, `help`, `tutorial`
-
-### Intelligent Commit Workflow
-
-Gittable's commit workflow guides you through creating perfect conventional commits:
-
-1. **Interactive File Staging**: Select files with pattern matching support
-2. **Conventional Commits**: Choose from configurable commit types (feat, fix, docs, etc.) and scopes
-3. **Commit Preview**: Review your commit message and staged files before execution
-4. **Automatic Validation**: Ensures you have staged files and validates commit message format
-
-### Combined Workflow Commands
-
-Streamline common workflows with combined commands:
-
-**Note**: The `commit` command already includes push/sync options. After creating a commit, you'll be prompted to push, sync, or skip - no separate commands needed! Use `pull --rebase` for rebasing workflows.
-
-### Rich Terminal UI
-
-- Color-coded output with customizable themes
-- Interactive prompts with keyboard navigation
-- Formatted tables for status and branch listings
-- Progress indicators and spinners for long-running operations
-- Clear error messages with helpful suggestions
-
-### Auto-Discovery System
-
-Commands are automatically discovered and registered from category directories, making it easy to extend Gittable with custom commands.
-
-### Configuration System
-
-Customize Gittable to match your workflow via `.gittable.js` or `.gittable.json`:
-
-- Commit types and scopes
-- Ticket number support
-- Subject limits and separators
-- Breaking changes configuration
-- And much more
-
-### Advanced Features
-
-- **Branch Management**: Create, delete, rename, compare, and clean branches
-- **Stash Operations**: Full stash management with message support
-- **Undo/Recovery**: Safely undo commits and recover lost work
-- **Repository Inspection**: View repository state, hooks, and conflicts
-- **Command History**: Track and replay frequently used commands
-- **Help System**: Built-in help and tutorial system
-
-## Installation
-
-### Global Installation
+### Global Installation (Recommended)
 
 ```bash
-npm install -g @gg-santos/gittable
+npm install -g gittable
 ```
 
 ### Local Installation
 
 ```bash
-npm install --save-dev @gg-santos/gittable
+npm install --save-dev gittable
 ```
 
-### Verify Installation
+### Using npx
 
 ```bash
-gittable --version
+npx gittable <command>
 ```
 
-## Quick Start
+For detailed installation instructions, see the [Installation](#installation) section below.
+
+## 🚀 Quick Start
 
 ### Interactive Mode
 
-Simply run `gittable` without any arguments to launch the interactive menu:
+Simply run `gittable` without any arguments to enter interactive mode:
 
 ```bash
 gittable
 ```
 
-Navigate through workflow categories to find and execute commands.
+This displays a beautiful category-based menu for easy command discovery.
 
-### Command-Line Mode
+### Command Mode
 
-Use Gittable like any Git command:
+Use Gittable just like Git, but with enhanced prompts:
 
 ```bash
 # Check repository status
 gittable status
-
-# Stage files interactively
-gittable add
+gittable st
 
 # Create a commit with conventional format
 gittable commit
-
-# Push to remote
-gittable push
-
-# View commit history
-gittable log
-```
-
-### Command Aliases
-
-Gittable provides two command aliases for quick access:
-
-- `gittable` - Main command
-- `gg-gitz` - Short alias
-
-## Usage
-
-### Interactive Mode
-
-When you run `gittable` without arguments, you'll see an interactive menu organized by workflows:
-
-```
-GITTABLE v1.0.7
-
-  Starting a Project:
-    • Initialize Repository
-    • Configuration
-
-  Daily Development:
-    • Check Status
-    • Stage Files
-    • Create Commits
-    • Preview Changes
-
-  Collaboration:
-    • Remote Operations
-    • Branch Management
-    • Advanced Branching
-
-  ...
-```
-
-Navigate using arrow keys and select commands to execute.
-
-### Command-Line Mode
-
-Gittable supports all standard Git commands with enhanced functionality:
-
-```bash
-# Status with enhanced formatting
-gittable status
-gittable s          # Short status
-
-# Interactive file staging
-gittable add
-gittable add --all  # Stage all changes
-
-# Commit with conventional format (includes push/sync options)
-gittable commit
-gittable commit -a  # Stage all and commit
-
-# Combined workflows
-gittable pull --rebase  # Pull with rebase
+gittable ci
 
 # Branch management
 gittable branch
-gittable branch create feature/new
-gittable branch-clean  # Delete merged branches
+gittable br
 
-# Stash operations
-gittable stash
-gittable stash create "WIP: feature"
-gittable stash pop
-
-# View history
-gittable log
-gittable show
+# Quick workflow (add + commit + push)
+gittable quick
+gittable q
 ```
 
-### Getting Help
+## 📖 Available Commands
 
-```bash
-# Show help menu
-gittable help
+### Core Commands
 
-# Show help for specific command
-gittable help commit
+| Command | Aliases | Description |
+|---------|---------|-------------|
+| `status` | `st`, `s` | Show repository status with color-coded display |
+| `info` | | Quick repository overview |
+| `add` | | Stage files for commit with interactive selection |
+| `commit` | `ci`, `save` | Create commits with conventional format |
+| `diff` | | Show changes with formatted output |
+| `log` | | View commit history with formatted output |
 
-# Show usage examples
-gittable examples
+### Workflow Commands ⚡
 
-# Interactive tutorial
-gittable tutorial
-```
+| Command | Aliases | Description |
+|---------|---------|-------------|
+| `quick` | `q` | Full workflow: add + commit + push |
+| `add-commit` | `ac` | Stage files and commit in one flow |
+| `commit-push` | `cp` | Commit and push in one flow |
+| `commit-sync` | `cs` | Commit and sync (fetch + rebase + push) |
+| `sync` | | Synchronize (pull + rebase + push) |
 
-## Configuration
+### Branching Commands
 
-Gittable can be configured via `.gittable.js` or `.gittable.json` in your project root or home directory.
+| Command | Aliases | Description |
+|---------|---------|-------------|
+| `branch` | `br`, `co` | Branch management (list, create, checkout, delete) |
+| `checkout` | `co` | Checkout files or branches |
+| `merge` | | Merge branches with interactive prompts |
+| `rebase` | | Rebase operations with safety checks |
+| `branch-clean` | | Delete merged branches interactively |
 
-### Creating a Configuration File
+### Remote Commands
 
-Copy the example configuration:
+| Command | Aliases | Description |
+|---------|---------|-------------|
+| `push` | `ps`, `up` | Push to remote repository |
+| `pull` | `pl`, `down` | Fetch and merge from remote |
+| `fetch` | | Fetch from remote with status updates |
+| `create-pr` | `pr` | Create pull request after push |
 
-```bash
-cp .gittable.example.js .gittable.js
-```
+See the [Available Commands](#-available-commands) section above for more commands.
 
-Or create your own `.gittable.js`:
+## ⚙️ Configuration
+
+Gittable uses configuration files to customize commit prompts and behavior. Create one of the following files in your project root:
+
+- `.gittable.js`
+- `.gittable.json`
+- Or add config to `package.json` under `gittable` key
+
+### Example Configuration (`.gittable.js`)
 
 ```javascript
 module.exports = {
-  // Commit types
   types: [
-    { value: 'feat', name: 'New Feature' },
-    { value: 'fix', name: 'Bug Fix' },
-    { value: 'docs', name: 'Documentation' },
-    // ... more types
+    { value: 'feat', name: 'feat:     A new feature' },
+    { value: 'fix', name: 'fix:      A bug fix' },
+    { value: 'docs', name: 'docs:     Documentation only changes' },
+    { value: 'style', name: 'style:    Code style changes (formatting, etc.)' },
+    { value: 'refactor', name: 'refactor: Code refactoring' },
+    { value: 'perf', name: 'perf:     Performance improvements' },
+    { value: 'test', name: 'test:     Adding or updating tests' },
+    { value: 'chore', name: 'chore:    Maintenance tasks' },
   ],
-
-  // Scopes
   scopes: [
-    { name: 'components' },
-    { name: 'api' },
-    { name: 'utils' },
-    // ... more scopes
+    'components',
+    'api',
+    'auth',
+    'db',
+    'config',
+    'utils',
   ],
-
-  // Ticket number support
-  allowTicketNumber: false,
-  isTicketNumberRequired: false,
+  allowTicketNumber: true,
   ticketNumberPrefix: 'TICKET-',
-  ticketNumberRegExp: '\\d{1,5}',
-
-  // Other options
-  allowCustomScopes: true,
-  allowBreakingChanges: ['feat', 'fix'],
-  skipQuestions: ['body'],
   subjectLimit: 100,
-  subjectSeparator: ': ',
+  allowBreakingChanges: ['feat', 'fix'],
 };
 ```
 
-### Configuration Options
+See the [Configuration](#️-configuration) section above for more details.
 
-- **types**: Array of commit types with value and display name
-- **scopes**: Array of scope objects (automatically categorized)
-- **allowTicketNumber**: Enable ticket number in commit footer
-- **isTicketNumberRequired**: Make ticket number mandatory
-- **ticketNumberPrefix**: Prefix for ticket numbers (e.g., "TICKET-")
-- **ticketNumberRegExp**: Regex pattern for ticket number validation
-- **allowCustomScopes**: Allow typing custom scopes
-- **allowBreakingChanges**: Array of types that can have breaking changes
-- **skipQuestions**: Array of questions to skip (e.g., ['body', 'footer'])
-- **subjectLimit**: Maximum length for commit subject (default: 100)
-- **subjectSeparator**: Separator between type and subject (default: ': ')
-- **breaklineChar**: Character to use for line breaks in body/footer (default: '|')
-- **upperCaseSubject**: Capitalize first letter of subject
-- **usePreparedCommit**: Reuse commit from .git/COMMIT_EDITMSG
-- **askForBreakingChangeFirst**: Ask for breaking change as first question
+## 📚 Documentation
 
-See `.gittable.example.js` for a complete example configuration.
+- **[Architecture](./ARCHITECTURE.md)** - System architecture and design
+- **README** - This file contains installation, usage, and configuration guides
 
-## Commands
+## 💡 Usage Examples
 
-Gittable organizes commands into workflow-based categories:
-
-### Starting a Project
-- `init` - Initialize a new Git repository
-- `clone` - Clone a repository
-- `config` - Configure Git settings
-
-### Daily Development
-- `status` / `s` - Show repository status
-- `add` - Stage files interactively
-- `commit` / `ci` - Create commits with conventional format
-- `diff` - Show changes
-- `diff-preview` - Preview changes before committing
-- `info` - Quick repository overview
-
-### Collaboration
-- `push` - Push to remote
-- `pull` - Pull from remote
-- `fetch` - Fetch from remote
-- `sync` - Sync with remote (fetch + rebase + push)
-- `branch` - Branch management
-- `merge` - Merge branches
-- `rebase` - Rebase current branch
-- `create-pr` - Create pull request
-
-### History & Inspection
-- `log` - View commit history
-- `show` - Show commit details
-- `blame` - Show file blame
-- `grep` - Search commit messages
-- `shortlog` - Summarized commit log
-- `describe` - Describe commit
-- `diff` / `range-diff` - Show changes or compare commit ranges (use `diff --range-diff` or `range-diff`)
-
-### Advanced Operations
-- `stash` - Stash management
-- `undo` - Undo last commit
-- `revert` - Revert a commit
-- `bisect` - Binary search for bugs
-- `conflicts` - View merge conflicts
-- `resolve` - Resolve conflicts
-
-### Maintenance & Utilities
-- `remove` / `rm` - Remove files
-- `move` / `mv` - Move/rename files
-- `restore` - Restore files
-- `clean` - Clean untracked files
-- `tag` - Tag management
-- `archive` - Create archive
-- `worktree` - Manage worktrees
-- `submodule` - Manage submodules
-- `theme` - Customize appearance
-- `help` - Show help
-- `examples` - Show usage examples
-- `tutorial` - Interactive tutorial
-
-### Combined Workflows
-- `pull --rebase` - Pull with rebase
-
-**Note**: The `commit` command includes push/sync options automatically. After committing, you'll be prompted to push, sync, or skip.
-
-For detailed help on any command, use `gittable help <command>`.
-
-## Acknowledgments
-
-This project was inspired and jumpstarted by:
-
-- **[cz-customizable](https://github.com/leoforfree/cz-customizable)** - For commit message formatting and conventional commits inspiration
-- **[bombshell-dev](https://github.com/bombshell-dev/)** - For CLI framework inspiration
-- **[chalk](https://github.com/chalk/chalk)** - For terminal colors
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`gittable commit`)
-4. Push to the branch (`gittable push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development
+### Creating a Commit
 
 ```bash
-# Clone the repository
+gittable commit
+```
+
+This interactive command guides you through:
+1. Selecting commit type (feat, fix, docs, etc.)
+2. Choosing scope (optional)
+3. Entering ticket number (if enabled)
+4. Writing commit message
+5. Adding extended description (optional)
+6. Breaking changes (if applicable)
+7. Issues closed (optional)
+
+### Quick Workflow
+
+```bash
+gittable quick
+# or
+gittable q
+```
+
+This will:
+1. Show changes
+2. Stage files (with confirmation)
+3. Create a commit (interactive)
+4. Push to remote (with confirmation)
+
+### Combined Commands
+
+```bash
+# Stage and commit in one flow
+gittable add-commit
+gittable ac
+
+# Commit and push
+gittable commit-push
+gittable cp
+
+# Commit and sync (fetch + rebase + push)
+gittable commit-sync
+gittable cs
+```
+
+### Branch Management
+
+```bash
+# List all branches
+gittable branch
+
+# Create and checkout new branch
+gittable branch create feature/new-feature
+
+# Clean up merged branches
+gittable branch-clean
+```
+
+### Status Check
+
+```bash
+gittable status
+# or use short alias
+gittable st
+```
+
+Shows a beautiful, color-coded status display with:
+- Current branch information
+- Last commit message and time
+- Staged files
+- Unstaged files
+- Untracked files
+- Ahead/behind information relative to remote
+- Smart suggestions for next actions
+
+## 🛠️ Development
+
+### Prerequisites
+
+- Node.js >= 14.0.0
+- npm or yarn
+- Git
+
+### Setup
+
+```bash
+# Clone repository
 git clone https://github.com/GG-Santos/Gittable.git
 cd Gittable
 
 # Install dependencies
 npm install
 
+# Link for local development
+npm link
+
 # Run tests
 npm test
 
 # Lint code
 npm run lint
-
-# Format code
-npm run format
 ```
 
-## License
+For development setup, see the [Development](#️-development) section above.
+
+## 🏗️ Architecture
+
+Gittable uses a modular, category-based architecture for better maintainability and extensibility.
+
+### Project Structure
+
+```
+gittable/
+├── src/
+│   ├── cli/          # CLI layer (entry, parsing, routing)
+│   ├── commands/     # Commands organized by category
+│   ├── core/         # Core business logic
+│   ├── ui/           # UI components and framework
+│   └── utils/        # Shared utilities
+├── test/             # Test suite (unit, integration, fixtures)
+├── scripts/          # Build and publish scripts
+└── index.js          # Main entry point
+```
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed architecture documentation.
+
+## 📦 Dependencies
+
+### Production Dependencies
+
+- **chalk** (^4.1.2) - Terminal string styling
+- **cli-table3** (^0.6.5) - Beautiful tables for CLI output
+- **find-config** (^1.0.0) - Configuration file discovery
+- **prettycli** (^1.1.0) - Enhanced CLI logging
+- **sisteransi** (^1.0.5) - ANSI escape sequences
+- **wcwidth** (^1.0.1) - Character width calculation
+- **word-wrap** (^1.2.5) - Text wrapping utility
+
+### Development Dependencies
+
+- **@biomejs/biome** (^1.9.4) - Fast formatter and linter
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these guidelines:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes and add tests
+4. Commit using conventional commits (`feat: add amazing feature`)
+5. Push to your branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+For more details, see the [Development](#️-development) section above.
+
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Links
+## 🙏 Acknowledgments
 
-- **Repository**: [https://github.com/GG-Santos/Gittable](https://github.com/GG-Santos/Gittable)
-- **Issues**: [https://github.com/GG-Santos/Gittable/issues](https://github.com/GG-Santos/Gittable/issues)
-- **Homepage**: [https://github.com/GG-Santos/Gittable#readme](https://github.com/GG-Santos/Gittable#readme)
+Gittable is built with the following excellent open-source projects:
 
+- **[@clack/prompts](https://github.com/natemoo-re/clack)** by [@natemoo-re](https://github.com/natemoo-re) - Beautiful CLI prompts library
+- **[conventional-changelog](https://github.com/conventional-changelog)** - Conventional commits specification
+- **[chalk](https://github.com/chalk/chalk)** by [@sindresorhus](https://github.com/sindresorhus) - Terminal string styling
+- **[cli-table3](https://github.com/cli-table/cli-table3)** - Beautiful CLI tables
+- **[Biome](https://biomejs.dev/)** - Fast formatter and linter
+
+## 👤 Author
+
+**GG-Santos** from Wab n' Wab Atelier
+
+- Email: ggsantos_0415@proton.me
+- GitHub: [@GG-Santos](https://github.com/GG-Santos)
+
+---
+
+<div align="center">
+
+Made with dedication by the Wab n' Wab Atelier
+
+[Report Bug](https://github.com/GG-Santos/Gittable/issues) • [Request Feature](https://github.com/GG-Santos/Gittable/issues) • [View on GitHub](https://github.com/GG-Santos/Gittable)
+
+</div>
