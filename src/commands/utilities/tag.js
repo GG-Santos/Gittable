@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { createTable } = require('../../ui/table');
 const {
@@ -41,25 +41,23 @@ const createTag = async (args) => {
   const lightweight = args.includes('--lightweight');
 
   if (!name) {
-    const theme = getTheme();
-    name = await clack.text({
-      message: theme.primary('Tag name:'),
+    name = await ui.prompt.text({
+      message: 'Tag name:',
       placeholder: 'v1.0.0',
     });
 
-    if (handleCancel(name)) return;
+    if (name === null) return;
   }
 
   const annotated = !lightweight;
   if (annotated && !message) {
-    const theme = getTheme();
-    message = await clack.text({
-      message: theme.primary('Tag message (optional):'),
+    message = await ui.prompt.text({
+      message: 'Tag message (optional):',
       placeholder: 'Release version 1.0.0',
       required: false,
     });
 
-    if (handleCancel(message)) return;
+    if (message === null) return;
   }
 
   let command = 'tag';
@@ -86,13 +84,12 @@ const deleteTag = async (args) => {
   let name = args[0];
 
   if (!name) {
-    const theme = getTheme();
-    name = await clack.text({
-      message: theme.primary('Tag name to delete:'),
+    name = await ui.prompt.text({
+      message: 'Tag name to delete:',
       placeholder: 'v1.0.0',
     });
 
-    if (handleCancel(name)) return;
+    if (name === null) return;
   }
 
   const confirmed = await promptConfirm(`Delete tag ${name}?`, false);
@@ -112,7 +109,7 @@ module.exports = async (args) => {
   if (!action || action === 'list' || action === 'ls') {
     showCommandHeader('TAG', 'Tag List');
     listTags();
-    clack.outro(chalk.green.bold('Done'));
+    ui.success('Done');
     return;
   }
 

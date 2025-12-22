@@ -1,7 +1,7 @@
 const path = require('node:path');
 const fs = require('node:fs');
 const findConfig = require('find-config');
-const clack = require('@clack/prompts');
+const prompts = require('../../ui/prompts');
 const chalk = require('chalk');
 const { getTheme } = require('../../utils/color-theme');
 
@@ -128,28 +128,6 @@ async function runSetup() {
   console.log(chalk.bold(theme.primary('Welcome to Gittable!')));
   console.log();
 
-  // Prompt for mode selection
-  const mode = await clack.select({
-    message: theme.primary('Choose your mode:'),
-    options: [
-      {
-        value: 'basic',
-        label: chalk.green('Basic'),
-        hint: 'Essential Git commands for beginners',
-      },
-      {
-        value: 'full',
-        label: chalk.blue('Full'),
-        hint: 'All commands and features',
-      },
-    ],
-  });
-
-  if (clack.isCancel(mode)) {
-    clack.cancel(chalk.yellow('Setup cancelled'));
-    return null;
-  }
-
   // Find where to create config
   const configDir = findConfigDirectory();
   const configPath = path.join(configDir, CONFIG_NAMES[0]);
@@ -157,7 +135,7 @@ async function runSetup() {
   // Find example config
   const examplePath = findExampleConfig();
   if (!examplePath) {
-    clack.cancel(chalk.red('Could not find .gittable.example.js'));
+    prompts.cancel(chalk.red('Could not find .gittable.example.js'));
     console.log(chalk.yellow('Please ensure .gittable.example.js exists in the project.'));
     return null;
   }
@@ -167,27 +145,28 @@ async function runSetup() {
   try {
     configContent = fs.readFileSync(examplePath, 'utf8');
   } catch (error) {
-    clack.cancel(chalk.red('Failed to read example config'));
+    prompts.cancel(chalk.red('Failed to read example config'));
     console.error(error);
     return null;
   }
 
-  // Update mode in config
-  // Replace mode: 'full' with the selected mode
-  configContent = configContent.replace(/mode:\s*['"]full['"]/, `mode: '${mode}'`);
-
-  // If basic mode, we'll set enabledCommands later via mode-filter
-  // For now, just set the mode
+  // Remove mode setting from config (mode system has been removed)
+  // Comment out or remove mode line if present
+  configContent = configContent.replace(
+    /mode:\s*['"]\w+['"],?\s*\/\/.*/g,
+    "// mode: 'full', // Deprecated - no longer used"
+  );
+  configContent = configContent.replace(/mode:\s*['"]\w+['"],?/g, "// mode: 'full', // Deprecated");
 
   // Write config file
   try {
     fs.writeFileSync(configPath, configContent, 'utf8');
-    clack.log.success(chalk.green(`Configuration created: ${configPath}`));
-    clack.log.info(chalk.gray(`Mode: ${chalk.bold(mode === 'basic' ? 'Basic' : 'Full')}`));
+    prompts.log.success(chalk.green(`Configuration created: ${configPath}`));
+    prompts.log.info(chalk.gray('All commands are now available (mode system removed)'));
     console.log();
-    return { path: configPath, mode };
+    return { path: configPath };
   } catch (error) {
-    clack.cancel(chalk.red('Failed to create config file'));
+    prompts.cancel(chalk.red('Failed to create config file'));
     console.error(error);
     return null;
   }

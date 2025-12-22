@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { showCommandHeader } = require('../../utils/command-helpers');
 
@@ -24,10 +24,11 @@ module.exports = async (args) => {
   const result = execGit(command, { silent: false });
 
   if (!result.success) {
-    clack.cancel(chalk.red('Failed to generate shortlog'));
-    console.error(result.error);
-    process.exit(1);
+    ui.error('Failed to generate shortlog', {
+      suggestion: result.error,
+      exit: true,
+    });
   }
 
-  clack.outro(chalk.green.bold('Done'));
+  ui.success('Done');
 };

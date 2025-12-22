@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { createActionRouter } = require('../../utils/action-router');
 const {
@@ -57,8 +57,9 @@ const listSubmodules = async () => {
       }
     }
   } else {
-    clack.cancel(chalk.red('Failed to list submodules'));
-    console.error(result.error);
+    ui.error('Failed to list submodules', {
+      suggestion: result.error,
+    });
   }
 };
 
@@ -69,12 +70,11 @@ const addSubmodule = async (args) => {
   let path = args[1];
 
   if (!url) {
-    const theme = getTheme();
-    url = await clack.text({
-      message: theme.primary('Submodule repository URL:'),
+    url = await ui.prompt.text({
+      message: 'Submodule repository URL:',
       placeholder: 'https://github.com/user/repo.git',
     });
-    if (handleCancel(url)) return;
+    if (url === null) return;
   }
 
   if (!path) {
@@ -82,13 +82,12 @@ const addSubmodule = async (args) => {
     const urlMatch = url.match(/\/([^\/]+?)(?:\.git)?$/);
     const defaultPath = urlMatch ? urlMatch[1] : 'submodule';
 
-    const theme = getTheme();
-    path = await clack.text({
-      message: theme.primary('Submodule path:'),
+    path = await ui.prompt.text({
+      message: 'Submodule path:',
       placeholder: defaultPath,
       initialValue: defaultPath,
     });
-    if (handleCancel(path)) return;
+    if (path === null) return;
   }
 
   await execGitWithSpinner(`submodule add ${url} ${path}`, {
@@ -146,18 +145,17 @@ const removeSubmodule = async (args) => {
         .filter(Boolean);
 
       if (submoduleOptions.length === 0) {
-        clack.cancel(chalk.yellow('No submodules to remove'));
+        ui.warn('No submodules to remove');
         return;
       }
 
-      const theme = getTheme();
-      path = await clack.select({
-        message: theme.primary('Select submodule to remove:'),
+      path = await ui.prompt.select({
+        message: 'Select submodule to remove:',
         options: submoduleOptions,
       });
-      if (handleCancel(path)) return;
+      if (path === null) return;
     } else {
-      clack.cancel(chalk.yellow('No submodules found'));
+      ui.warn('No submodules found');
       return;
     }
   }
@@ -166,7 +164,7 @@ const removeSubmodule = async (args) => {
   if (!confirmed) return;
 
   // Remove submodule (requires multiple steps)
-  const spinner = clack.spinner();
+  const spinner = ui.prompt.spinner();
   spinner.start(`Removing submodule ${path}`);
 
   try {
@@ -190,12 +188,13 @@ const removeSubmodule = async (args) => {
     }
 
     spinner.stop();
-    clack.outro(chalk.green.bold(`Submodule ${path} removed`));
+    ui.success(`Submodule ${path} removed`);
   } catch (error) {
     spinner.stop();
-    clack.cancel(chalk.red('Failed to remove submodule'));
-    console.error(error.message);
-    process.exit(1);
+    ui.error('Failed to remove submodule', {
+      suggestion: error.message,
+      exit: true,
+    });
   }
 };
 

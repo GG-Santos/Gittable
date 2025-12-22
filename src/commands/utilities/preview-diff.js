@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { showCommandHeader, execGitWithSpinner } = require('../../utils/command-helpers');
 const { getStatus } = require('../../core/git');
 const { execGit } = require('../../core/git');
@@ -24,7 +24,7 @@ module.exports = async (args) => {
     }
 
     if (files.length === 0) {
-      clack.cancel(chalk.yellow('No staged changes to preview'));
+      ui.warn('No staged changes to preview');
       return;
     }
 
@@ -47,12 +47,12 @@ module.exports = async (args) => {
     }
 
     if (files.length === 0) {
-      clack.cancel(chalk.yellow('No unstaged changes to preview'));
+      ui.warn('No unstaged changes to preview');
       return;
     }
 
-    const theme = getTheme();
-    console.log(chalk.bold(theme.primary('\nUnstaged changes:')));
+    const theme2 = getTheme();
+    console.log(chalk.bold(theme2.primary('\nUnstaged changes:')));
     for (const file of files) {
       console.log(chalk.yellow(`\n--- ${file}`));
       const diffResult = execGit(`diff ${file}`, { silent: true });
@@ -64,7 +64,7 @@ module.exports = async (args) => {
     // Show all changes
     const status = getStatus();
     if (!status) {
-      clack.cancel(chalk.yellow('No changes to preview'));
+      ui.warn('No changes to preview');
       return;
     }
 
@@ -74,12 +74,12 @@ module.exports = async (args) => {
     ];
 
     if (allFiles.length === 0) {
-      clack.cancel(chalk.yellow('No changes to preview'));
+      ui.warn('No changes to preview');
       return;
     }
 
-    const theme = getTheme();
-    console.log(chalk.bold(theme.primary('\nAll changes:')));
+    const theme3 = getTheme();
+    console.log(chalk.bold(theme3.primary('\nAll changes:')));
     for (const { file, type: fileType } of allFiles) {
       const color = fileType === 'staged' ? chalk.green : chalk.yellow;
       console.log(color(`\n--- ${file} (${fileType})`));
@@ -107,5 +107,5 @@ module.exports = async (args) => {
     }
   }
 
-  clack.outro(chalk.green.bold('Preview complete'));
+  ui.success('Preview complete');
 };

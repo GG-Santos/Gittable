@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { showBanner } = require('../../ui/banner');
 const VERSION = require('../../../package.json').version;
 const { requireTTY } = require('../../utils/command-helpers');
@@ -73,14 +73,12 @@ module.exports = async (_args) => {
     label: chalk.red('Exit tutorial'),
   });
 
-  const theme = getTheme();
-  const selected = await clack.select({
-    message: theme.primary('Select a tutorial:'),
+  const selected = await ui.prompt.select({
+    message: 'Select a tutorial:',
     options,
   });
 
-  if (clack.isCancel(selected) || selected === 'exit') {
-    clack.cancel(chalk.yellow('Tutorial cancelled'));
+  if (selected === null || selected === 'exit') {
     return;
   }
 
@@ -98,13 +96,12 @@ module.exports = async (_args) => {
     console.log();
 
     if (i < tutorial.steps.length - 1) {
-      const continueTutorial = await clack.confirm({
-        message: chalk.yellow('Continue to next step?'),
+      const continueTutorial = await ui.prompt.confirm({
+        message: 'Continue to next step?',
         initialValue: true,
       });
 
       if (!continueTutorial) {
-        clack.cancel(chalk.yellow('Tutorial paused'));
         return;
       }
       console.log();
@@ -112,6 +109,7 @@ module.exports = async (_args) => {
   }
 
   console.log();
-  clack.outro(chalk.green.bold('Tutorial complete!'));
-  console.log(chalk.dim('Try these commands in your repository'));
+  ui.success('Tutorial complete!');
+  const theme = getTheme();
+  console.log(theme.dim('Try these commands in your repository'));
 };

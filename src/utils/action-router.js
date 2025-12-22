@@ -1,4 +1,4 @@
-const clack = require('@clack/prompts');
+const prompts = require('../ui/prompts');
 const chalk = require('chalk');
 const { getTheme } = require('./color-theme');
 const { showCommandHeader, requireTTY } = require('./command-helpers');
@@ -33,13 +33,13 @@ function createActionRouter(config) {
         );
       }
 
-      const selectedAction = await clack.select({
+      const selectedAction = await prompts.select({
         message: getTheme().primary('What would you like to do?'),
         options: actions,
       });
 
-      if (clack.isCancel(selectedAction)) {
-        clack.cancel(chalk.yellow('Cancelled'));
+      if (prompts.isCancel(selectedAction)) {
+        prompts.cancel(chalk.yellow('Cancelled'));
         return;
       }
 
@@ -56,7 +56,7 @@ function createActionRouter(config) {
       }
       await actionDef.handler(args.slice(1));
       if (actionDef.showOutro !== false) {
-        clack.outro(chalk.green.bold('Done'));
+        prompts.outro(chalk.green.bold('Done'));
       }
       return;
     }
@@ -69,7 +69,7 @@ function createActionRouter(config) {
 
     // Unknown action
     showCommandHeader(commandName, 'Help');
-    clack.cancel(chalk.red(`Unknown action: ${action}`));
+    prompts.cancel(chalk.red(`Unknown action: ${action}`));
     console.log(chalk.yellow('\nAvailable actions:'));
     const theme = getTheme();
     actions.forEach((a) => {

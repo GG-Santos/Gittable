@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { getCurrentBranch } = require('../../core/git');
 const {
   showCommandHeader,
@@ -29,18 +29,15 @@ module.exports = async (args) => {
   const protection = checkBranchProtection(branchName, force ? 'force' : 'push');
 
   if (protection.isProtected) {
-    console.log();
-    console.log(chalk.yellow.bold(`⚠ Warning: ${protection.warning}`));
-    console.log(chalk.yellow(protection.message));
+    ui.warn(protection.warning, {
+      action: protection.message,
+    });
     if (protection.suggestion) {
-      console.log(chalk.cyan(protection.suggestion));
+      ui.info(protection.suggestion);
     }
-    console.log();
 
-    const { promptConfirm } = require('../../utils/command-helpers');
     const proceed = await promptConfirm('Proceed anyway?', false);
     if (!proceed) {
-      clack.cancel(chalk.yellow('Cancelled'));
       return;
     }
   }

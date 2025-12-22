@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { showCommandHeader, requireTTY, handleCancel } = require('../../utils/command-helpers');
 const { getTheme } = require('../../utils/color-theme');
@@ -62,5 +62,5 @@ module.exports = async (args) => {
   }
 
   console.log();
-  clack.outro(chalk.green.bold('Preview complete'));
+  ui.success('Preview complete');
 };

@@ -108,7 +108,7 @@ async function checkPreCommitHook() {
   }
 
   const { promptConfirm } = require('./command-helpers');
-  const clack = require('@clack/prompts');
+  // Prompts not needed here - using command-helpers instead
 
   const runHook = await promptConfirm('Run pre-commit hook?', true);
 

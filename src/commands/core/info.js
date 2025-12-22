@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const {
   getStatus,
   getCurrentBranch,
@@ -8,6 +8,7 @@ const {
   remoteExists,
 } = require('../../core/git');
 const { showCommandHeader } = require('../../utils/command-helpers');
+const { getTheme } = require('../../utils/color-theme');
 
 /**
  * Info command - Quick repository overview
@@ -20,25 +21,26 @@ module.exports = async (_args) => {
   const lastCommit = getLog(1)[0];
   const stashes = getStashList();
   const hasRemote = remoteExists();
+  const theme = getTheme();
 
   console.log();
-  console.log(chalk.bold.cyan('Branch:'));
-  console.log(`  ${chalk.cyan(branch || 'unknown')}`);
+  console.log(theme.primary(chalk.bold('Branch:')));
+  console.log(`  ${theme.primary(branch || 'unknown')}`);
 
   if (hasRemote && status) {
     console.log();
-    console.log(chalk.bold.cyan('Remote Status:'));
+    console.log(theme.primary(chalk.bold('Remote Status:')));
     if (status.ahead > 0) {
-      console.log(`  ${chalk.yellow(`↑ ${status.ahead} commit(s) ahead`)}`);
+      console.log(`  ${theme.warning(`↑ ${status.ahead} commit(s) ahead`)}`);
     }
     if (status.behind > 0) {
-      console.log(`  ${chalk.yellow(`↓ ${status.behind} commit(s) behind`)}`);
+      console.log(`  ${theme.warning(`↓ ${status.behind} commit(s) behind`)}`);
     }
     if (status.diverged) {
-      console.log(`  ${chalk.red('⚠ Diverged from remote')}`);
+      console.log(`  ${theme.error('⚠ Diverged from remote')}`);
     }
     if (status.ahead === 0 && status.behind === 0 && !status.diverged) {
-      console.log(`  ${chalk.green('✓ Up to date')}`);
+      console.log(`  ${theme.success('✓ Up to date')}`);
     }
 
     // Show CI/CD and PR links if available
@@ -48,50 +50,49 @@ module.exports = async (_args) => {
 
     if (ciUrl || prUrl) {
       console.log();
-      console.log(chalk.bold.cyan('Links:'));
+      console.log(theme.primary(chalk.bold('Links:')));
       if (ciUrl) {
-        console.log(`  ${chalk.blue('CI/CD:')} ${chalk.dim(ciUrl)}`);
+        console.log(`  ${theme.info('CI/CD:')} ${theme.dim(ciUrl)}`);
       }
       if (prUrl) {
-        console.log(`  ${chalk.blue('Create PR:')} ${chalk.dim(prUrl)}`);
+        console.log(`  ${theme.info('Create PR:')} ${theme.dim(prUrl)}`);
       }
     }
   }
 
   if (status) {
     console.log();
-    console.log(chalk.bold.cyan('Changes:'));
+    console.log(theme.primary(chalk.bold('Changes:')));
     if (status.staged.length > 0) {
-      console.log(`  ${chalk.green(`+ ${status.staged.length} staged`)}`);
+      console.log(`  ${theme.success(`+ ${status.staged.length} staged`)}`);
     }
     if (status.unstaged.length > 0) {
-      console.log(`  ${chalk.yellow(`M ${status.unstaged.length} modified`)}`);
+      console.log(`  ${theme.warning(`M ${status.unstaged.length} modified`)}`);
     }
     if (status.untracked.length > 0) {
-      console.log(`  ${chalk.cyan(`? ${status.untracked.length} untracked`)}`);
+      console.log(`  ${theme.info(`? ${status.untracked.length} untracked`)}`);
     }
     if (
       status.staged.length === 0 &&
       status.unstaged.length === 0 &&
       status.untracked.length === 0
     ) {
-      console.log(`  ${chalk.gray('No changes')}`);
+      console.log(`  ${theme.dim('No changes')}`);
     }
   }
 
   if (lastCommit) {
     console.log();
-    console.log(chalk.bold.cyan('Last Commit:'));
-    console.log(`  ${chalk.dim(lastCommit.hash)} ${lastCommit.message}`);
-    console.log(`  ${chalk.dim(`${lastCommit.author}, ${lastCommit.date}`)}`);
+    console.log(theme.primary(chalk.bold('Last Commit:')));
+    console.log(`  ${theme.dim(lastCommit.hash)} ${lastCommit.message}`);
+    console.log(`  ${theme.dim(`${lastCommit.author}, ${lastCommit.date}`)}`);
   }
 
   if (stashes.length > 0) {
     console.log();
-    console.log(chalk.bold.cyan('Stashes:'));
-    console.log(`  ${chalk.yellow(`${stashes.length} stash(es)`)}`);
+    console.log(theme.primary(chalk.bold('Stashes:')));
+    console.log(`  ${theme.warning(`${stashes.length} stash(es)`)}`);
   }
 
-  console.log();
-  clack.outro(chalk.green.bold('Info complete'));
+  ui.success('Info complete');
 };

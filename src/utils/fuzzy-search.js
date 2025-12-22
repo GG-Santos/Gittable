@@ -71,7 +71,7 @@ function fuzzyMatch(query, text) {
 
   // Fuzzy match using similarity
   const score = similarityScore(queryLower, textLower);
-  if (score > 0.5) {
+  if (score > 0.65) {
     return { match: true, score };
   }
 
@@ -104,9 +104,9 @@ function fuzzySearchCommands(commands, query) {
         }
       }
 
-      // Check description
+      // Check description (require minimum 0.6 score for description matches)
       const descMatch = fuzzyMatch(query, cmd.description);
-      if (descMatch.match && descMatch.score > maxScore) {
+      if (descMatch.match && descMatch.score >= 0.6 && descMatch.score > maxScore) {
         maxScore = descMatch.score;
         matchType = 'description';
       }
@@ -127,6 +127,7 @@ function fuzzySearchCommands(commands, query) {
       const typeOrder = { name: 3, alias: 2, description: 1, none: 0 };
       return typeOrder[b.matchType] - typeOrder[a.matchType];
     })
+    .slice(0, 15) // Limit to top 15 most relevant results
     .map((result) => result.command);
 
   return results;
@@ -137,3 +138,4 @@ module.exports = {
   similarityScore,
   fuzzyMatch,
 };
+

@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const {
   showCommandHeader,
@@ -33,28 +33,26 @@ module.exports = async (args) => {
   // Interactive prompts if needed
   let selectedFormat = format;
   if (!selectedFormat) {
-    const theme = getTheme();
-    selectedFormat = await clack.select({
-      message: theme.primary('Archive format:'),
+    selectedFormat = await ui.prompt.select({
+      message: 'Archive format:',
       options: [
         { value: 'tar', label: 'TAR (.tar)' },
         { value: 'tar.gz', label: 'TAR GZIP (.tar.gz)' },
         { value: 'zip', label: 'ZIP (.zip)' },
       ],
     });
-    if (handleCancel(selectedFormat)) return;
+    if (selectedFormat === null) return;
   }
 
   let outputFile = output;
   if (!outputFile) {
-    const theme = getTheme();
     const defaultName = `archive-${treeish.replace(/[^a-zA-Z0-9]/g, '-')}.${selectedFormat === 'tar.gz' ? 'tar.gz' : selectedFormat}`;
-    outputFile = await clack.text({
-      message: theme.primary('Output file:'),
+    outputFile = await ui.prompt.text({
+      message: 'Output file:',
       placeholder: defaultName,
       initialValue: defaultName,
     });
-    if (handleCancel(outputFile)) return;
+    if (outputFile === null) return;
   }
 
   // Build command
@@ -63,7 +61,7 @@ module.exports = async (args) => {
     const { execSync } = require('node:child_process');
     const fs = require('node:fs');
     const zlib = require('node:zlib');
-    const spinner = clack.spinner();
+    const spinner = ui.prompt.spinner();
     spinner.start(`Creating archive ${outputFile}`);
 
     try {
@@ -78,12 +76,13 @@ module.exports = async (args) => {
       const gzipped = zlib.gzipSync(gitResult);
       fs.writeFileSync(outputFile, gzipped);
       spinner.stop();
-      clack.outro(chalk.green.bold(`Archive created: ${outputFile}`));
+      ui.success(`Archive created: ${outputFile}`);
     } catch (error) {
       spinner.stop();
-      clack.cancel(chalk.red('Failed to create archive'));
-      console.error(error.message);
-      process.exit(1);
+      ui.error('Failed to create archive', {
+        suggestion: error.message,
+        exit: true,
+      });
     }
   } else {
     let command = `archive --format=${selectedFormat} --output=${outputFile}`;

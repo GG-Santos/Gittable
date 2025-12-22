@@ -1,4 +1,4 @@
-const clack = require('@clack/prompts');
+const ui = require('../../ui/framework');
 const chalk = require('chalk');
 const { getStatus } = require('../../core/git');
 const {
@@ -25,8 +25,7 @@ const stageFiles = async (files) => {
     // Interactive mode: show unstaged files
     const status = getStatus();
     if (!status) {
-      clack.cancel(chalk.red('Failed to get repository status'));
-      process.exit(1);
+      ui.error('Failed to get repository status', { exit: true });
     }
 
     // Use enhanced file selection with directory grouping
@@ -39,13 +38,12 @@ const stageFiles = async (files) => {
     const allFiles = createFileOptions(allFilesList, statusMap);
 
     if (allFiles.length === 0) {
-      clack.cancel(chalk.yellow('No files to stage'));
+      ui.warn('No files to stage');
       return [];
     }
 
-    const theme = getTheme();
-    const selected = await clack.multiselect({
-      message: theme.primary('Select files to stage:'),
+    const selected = await ui.prompt.multiselect({
+      message: 'Select files to stage:',
       options: allFiles,
     });
 
@@ -89,9 +87,10 @@ module.exports = async (args) => {
     try {
       await commitFlow(commitOptions);
     } catch (error) {
-      clack.cancel(chalk.red('Commit failed'));
-      console.error(error.message);
-      process.exit(1);
+      ui.error('Commit failed', {
+        suggestion: error.message,
+        exit: true,
+      });
     }
     return;
   }
@@ -100,7 +99,7 @@ module.exports = async (args) => {
   const filesToStage = await stageFiles(args);
 
   if (filesToStage.length === 0) {
-    clack.cancel(chalk.yellow('No files selected'));
+    ui.warn('No files selected');
     return;
   }
 
@@ -125,8 +124,9 @@ module.exports = async (args) => {
   try {
     await commitFlow(commitOptions);
   } catch (error) {
-    clack.cancel(chalk.red('Commit failed'));
-    console.error(error.message);
-    process.exit(1);
+    ui.error('Commit failed', {
+      suggestion: error.message,
+      exit: true,
+    });
   }
 };

@@ -1,3 +1,5 @@
+const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { getCurrentBranch } = require('../../core/git');
 const {
   showCommandHeader,
@@ -8,8 +10,6 @@ const {
 const { ensureRemoteExists } = require('../../utils/remote-helpers');
 const { getValidBranch } = require('../../utils/branch-helpers');
 const { commitFlow } = require('../../core/commit/flow');
-const clack = require('@clack/prompts');
-const chalk = require('chalk');
 
 /**
  * Commit + Push command
@@ -51,20 +51,19 @@ module.exports = async (args) => {
     }
 
     if (!commitResult.success) {
-      clack.cancel(chalk.red('Commit failed, skipping push'));
-      process.exit(1);
+      ui.error('Commit failed, skipping push', { exit: true });
     }
 
     // Step 2: Ask if user wants to push
     if (skipPush) {
-      clack.outro(chalk.green('Commit created successfully (push skipped)'));
+      ui.success('Commit created successfully (push skipped)');
       return;
     }
 
     const shouldPush = await promptConfirm(`Push to ${remote}/${branchName}?`, true);
 
     if (!shouldPush) {
-      clack.outro(chalk.green('Commit created successfully (push cancelled)'));
+      ui.success('Commit created successfully (push cancelled)');
       return;
     }
 
@@ -75,7 +74,7 @@ module.exports = async (args) => {
         false
       );
       if (!confirmed) {
-        clack.outro(chalk.green('Commit created successfully (push cancelled)'));
+        ui.success('Commit created successfully (push cancelled)');
         return;
       }
     }
@@ -86,12 +85,16 @@ module.exports = async (args) => {
 
     await execGitWithSpinner(pushCommand, {
       spinnerText: `Pushing to ${remote}/${branchName}`,
-      successMessage: 'Commit and push completed',
+      successMessage: null, // We'll show success ourselves
       errorMessage: 'Push failed',
+      onSuccess: () => {
+        ui.success('Commit and push completed');
+      },
     });
   } catch (error) {
-    clack.cancel(chalk.red('Operation failed'));
-    console.error(error.message);
-    process.exit(1);
+    ui.error('Operation failed', {
+      suggestion: error.message,
+      exit: true,
+    });
   }
 };

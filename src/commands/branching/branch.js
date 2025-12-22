@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { getBranches, getCurrentBranch } = require('../../core/git');
 const { createTable } = require('../../ui/table');
 const { createActionRouter } = require('../../utils/action-router');
@@ -45,13 +45,12 @@ const listBranches = async (args) => {
 const createBranch = async (args) => {
   let name = args[0];
   if (!name) {
-    const theme = getTheme();
-    name = await clack.text({
-      message: theme.primary('Branch name:'),
+    name = await ui.prompt.text({
+      message: 'Branch name:',
       placeholder: 'feature/new-feature',
     });
 
-    if (handleCancel(name)) return;
+    if (name === null) return;
   }
 
   await execGitWithSpinner(`checkout -b ${name}`, {
@@ -72,13 +71,12 @@ const checkoutBranch = async (args) => {
       label: branch.current ? chalk.green(`* ${branch.name}`) : branch.name,
     }));
 
-    const theme = getTheme();
-    name = await clack.select({
-      message: theme.primary('Select branch to checkout:'),
+    name = await ui.prompt.select({
+      message: 'Select branch to checkout:',
       options,
     });
 
-    if (handleCancel(name)) return;
+    if (name === null) return;
   }
 
   await execGitWithSpinner(`checkout ${name}`, {
@@ -103,22 +101,20 @@ const deleteBranch = async (args) => {
       }));
 
     if (options.length === 0) {
-      clack.cancel(chalk.yellow('No branches to delete'));
+      ui.warn('No branches to delete');
       return;
     }
 
-    const theme = getTheme();
-    name = await clack.select({
-      message: theme.primary('Select branch to delete:'),
+    name = await ui.prompt.select({
+      message: 'Select branch to delete:',
       options,
     });
 
-    if (handleCancel(name)) return;
+    if (name === null) return;
   }
 
   if (name === current) {
-    clack.cancel(chalk.red('Cannot delete current branch'));
-    process.exit(1);
+    ui.error('Cannot delete current branch', { exit: true });
   }
 
   const confirmed = await promptConfirm(`Delete branch ${name}?`, false);

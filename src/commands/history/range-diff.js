@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { showCommandHeader, requireTTY, handleCancel } = require('../../utils/command-helpers');
 const { getTheme } = require('../../utils/color-theme');
@@ -21,21 +21,19 @@ module.exports = async (args) => {
     requireTTY('Please provide two commit ranges: gittable range-diff <range1> <range2>');
 
     if (!range1) {
-      const theme = getTheme();
-      range1 = await clack.text({
-        message: theme.primary('First commit range (e.g., main..feature):'),
+      range1 = await ui.prompt.text({
+        message: 'First commit range (e.g., main..feature):',
         placeholder: 'main..feature',
       });
-      if (handleCancel(range1)) return;
+      if (range1 === null) return;
     }
 
     if (!range2) {
-      const theme = getTheme();
-      range2 = await clack.text({
-        message: theme.primary('Second commit range (e.g., main..feature-v2):'),
+      range2 = await ui.prompt.text({
+        message: 'Second commit range (e.g., main..feature-v2):',
         placeholder: 'main..feature-v2',
       });
-      if (handleCancel(range2)) return;
+      if (range2 === null) return;
     }
   }
 
@@ -56,10 +54,11 @@ module.exports = async (args) => {
   const result = execGit(command, { silent: false });
 
   if (!result.success) {
-    clack.cancel(chalk.red('Failed to compare commit ranges'));
-    console.error(result.error);
-    process.exit(1);
+    ui.error('Failed to compare commit ranges', {
+      suggestion: result.error,
+      exit: true,
+    });
   }
 
-  clack.outro(chalk.green.bold('Done'));
+  ui.success('Done');
 };

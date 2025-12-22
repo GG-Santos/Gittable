@@ -57,10 +57,8 @@ const readConfigFile = () => {
  * Normalize and validate config structure
  */
 function normalizeConfig(config) {
-  // Ensure mode is set (default to 'full' for backward compatibility)
-  if (!config.mode || (config.mode !== 'basic' && config.mode !== 'full')) {
-    config.mode = 'full';
-  }
+  // Mode system has been removed - ignore mode if present
+  // Keep it in config for backward compatibility but don't use it
 
   // Ensure enabledCommands is an array if provided
   if (config.enabledCommands !== undefined && !Array.isArray(config.enabledCommands)) {

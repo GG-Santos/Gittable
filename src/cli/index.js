@@ -3,8 +3,8 @@
 const ArgumentParser = require('./parser');
 const router = require('./router');
 const { showHelp, showInteractiveMenu } = require('./interactive');
-const { showBanner } = require('../ui/banner');
-const clack = require('@clack/prompts');
+const { showBanner } = require('../ui/components/banner');
+const prompts = require('../ui/prompts');
 const chalk = require('chalk');
 
 // Enable verbose/dry-run modes if flags present
@@ -38,7 +38,7 @@ async function main() {
     const VERSION = require('../../package.json').version;
     showBanner('GITTABLE', { version: VERSION });
     console.log();
-    clack.outro(chalk.green(`Version ${VERSION}`));
+    prompts.outro(chalk.green(`Version ${VERSION}`));
     process.exit(0);
   }
 
@@ -64,7 +64,7 @@ async function main() {
       await showInteractiveMenu();
       process.exit(0);
     } catch (error) {
-      clack.cancel(chalk.red('Startup failed'));
+      prompts.cancel(chalk.red('Startup failed'));
       console.error(error);
       process.exit(1);
     }
@@ -102,7 +102,7 @@ module.exports.prompter = prompter;
 // Run CLI if executed directly
 if (require.main === module) {
   main().catch((error) => {
-    clack.cancel(chalk.red('Fatal error'));
+    prompts.cancel(chalk.red('Fatal error'));
     console.error(error);
     process.exit(1);
   });

@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { createActionRouter } = require('../../utils/action-router');
 const {
@@ -17,19 +17,19 @@ const startBisect = async (args) => {
   let good = args[1];
 
   if (!bad) {
-    bad = await clack.text({
-      message: chalk.red('Bad commit (where the bug exists):'),
+    bad = await ui.prompt.text({
+      message: 'Bad commit (where the bug exists):',
       placeholder: 'HEAD',
     });
-    if (handleCancel(bad)) return;
+    if (bad === null) return;
   }
 
   if (!good) {
-    good = await clack.text({
-      message: chalk.green('Good commit (where bug does not exist):'),
+    good = await ui.prompt.text({
+      message: 'Good commit (where bug does not exist):',
       placeholder: 'v1.0.0 or commit hash',
     });
-    if (handleCancel(good)) return;
+    if (good === null) return;
   }
 
   await execGitWithSpinner(`bisect start ${bad} ${good}`, {
@@ -123,7 +123,7 @@ const viewBisect = async () => {
   if (result.success && result.output) {
     console.log(result.output);
   } else {
-    clack.cancel(chalk.yellow('No active bisect session'));
+    ui.warn('No active bisect session');
   }
 };
 

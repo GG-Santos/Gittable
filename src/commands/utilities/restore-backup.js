@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const {
   showCommandHeader,
   execGitWithSpinner,
@@ -22,7 +22,7 @@ module.exports = async (args) => {
     const backupBranches = branches.local.filter((b) => b.name.startsWith('backup/'));
 
     if (backupBranches.length === 0) {
-      clack.cancel(chalk.yellow('No backup branches found'));
+      ui.warn('No backup branches found');
       return;
     }
 
@@ -32,13 +32,12 @@ module.exports = async (args) => {
       hint: branch.current ? 'current' : '',
     }));
 
-    const theme = getTheme();
-    backupBranch = await clack.select({
-      message: theme.primary('Select backup branch to restore:'),
+    backupBranch = await ui.prompt.select({
+      message: 'Select backup branch to restore:',
       options,
     });
 
-    if (handleCancel(backupBranch)) return;
+    if (backupBranch === null) return;
   }
 
   // Verify backup branch exists
@@ -46,21 +45,19 @@ module.exports = async (args) => {
   const backupExists = branches.local.some((b) => b.name === backupBranch);
 
   if (!backupExists) {
-    clack.cancel(chalk.red(`Backup branch "${backupBranch}" not found`));
-    return;
+    ui.error(`Backup branch "${backupBranch}" not found`, { exit: true });
   }
 
   // Get current branch
   const currentBranch = branches.local.find((b) => b.current)?.name;
 
   // Confirm restore
-  const confirm = await clack.confirm({
-    message: chalk.yellow(`Restore from backup branch "${backupBranch}"?`),
+  const confirm = await ui.prompt.confirm({
+    message: `Restore from backup branch "${backupBranch}"?`,
     initialValue: false,
   });
 
-  if (clack.isCancel(confirm) || !confirm) {
-    clack.cancel(chalk.yellow('Cancelled'));
+  if (!confirm) {
     return;
   }
 
@@ -73,13 +70,12 @@ module.exports = async (args) => {
 
   // Optionally create a new branch from backup
   if (currentBranch && process.stdin.isTTY) {
-    const theme = getTheme();
-    const createNew = await clack.confirm({
-      message: theme.primary(`Create new branch "${currentBranch}-restored" from backup?`),
+    const createNew = await ui.prompt.confirm({
+      message: `Create new branch "${currentBranch}-restored" from backup?`,
       initialValue: false,
     });
 
-    if (createNew && !clack.isCancel(createNew)) {
+    if (createNew) {
       await execGitWithSpinner(`checkout -b ${currentBranch}-restored`, {
         spinnerText: `Creating branch ${currentBranch}-restored`,
         successMessage: `Branch ${currentBranch}-restored created from backup`,

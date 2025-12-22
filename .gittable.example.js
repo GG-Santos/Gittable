@@ -1,11 +1,11 @@
 module.exports = {
-  // Mode setting: 'basic' for essential commands only, 'full' for all commands
-  mode: 'full', // 'basic' | 'full'
+  // Mode system has been removed - all commands are always available
+  // Use enabledCommands array below to manually filter commands if needed
+  // mode: 'full', // Deprecated - no longer used
 
-  // Command filtering (auto-populated based on mode, or leave empty for all commands)
+  // Command filtering (leave empty for all commands, or specify array of command names)
   enabledCommands: [], // If empty, all commands enabled
 
-  // Commit configuration
   types: [
     { value: 'feat', name: 'New Feature' },
     { value: 'fix', name: 'Bug Fix' },

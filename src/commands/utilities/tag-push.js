@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const {
   showCommandHeader,
@@ -26,13 +26,12 @@ module.exports = async (args) => {
 
   // Get tag name
   if (!tagName) {
-    const theme = getTheme();
-    tagName = await clack.text({
-      message: theme.primary('Tag name:'),
+    tagName = await ui.prompt.text({
+      message: 'Tag name:',
       placeholder: 'v1.0.0',
     });
 
-    if (handleCancel(tagName)) return;
+    if (tagName === null) return;
   }
 
   // Check if tag already exists
@@ -40,7 +39,6 @@ module.exports = async (args) => {
   if (tagExists.success && tagExists.output.trim()) {
     const overwrite = await promptConfirm(`Tag ${tagName} already exists. Overwrite?`, false);
     if (!overwrite) {
-      clack.cancel(chalk.yellow('Cancelled'));
       return;
     }
     // Delete existing tag
@@ -55,14 +53,13 @@ module.exports = async (args) => {
   // Get message for annotated tag
   const annotated = !lightweight;
   if (annotated && !message) {
-    const theme = getTheme();
-    message = await clack.text({
-      message: theme.primary('Tag message (optional):'),
+    message = await ui.prompt.text({
+      message: 'Tag message (optional):',
       placeholder: 'Release version 1.0.0',
       required: false,
     });
 
-    if (handleCancel(message)) return;
+    if (message === null) return;
   }
 
   // Create tag
@@ -89,7 +86,7 @@ module.exports = async (args) => {
   const shouldPush = await promptConfirm(`Push tag ${tagName} to ${remote}?`, true);
 
   if (!shouldPush) {
-    clack.outro(chalk.green(`Tag ${tagName} created locally`));
+    ui.success(`Tag ${tagName} created locally`);
     return;
   }
 

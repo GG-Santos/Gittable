@@ -1,8 +1,9 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { showCommandHeader } = require('../../utils/command-helpers');
 const { getRepositoryState, getStateDescription } = require('../../core/git/state');
 const { execGit } = require('../../core/git');
+const { getTheme } = require('../../utils/color-theme');
 
 /**
  * State command - Show current repository state
@@ -11,42 +12,43 @@ module.exports = async (_args) => {
   showCommandHeader('STATE', 'Repository State');
 
   const state = getRepositoryState();
+  const theme = getTheme();
 
   console.log();
 
   if (state.clean) {
-    console.log(chalk.green.bold('✓ Repository is in clean state'));
-    console.log(chalk.dim('No active merge, rebase, or cherry-pick operations'));
+    ui.success('Repository is in clean state');
+    console.log(theme.dim('No active merge, rebase, or cherry-pick operations'));
   } else {
-    console.log(chalk.yellow.bold('⚠ Repository has active operations:'));
+    ui.warn('Repository has active operations:');
     console.log();
 
     if (state.merge) {
-      console.log(chalk.yellow('  • Merge in progress'));
+      console.log(theme.warning('  • Merge in progress'));
       const mergeHead = execGit('rev-parse --verify MERGE_HEAD', { silent: true });
       if (mergeHead.success) {
         const mergeCommit = execGit('log -1 --format="%s" MERGE_HEAD', { silent: true });
         if (mergeCommit.success) {
-          console.log(chalk.dim(`    Merging: ${mergeCommit.output.trim()}`));
+          console.log(theme.dim(`    Merging: ${mergeCommit.output.trim()}`));
         }
       }
       console.log();
-      console.log(chalk.dim('  Continue: gittable merge-continue'));
-      console.log(chalk.dim('  Abort: gittable merge-abort'));
+      console.log(theme.dim('  Continue: gittable merge-continue'));
+      console.log(theme.dim('  Abort: gittable merge-abort'));
     }
 
     if (state.rebase) {
-      console.log(chalk.yellow('  • Rebase in progress'));
+      console.log(theme.warning('  • Rebase in progress'));
       console.log();
-      console.log(chalk.dim('  Continue: gittable rebase --continue'));
-      console.log(chalk.dim('  Abort: gittable rebase --abort'));
+      console.log(theme.dim('  Continue: gittable rebase --continue'));
+      console.log(theme.dim('  Abort: gittable rebase --abort'));
     }
 
     if (state.cherryPick) {
-      console.log(chalk.yellow('  • Cherry-pick in progress'));
+      console.log(theme.warning('  • Cherry-pick in progress'));
       console.log();
-      console.log(chalk.dim('  Continue: git cherry-pick --continue'));
-      console.log(chalk.dim('  Abort: git cherry-pick --abort'));
+      console.log(theme.dim('  Continue: git cherry-pick --continue'));
+      console.log(theme.dim('  Abort: git cherry-pick --abort'));
     }
   }
 
@@ -55,15 +57,14 @@ module.exports = async (_args) => {
   if (conflicts.success && conflicts.output.trim()) {
     const conflictedFiles = conflicts.output.trim().split('\n').filter(Boolean);
     console.log();
-    console.log(chalk.red.bold(`⚠ ${conflictedFiles.length} file(s) have conflicts:`));
+    ui.error(`${conflictedFiles.length} file(s) have conflicts:`);
     conflictedFiles.forEach((file) => {
-      console.log(chalk.red(`  - ${file}`));
+      console.log(theme.error(`  - ${file}`));
     });
     console.log();
-    console.log(chalk.dim('  List conflicts: gittable conflicts'));
-    console.log(chalk.dim('  Resolve file: gittable resolve <file>'));
+    console.log(theme.dim('  List conflicts: gittable conflicts'));
+    console.log(theme.dim('  Resolve file: gittable resolve <file>'));
   }
 
-  console.log();
-  clack.outro(chalk.green.bold('State check complete'));
+  ui.success('State check complete');
 };

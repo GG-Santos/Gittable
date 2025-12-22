@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../ui/framework');
 const { showBanner } = require('../ui/banner');
 const { getTheme } = require('./color-theme');
 
@@ -19,16 +19,10 @@ function showCommandHeader(commandName, title) {
  */
 function requireTTY(helpText = null) {
   if (!process.stdin.isTTY) {
-    clack.cancel(chalk.red('Interactive mode required'));
-    if (helpText) {
-      console.log(chalk.yellow('This command requires interactive input.'));
-      if (Array.isArray(helpText)) {
-        helpText.forEach((line) => console.log(chalk.gray(line)));
-      } else {
-        console.log(chalk.gray(helpText));
-      }
-    }
-    process.exit(1);
+    ui.error('Interactive mode required', {
+      suggestion: helpText ? (Array.isArray(helpText) ? helpText.join('\n') : helpText) : 'This command requires interactive input.',
+      exit: true,
+    });
   }
   return true;
 }
@@ -47,7 +41,7 @@ async function execGitWithSpinner(gitCommand, options = {}) {
     onError = null,
   } = options;
 
-  const spinner = clack.spinner();
+  const spinner = ui.prompt.spinner();
   if (spinnerText) {
     spinner.start(spinnerText);
   }
@@ -77,7 +71,7 @@ async function execGitWithSpinner(gitCommand, options = {}) {
 
   if (result.success) {
     if (successMessage) {
-      clack.outro(chalk.green.bold(successMessage));
+      ui.success(successMessage);
     }
     if (onSuccess) {
       await onSuccess(result);
@@ -85,11 +79,16 @@ async function execGitWithSpinner(gitCommand, options = {}) {
     return result;
   }
   const errorMsg = errorMessage || 'Operation failed';
-  clack.cancel(chalk.red(errorMsg));
 
   // Show enhanced error message with suggestions
-  const { displayEnhancedError } = require('./error-helpers');
-  displayEnhancedError(result.error, gitCommand);
+  const { parseGitError } = require('./error-helpers');
+  const parsedError = parseGitError(result.error, gitCommand);
+  
+  ui.error(errorMsg, {
+    suggestion: parsedError.suggestion,
+    solution: parsedError.solution,
+    exit: false, // Don't exit here, let caller handle it
+  });
 
   if (onError) {
     await onError(result);
@@ -100,31 +99,20 @@ async function execGitWithSpinner(gitCommand, options = {}) {
 }
 
 /**
- * Handle clack cancel with consistent messaging
+ * Handle prompt cancel with consistent messaging
  */
 function handleCancel(value, customMessage = 'Cancelled') {
-  if (clack.isCancel(value)) {
-    clack.cancel(chalk.yellow(customMessage));
-    return true;
-  }
-  return false;
+  return ui.prompt.handleCancel(value, customMessage);
 }
 
 /**
  * Prompt for confirmation with consistent handling
  */
 async function promptConfirm(message, initialValue = false) {
-  const confirm = await clack.confirm({
-    message: chalk.yellow(message),
+  return ui.prompt.confirm({
+    message,
     initialValue,
   });
-
-  if (clack.isCancel(confirm) || !confirm) {
-    clack.cancel(chalk.yellow('Cancelled'));
-    return false;
-  }
-
-  return true;
 }
 
 /**
@@ -135,20 +123,13 @@ async function showSmartSuggestion(message, options = []) {
     return null;
   }
 
-  const theme = getTheme();
-  const action = await clack.select({
-    message: theme.primary(message),
+  return ui.prompt.select({
+    message,
     options: options.map((opt) => ({
       value: opt.value,
       label: opt.label,
     })),
   });
-
-  if (clack.isCancel(action)) {
-    return null;
-  }
-
-  return action;
 }
 
 module.exports = {

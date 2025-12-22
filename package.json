@@ -1,5 +1,5 @@
 {
-  "version": "1.0.3",
+  "version": "1.0.4",
   "name": "@gg-santos/gittable",
   "description": "Modern Git CLI with Conventional Commits",
   "main": "index.js",
@@ -35,19 +35,18 @@
   "keywords": [
     "git",
     "cli",
-    "commitizen",
     "commit",
     "conventional-changelog",
     "git-wrapper",
     "version-control"
   ],
   "dependencies": {
-    "@clack/prompts": "^0.7.0",
     "chalk": "^4.1.2",
     "cli-table3": "^0.6.5",
     "email-prompt": "^0.4.0",
     "find-config": "^1.0.0",
     "prettycli": "^1.1.0",
+    "sisteransi": "^1.0.5",
     "wcwidth": "^1.0.1",
     "word-wrap": "^1.2.5"
   },
@@ -69,6 +68,9 @@
   "directories": {
     "lib": "src",
     "test": "test"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
   },
   "type": "commonjs"
 }

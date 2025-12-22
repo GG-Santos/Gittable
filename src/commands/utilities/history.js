@@ -1,8 +1,9 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { showCommandHeader, handleCancel } = require('../../utils/command-helpers');
 const { loadHistory, clearHistory } = require('../../utils/command-history');
 const { createTable } = require('../../ui/table');
+const { getTheme } = require('../../utils/color-theme');
 
 /**
  * History command - Show recent commands executed
@@ -17,22 +18,21 @@ module.exports = async (args) => {
     const confirmed = await promptConfirm('Clear command history?', false);
     if (confirmed) {
       clearHistory();
-      clack.outro(chalk.green('History cleared'));
-    } else {
-      clack.cancel(chalk.yellow('Cancelled'));
+      ui.success('History cleared');
     }
     return;
   }
 
   const limit = Number.parseInt(args[0]) || 20;
   const history = loadHistory(limit);
+  const theme = getTheme();
 
   if (history.length === 0) {
-    clack.outro(chalk.yellow('No command history found'));
+    ui.warn('No command history found');
     return;
   }
 
-  console.log(chalk.cyan(`\nRecent commands (showing ${history.length}):\n`));
+  console.log(theme.primary(`\nRecent commands (showing ${history.length}):\n`));
 
   const rows = history.map((entry, index) => {
     const date = new Date(entry.timestamp);
@@ -48,11 +48,11 @@ module.exports = async (args) => {
   console.log(createTable(['#', 'Command', 'Args', 'Time'], rows));
 
   console.log();
-  console.log(chalk.dim('Replay a command by typing it again'));
-  console.log(chalk.dim('Clear history: gittable history --clear'));
+  console.log(theme.dim('Replay a command by typing it again'));
+  console.log(theme.dim('Clear history: gittable history --clear'));
   console.log();
 
-  clack.outro(chalk.green.bold('History complete'));
+  ui.success('History complete');
 };
 
 /**

@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { getCurrentBranch, getStatus } = require('../../core/git');
 const {
   showCommandHeader,
@@ -35,27 +35,25 @@ module.exports = async (args) => {
   // Check if there are any changes
   const status = getStatus();
   if (!status) {
-    clack.cancel(chalk.red('Failed to get repository status'));
-    process.exit(1);
+    ui.error('Failed to get repository status', { exit: true });
   }
 
   const hasChanges =
     status.staged.length > 0 || status.unstaged.length > 0 || status.untracked.length > 0;
 
   if (!hasChanges) {
-    clack.cancel(chalk.yellow('No changes to commit'));
+    ui.warn('No changes to commit');
     return;
   }
 
   // Show summary
   const changeCount = status.staged.length + status.unstaged.length + status.untracked.length;
-  clack.note(`${changeCount} file(s) with changes`, chalk.dim('Changes detected'));
+  ui.note(`${changeCount} file(s) with changes`);
 
   // Step 1: Stage files
   if (stageAll) {
     const confirmed = await promptConfirm('Stage all changes?', true);
     if (!confirmed) {
-      clack.cancel(chalk.yellow('Cancelled'));
       return;
     }
 
@@ -99,27 +97,27 @@ module.exports = async (args) => {
     }
 
     if (!commitResult.success) {
-      clack.cancel(chalk.red('Commit failed, skipping push'));
-      process.exit(1);
+      ui.error('Commit failed, skipping push', { exit: true });
     }
   } catch (error) {
-    clack.cancel(chalk.red('Commit failed'));
-    console.error(error.message);
-    process.exit(1);
+    ui.error('Commit failed', {
+      suggestion: error.message,
+      exit: true,
+    });
   }
 
   // Step 3: Push
   const shouldPush = await promptConfirm(`Push to ${remote}/${branchName}?`, true);
 
   if (!shouldPush) {
-    clack.outro(chalk.green('Commit created successfully (push cancelled)'));
+    ui.success('Commit created successfully (push cancelled)');
     return;
   }
 
   if (force) {
     const confirmed = await promptConfirm('Force push? This can overwrite remote history.', false);
     if (!confirmed) {
-      clack.outro(chalk.green('Commit created successfully (push cancelled)'));
+      ui.success('Commit created successfully (push cancelled)');
       return;
     }
   }

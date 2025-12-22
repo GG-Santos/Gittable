@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { showBanner } = require('../../ui/banner');
 const { getTheme } = require('../../utils/color-theme');
@@ -13,36 +13,29 @@ module.exports = async (args) => {
 
   if (!url) {
     if (!process.stdin.isTTY) {
-      clack.cancel(chalk.red('Interactive mode required'));
-      console.log(chalk.yellow('This command requires interactive input.'));
-      console.log(chalk.gray('Please provide a repository URL: gittable clone <url> [directory]'));
-      process.exit(1);
+      ui.error('Interactive mode required', {
+        suggestion: 'Please provide a repository URL: gittable clone <url> [directory]',
+        exit: true,
+      });
     }
 
-    const theme = getTheme();
-    url = await clack.text({
-      message: theme.primary('Repository URL:'),
+    url = await ui.prompt.text({
+      message: 'Repository URL:',
       placeholder: 'https://github.com/user/repo.git',
     });
 
-    if (clack.isCancel(url)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    if (url === null) return;
   }
 
   if (!directory) {
     if (process.stdin.isTTY) {
-      directory = await clack.text({
-        message: theme.primary('Directory name (optional):'),
+      directory = await ui.prompt.text({
+        message: 'Directory name (optional):',
         placeholder: 'repo-name',
         required: false,
       });
 
-      if (clack.isCancel(directory)) {
-        clack.cancel(chalk.yellow('Cancelled'));
-        return;
-      }
+      if (directory === null) return;
     }
   }
 
@@ -51,7 +44,7 @@ module.exports = async (args) => {
     args.find((arg) => arg.startsWith('--branch='))?.split('=')[1] ||
     args.find((arg) => arg.startsWith('-b='))?.split('=')[1];
 
-  const spinner = clack.spinner();
+  const spinner = ui.prompt.spinner();
   spinner.start(`Cloning ${url}${directory ? ` into ${directory}` : ''}`);
 
   let command = `clone ${url}`;
@@ -69,10 +62,11 @@ module.exports = async (args) => {
   spinner.stop();
 
   if (result.success) {
-    clack.outro(chalk.green.bold('Repository cloned'));
+    ui.success('Repository cloned');
   } else {
-    clack.cancel(chalk.red('Failed to clone repository'));
-    console.error(result.error);
-    process.exit(1);
+    ui.error('Failed to clone repository', {
+      suggestion: result.error,
+      exit: true,
+    });
   }
 };

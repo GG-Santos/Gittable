@@ -36,22 +36,48 @@ gittable/
 │   │   │   ├── state.js       # Repository state
 │   │   │   └── index.js       # Re-exports all git operations
 │   │   ├── commit/            # Commit logic
-│   │   │   ├── flow.js        # Main commit flow
+│   │   │   ├── flow.js        # Main commit flow (unified)
 │   │   │   ├── builder.js     # Commit message builder
 │   │   │   ├── context.js     # Context-aware suggestions
 │   │   │   ├── questions.js   # Commit questions/prompts
+│   │   │   ├── cache.js       # Commit cache for retry
 │   │   │   └── index.js       # Re-exports commit operations
 │   │   ├── config/            # Configuration
 │   │   │   ├── loader.js      # Config file loader
 │   │   │   ├── setup.js       # Config setup wizard
 │   │   │   ├── mode-filter.js # Command mode filtering
+│   │   │   ├── adapter-loader.js # Commitizen adapter loader
 │   │   │   └── index.js       # Re-exports config operations
-│   │   └── commitizen/        # Commitizen adapter
 │   │
-│   ├── ui/                    # UI components
-│   │   ├── banner.js          # Command banners
-│   │   ├── status.js          # Status display
-│   │   ├── table.js           # Table formatting
+│   ├── ui/                    # UI system (modular architecture)
+│   │   ├── framework/         # High-level UI framework
+│   │   │   ├── index.js       # Main framework entry
+│   │   │   ├── prompts.js     # Prompt wrappers
+│   │   │   ├── messages.js    # Message system
+│   │   │   ├── layout.js      # Layout components
+│   │   │   ├── tables.js      # Table rendering
+│   │   │   ├── results.js     # Result display
+│   │   │   ├── standards.js   # UI standards
+│   │   │   └── theme.js       # Theme system
+│   │   ├── prompts/           # Unified prompt system
+│   │   │   ├── index.js       # Main prompts API
+│   │   │   ├── core.js        # Core prompt primitives
+│   │   │   ├── text.js        # Text prompt
+│   │   │   ├── select.js      # Select prompt
+│   │   │   ├── multiselect.js # Multi-select prompt
+│   │   │   ├── confirm.js     # Confirm prompt
+│   │   │   ├── password.js    # Password prompt
+│   │   │   ├── spinner.js     # Spinner/loading
+│   │   │   ├── helpers.js     # Helper functions
+│   │   │   └── theme.js       # Theme integration
+│   │   ├── components/        # Reusable UI components
+│   │   │   ├── index.js       # Component exports
+│   │   │   ├── banner.js      # Command banners
+│   │   │   ├── status.js      # Status display
+│   │   │   └── table.js       # Table formatting
+│   │   ├── banner.js          # Backward compat wrapper
+│   │   ├── status.js          # Backward compat wrapper
+│   │   ├── table.js           # Backward compat wrapper
 │   │   └── ascii.js           # ASCII art
 │   │
 │   ├── utils/                 # Shared utilities
@@ -168,10 +194,20 @@ const { execGit, getStatus, getBranches } = require('../core/git');
 
 The commit system is organized into:
 
-- **flow.js**: Main commit flow orchestration
+- **flow.js**: Main commit flow orchestration (unified for both direct commits and commitizen adapters)
 - **builder.js**: Commit message building
 - **context.js**: Context-aware type suggestions
 - **questions.js**: Interactive prompts and questions
+- **cache.js**: Commit cache for retry functionality
+
+### Configuration (`src/core/config/`)
+
+Configuration system includes:
+
+- **loader.js**: Config file loader (.gittable.js, .gittable.json, package.json)
+- **setup.js**: Config setup wizard
+- **mode-filter.js**: Command mode filtering (basic/full)
+- **adapter-loader.js**: Commitizen adapter loader for backward compatibility
 
 ## CLI Layer
 
@@ -203,7 +239,15 @@ Provides:
 // Git operations
 const { execGit, getStatus } = require('../../core/git');
 
-// UI components
+// UI components (use framework for new code, components for direct access)
+const ui = require('../../ui/framework');
+ui.layout.showBanner('COMMAND');
+ui.prompt.text({ message: 'Enter value' });
+
+// Or use components directly
+const { showBanner, displayStatus } = require('../../ui/components');
+
+// Backward compatible (deprecated)
 const { showBanner } = require('../../ui/banner');
 const { displayStatus } = require('../../ui/status');
 
@@ -275,10 +319,15 @@ Several modules provide index files for convenient imports:
 const { execGit, getStatus, getBranches, getRepositoryState } = require('./src/core/git');
 
 // Commit operations
-const { commitFlow, buildCommit, promptQuestions } = require('./src/core/commit');
+const { commitFlow, executeCommit, buildCommit, promptQuestions } = require('./src/core/commit');
 
 // Config operations
 const { readConfigFile, isCommandEnabled } = require('./src/core/config');
+
+// UI Framework
+const ui = require('./src/ui/framework');
+const prompts = require('./src/ui/prompts');
+const components = require('./src/ui/components');
 
 // Common utilities
 const { showCommandHeader, promptConfirm, Cache, logger } = require('./src/utils');

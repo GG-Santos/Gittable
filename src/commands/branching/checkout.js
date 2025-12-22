@@ -1,5 +1,4 @@
-const clack = require('@clack/prompts');
-const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { showCommandHeader, execGitWithSpinner } = require('../../utils/command-helpers');
 
 module.exports = async (args) => {
@@ -15,7 +14,7 @@ module.exports = async (args) => {
         : null;
 
   if (files.length === 0) {
-    clack.cancel(chalk.yellow('No files specified'));
+    ui.warn('No files specified');
     return;
   }
 

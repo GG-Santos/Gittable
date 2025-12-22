@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { getBranches, getCurrentBranch, execGit } = require('../../core/git');
 const { showCommandHeader, requireTTY, handleCancel } = require('../../utils/command-helpers');
 const { getTheme } = require('../../utils/color-theme');
@@ -25,13 +25,12 @@ module.exports = async (args) => {
       label: branch.current ? chalk.green(`* ${branch.name}`) : branch.name,
     }));
 
-    const theme = getTheme();
-    branch1 = await clack.select({
-      message: theme.primary('Select first branch:'),
+    branch1 = await ui.prompt.select({
+      message: 'Select first branch:',
       options,
     });
 
-    if (handleCancel(branch1)) return;
+    if (branch1 === null) return;
   }
 
   // Get second branch
@@ -41,16 +40,16 @@ module.exports = async (args) => {
       label: branch.current ? chalk.green(`* ${branch.name}`) : branch.name,
     }));
 
-    branch2 = await clack.select({
-      message: theme.primary('Select second branch:'),
+    branch2 = await ui.prompt.select({
+      message: 'Select second branch:',
       options,
     });
 
-    if (handleCancel(branch2)) return;
+    if (branch2 === null) return;
   }
 
   if (branch1 === branch2) {
-    clack.cancel(chalk.yellow('Cannot compare branch to itself'));
+    ui.warn('Cannot compare branch to itself');
     return;
   }
 
@@ -79,5 +78,5 @@ module.exports = async (args) => {
   }
 
   console.log();
-  clack.outro(chalk.green.bold('Comparison complete'));
+  ui.success('Comparison complete');
 };

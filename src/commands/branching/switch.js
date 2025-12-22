@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { getBranches, getCurrentBranch } = require('../../core/git');
 const { createActionRouter } = require('../../utils/action-router');
 const { execGitWithSpinner, handleCancel } = require('../../utils/command-helpers');
@@ -11,9 +11,10 @@ const switchToBranch = async (args) => {
 
   if (!name) {
     if (!process.stdin.isTTY) {
-      clack.cancel(chalk.red('Branch name required'));
-      console.log(chalk.gray('Usage: gittable switch <branch-name>'));
-      process.exit(1);
+      ui.error('Branch name required', {
+        suggestion: 'Usage: gittable switch <branch-name>',
+        exit: true,
+      });
     }
 
     const branchOptions = branches.local.map((branch) => ({
@@ -21,18 +22,17 @@ const switchToBranch = async (args) => {
       label: branch.current ? `${chalk.green('*')} ${chalk.green.bold(branch.name)}` : branch.name,
     }));
 
-    const theme = getTheme();
-    name = await clack.select({
-      message: theme.primary('Select branch to switch to:'),
+    name = await ui.prompt.select({
+      message: 'Select branch to switch to:',
       options: branchOptions,
     });
 
-    if (handleCancel(name)) return;
+    if (name === null) return;
   }
 
   const currentBranch = getCurrentBranch();
   if (name === currentBranch) {
-    clack.cancel(chalk.yellow(`Already on branch ${name}`));
+    ui.warn(`Already on branch ${name}`);
     return;
   }
 
@@ -48,18 +48,18 @@ const createAndSwitch = async (args) => {
   let name = args[0];
   if (!name) {
     if (!process.stdin.isTTY) {
-      clack.cancel(chalk.red('Branch name required'));
-      console.log(chalk.gray('Usage: gittable switch -c <branch-name>'));
-      process.exit(1);
+      ui.error('Branch name required', {
+        suggestion: 'Usage: gittable switch -c <branch-name>',
+        exit: true,
+      });
     }
 
-    const theme = getTheme();
-    name = await clack.text({
-      message: theme.primary('New branch name:'),
+    name = await ui.prompt.text({
+      message: 'New branch name:',
       placeholder: 'feature/new-feature',
     });
 
-    if (handleCancel(name)) return;
+    if (name === null) return;
   }
 
   await execGitWithSpinner(`switch -c ${name}`, {

@@ -1,5 +1,4 @@
-const clack = require('@clack/prompts');
-const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { isGitRepo } = require('../../core/git');
 const { showCommandHeader, execGitWithSpinner } = require('../../utils/command-helpers');
 
@@ -7,7 +6,7 @@ module.exports = async (args) => {
   showCommandHeader('INIT', 'Initialize Repository');
 
   if (isGitRepo()) {
-    clack.cancel(chalk.yellow('Already a git repository'));
+    ui.warn('Already a git repository');
     return;
   }
 

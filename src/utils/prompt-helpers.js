@@ -1,7 +1,7 @@
 const { getTheme } = require('./color-theme');
 
 /**
- * Get primary color function for use in clack prompts
+ * Get primary color function for use in prompts
  * This ensures all prompts use the theme color consistently
  */
 function getPromptColor() {
@@ -11,4 +11,5 @@ function getPromptColor() {
 module.exports = {
   getPromptColor,
 };
+
 

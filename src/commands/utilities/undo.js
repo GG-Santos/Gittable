@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { createTable } = require('../../ui/table');
 const { showBanner } = require('../../ui/banner');
@@ -45,14 +45,14 @@ const resetToRef = async (ref) => {
 
   if (!ref) {
     if (!process.stdin.isTTY) {
-      clack.cancel(chalk.red('Interactive mode required'));
-      console.log(chalk.yellow('This command requires interactive input.'));
-      console.log(chalk.gray('Please provide a ref: gittable undo reset <ref>'));
-      process.exit(1);
+      ui.error('Interactive mode required', {
+        suggestion: 'Please provide a ref: gittable undo reset <ref>',
+        exit: true,
+      });
     }
 
     if (entries.length === 0) {
-      clack.cancel(chalk.yellow('No reflog entries available'));
+      ui.warn('No reflog entries available');
       return;
     }
 
@@ -61,28 +61,23 @@ const resetToRef = async (ref) => {
       label: `${entry.ref} - ${entry.message}`,
     }));
 
-    const theme = getTheme();
-    ref = await clack.select({
-      message: theme.primary('Select commit to reset to:'),
+    ref = await ui.prompt.select({
+      message: 'Select commit to reset to:',
       options,
     });
 
-    if (clack.isCancel(ref)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    if (ref === null) return;
   }
 
   if (!process.stdin.isTTY) {
-    clack.cancel(chalk.red('Interactive mode required'));
-    console.log(chalk.yellow('This command requires interactive input.'));
-    console.log(chalk.gray('Please use: gittable undo reset <ref> --soft|--mixed|--hard'));
-    process.exit(1);
+    ui.error('Interactive mode required', {
+      suggestion: 'Please use: gittable undo reset <ref> --soft|--mixed|--hard',
+      exit: true,
+    });
   }
 
-  const theme = getTheme();
-  const mode = await clack.select({
-    message: theme.primary('Reset mode:'),
+  const mode = await ui.prompt.select({
+    message: 'Reset mode:',
     options: [
       { value: '--soft', label: 'Soft (keep changes staged)' },
       { value: '--mixed', label: 'Mixed (keep changes unstaged)', hint: 'default' },
@@ -90,10 +85,7 @@ const resetToRef = async (ref) => {
     ],
   });
 
-  if (clack.isCancel(mode)) {
-    clack.cancel(chalk.yellow('Cancelled'));
-    return;
-  }
+  if (mode === null) return;
 
   if (mode === '--hard') {
     // Offer to create backup before hard reset
@@ -117,43 +109,42 @@ const resetToRef = async (ref) => {
       }
     }
 
-    const confirm = await clack.confirm({
-      message: chalk.red('Hard reset will discard all changes. Continue?'),
+    const confirm = await ui.prompt.confirm({
+      message: 'Hard reset will discard all changes. Continue?',
       initialValue: false,
     });
 
-    if (clack.isCancel(confirm) || !confirm) {
-      clack.cancel(chalk.yellow('Cancelled'));
+    if (!confirm) {
       return;
     }
   }
 
-  const spinner = clack.spinner();
+  const spinner = ui.prompt.spinner();
   spinner.start(`Resetting to ${ref}`);
 
   const result = execGit(`reset ${mode} ${ref}`, { silent: false });
   spinner.stop();
 
   if (result.success) {
-    clack.outro(chalk.green.bold(`Reset to ${ref}`));
+    ui.success(`Reset to ${ref}`);
   } else {
-    clack.cancel(chalk.red('Reset failed'));
-    console.error(result.error);
-    process.exit(1);
+    ui.error('Reset failed', {
+      suggestion: result.error,
+      exit: true,
+    });
   }
 };
 
 const undoLastCommit = async () => {
   if (!process.stdin.isTTY) {
-    clack.cancel(chalk.red('Interactive mode required'));
-    console.log(chalk.yellow('This command requires interactive input.'));
-    console.log(chalk.gray('Please use: git reset --soft|--mixed|--hard HEAD~1'));
-    process.exit(1);
+    ui.error('Interactive mode required', {
+      suggestion: 'Please use: git reset --soft|--mixed|--hard HEAD~1',
+      exit: true,
+    });
   }
 
-  const theme = getTheme();
-  const mode = await clack.select({
-    message: theme.primary('Undo last commit:'),
+  const mode = await ui.prompt.select({
+    message: 'Undo last commit:',
     options: [
       { value: '--soft', label: 'Keep changes staged' },
       { value: '--mixed', label: 'Keep changes unstaged', hint: 'default' },
@@ -161,35 +152,32 @@ const undoLastCommit = async () => {
     ],
   });
 
-  if (clack.isCancel(mode)) {
-    clack.cancel(chalk.yellow('Cancelled'));
-    return;
-  }
+  if (mode === null) return;
 
   if (mode === '--hard') {
-    const confirm = await clack.confirm({
-      message: chalk.red('This will discard all changes. Continue?'),
+    const confirm = await ui.prompt.confirm({
+      message: 'This will discard all changes. Continue?',
       initialValue: false,
     });
 
-    if (clack.isCancel(confirm) || !confirm) {
-      clack.cancel(chalk.yellow('Cancelled'));
+    if (!confirm) {
       return;
     }
   }
 
-  const spinner = clack.spinner();
+  const spinner = ui.prompt.spinner();
   spinner.start('Undoing last commit');
 
   const result = execGit(`reset ${mode} HEAD~1`, { silent: false });
   spinner.stop();
 
   if (result.success) {
-    clack.outro(chalk.green.bold('Last commit undone'));
+    ui.success('Last commit undone');
   } else {
-    clack.cancel(chalk.red('Failed to undo commit'));
-    console.error(result.error);
-    process.exit(1);
+    ui.error('Failed to undo commit', {
+      suggestion: result.error,
+      exit: true,
+    });
   }
 };
 
@@ -200,7 +188,7 @@ module.exports = async (args) => {
     showBanner('UNDO');
     console.log(`${chalk.gray('├')}  ${chalk.cyan.bold('Reflog Browser')}`);
     showReflog();
-    clack.outro(chalk.green.bold('Done'));
+    ui.success('Done');
     return;
   }
 

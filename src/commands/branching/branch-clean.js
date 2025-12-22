@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { getBranches, getCurrentBranch, execGit } = require('../../core/git');
 const {
   showCommandHeader,
@@ -25,8 +25,7 @@ module.exports = async (args) => {
   const mergedResult = execGit('branch --merged', { silent: true });
 
   if (!mergedResult.success) {
-    clack.cancel(chalk.red('Failed to get merged branches'));
-    process.exit(1);
+    ui.error('Failed to get merged branches', { exit: true });
   }
 
   const mergedBranches = mergedResult.output
@@ -36,7 +35,7 @@ module.exports = async (args) => {
     .filter((b) => b && !protectedBranches.includes(b));
 
   if (mergedBranches.length === 0) {
-    clack.outro(chalk.green('No merged branches to clean'));
+    ui.success('No merged branches to clean');
     return;
   }
 
@@ -52,30 +51,30 @@ module.exports = async (args) => {
   );
 
   if (!confirmed) {
-    clack.cancel(chalk.yellow('Cancelled'));
     return;
   }
 
   // Delete branches
   let deleted = 0;
   let failed = 0;
+  const theme = require('../../utils/color-theme').getTheme();
 
   for (const branch of mergedBranches) {
     const result = execGit(`branch -d ${branch}`, { silent: true });
     if (result.success) {
       deleted++;
-      console.log(chalk.green(`  ✓ Deleted ${branch}`));
+      console.log(theme.success(`  ✓ Deleted ${branch}`));
     } else {
       failed++;
-      console.log(chalk.yellow(`  ⚠ Could not delete ${branch}: ${result.error.trim()}`));
+      console.log(theme.warning(`  ⚠ Could not delete ${branch}: ${result.error.trim()}`));
     }
   }
 
   console.log();
   if (deleted > 0) {
-    clack.outro(chalk.green.bold(`Deleted ${deleted} branch(es)`));
+    ui.success(`Deleted ${deleted} branch(es)`);
   }
   if (failed > 0) {
-    console.log(chalk.yellow(`Could not delete ${failed} branch(es) (may need -D to force)`));
+    ui.warn(`Could not delete ${failed} branch(es) (may need -D to force)`);
   }
 };

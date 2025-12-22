@@ -1,8 +1,9 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { showCommandHeader, handleCancel } = require('../../utils/command-helpers');
 const { createTable } = require('../../ui/table');
+const { getTheme } = require('../../utils/color-theme');
 
 /**
  * Conflicts command - List all conflicted files
@@ -12,32 +13,33 @@ module.exports = async (_args) => {
 
   // Get conflicted files
   const result = execGit('diff --name-only --diff-filter=U', { silent: true });
+  const theme = getTheme();
 
   if (!result.success || !result.output.trim()) {
-    clack.outro(chalk.green('No conflicts found'));
+    ui.success('No conflicts found');
     return;
   }
 
   const conflictedFiles = result.output.trim().split('\n').filter(Boolean);
 
-  console.log(chalk.yellow(`\nFound ${conflictedFiles.length} conflicted file(s):\n`));
+  ui.warn(`Found ${conflictedFiles.length} conflicted file(s):`);
 
   const rows = conflictedFiles.map((file, index) => [
-    chalk.cyan(`#${index + 1}`),
-    chalk.yellow(file),
+    theme.primary(`#${index + 1}`),
+    theme.warning(file),
   ]);
 
   console.log(createTable(['#', 'File'], rows));
 
   console.log();
-  console.log(chalk.dim('To resolve conflicts:'));
-  console.log(chalk.dim('  1. Edit the conflicted files manually'));
-  console.log(chalk.dim('  2. Stage resolved files: gittable add <file>'));
-  console.log(chalk.dim('  3. Continue: gittable rebase --continue or gittable merge --continue'));
+  ui.info('To resolve conflicts:');
+  console.log(theme.dim('  1. Edit the conflicted files manually'));
+  console.log(theme.dim('  2. Stage resolved files: gittable add <file>'));
+  console.log(theme.dim('  3. Continue: gittable rebase --continue or gittable merge --continue'));
   console.log();
-  console.log(chalk.dim('Or use mergetool:'));
-  console.log(chalk.cyan('  gittable mergetool'));
+  ui.info('Or use mergetool:');
+  console.log(theme.primary('  gittable mergetool'));
   console.log();
 
-  clack.outro(chalk.green.bold('Conflicts listed'));
+  ui.success('Conflicts listed');
 };

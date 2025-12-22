@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { isGitRepo } = require('../../core/git');
 const { showBanner } = require('../../ui/banner');
 const { getTheme } = require('../../utils/color-theme');
@@ -12,7 +12,7 @@ module.exports = async (args) => {
   console.log(`${chalk.gray('├')}  ${chalk.bold(theme.primary('Remove Git Repository'))}`);
 
   if (!isGitRepo()) {
-    clack.cancel(chalk.yellow('Not a git repository'));
+    ui.warn('Not a git repository');
     return;
   }
 
@@ -20,18 +20,17 @@ module.exports = async (args) => {
   const gitDir = path.join(process.cwd(), '.git');
 
   if (!force) {
-    const confirm = await clack.confirm({
-      message: chalk.red('This will permanently delete all git history. Continue?'),
+    const confirm = await ui.prompt.confirm({
+      message: 'This will permanently delete all git history. Continue?',
       initialValue: false,
     });
 
-    if (clack.isCancel(confirm) || !confirm) {
-      clack.cancel(chalk.yellow('Cancelled'));
+    if (!confirm) {
       return;
     }
   }
 
-  const spinner = clack.spinner();
+  const spinner = ui.prompt.spinner();
   spinner.start('Removing git repository');
 
   try {
@@ -47,13 +46,12 @@ module.exports = async (args) => {
     }
 
     spinner.stop();
-    clack.outro(
-      chalk.green.bold('Git repository removed. You can now run "gittable init" for a fresh start.')
-    );
+    ui.success('Git repository removed. You can now run "gittable init" for a fresh start.');
   } catch (error) {
     spinner.stop();
-    clack.cancel(chalk.red('Failed to remove git repository'));
-    console.error(error.message);
-    process.exit(1);
+    ui.error('Failed to remove git repository', {
+      suggestion: error.message,
+      exit: true,
+    });
   }
 };

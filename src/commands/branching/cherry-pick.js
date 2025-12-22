@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { showBanner } = require('../../ui/banner');
 const { getTheme } = require('../../utils/color-theme');
@@ -14,74 +14,72 @@ module.exports = async (args) => {
   const abortPick = args.includes('--abort');
 
   if (continuePick) {
-    const spinner = clack.spinner();
+    const spinner = ui.prompt.spinner();
     spinner.start('Continuing cherry-pick');
     const result = execGit('cherry-pick --continue', { silent: false });
     spinner.stop();
 
     if (result.success) {
-      clack.outro(chalk.green.bold('Cherry-pick continued'));
+      ui.success('Cherry-pick continued');
     } else {
-      clack.cancel(chalk.red('Cherry-pick continue failed'));
-      console.error(result.error);
-      process.exit(1);
+      ui.error('Cherry-pick continue failed', {
+        suggestion: result.error,
+        exit: true,
+      });
     }
     return;
   }
 
   if (abortPick) {
     if (!process.stdin.isTTY) {
-      clack.cancel(chalk.red('Interactive mode required'));
-      console.log(chalk.yellow('This command requires interactive confirmation.'));
-      process.exit(1);
+      ui.error('Interactive mode required', {
+        suggestion: 'This command requires interactive confirmation.',
+        exit: true,
+      });
     }
 
-    const confirm = await clack.confirm({
-      message: chalk.yellow('Abort cherry-pick? This will lose any progress.'),
+    const confirm = await ui.prompt.confirm({
+      message: 'Abort cherry-pick? This will lose any progress.',
       initialValue: false,
     });
 
-    if (clack.isCancel(confirm) || !confirm) {
-      clack.cancel(chalk.yellow('Cancelled'));
+    if (!confirm) {
       return;
     }
 
-    const spinner = clack.spinner();
+    const spinner = ui.prompt.spinner();
     spinner.start('Aborting cherry-pick');
     const result = execGit('cherry-pick --abort', { silent: true });
     spinner.stop();
 
     if (result.success) {
-      clack.outro(chalk.green.bold('Cherry-pick aborted'));
+      ui.success('Cherry-pick aborted');
     } else {
-      clack.cancel(chalk.red('Failed to abort cherry-pick'));
-      console.error(result.error);
-      process.exit(1);
+      ui.error('Failed to abort cherry-pick', {
+        suggestion: result.error,
+        exit: true,
+      });
     }
     return;
   }
 
   if (!commit) {
     if (!process.stdin.isTTY) {
-      clack.cancel(chalk.red('Interactive mode required'));
-      console.log(chalk.yellow('This command requires interactive input.'));
-      console.log(chalk.gray('Please provide a commit hash: gittable cherry-pick <commit>'));
-      process.exit(1);
+      ui.error('Interactive mode required', {
+        suggestion: 'Please provide a commit hash: gittable cherry-pick <commit>',
+        exit: true,
+      });
     }
 
-    const theme = getTheme();
-    commit = await clack.text({
-      message: theme.primary('Commit hash to cherry-pick:'),
+    commit = await ui.prompt.text({
+      message: 'Commit hash to cherry-pick:',
       placeholder: 'abc1234',
     });
 
-    if (clack.isCancel(commit)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    if (commit === null) return;
   }
 
-  const spinner = clack.spinner();
+  const spinner = ui.prompt.spinner();
   spinner.start(`Cherry-picking commit ${commit}`);
 
   let command = 'cherry-pick';
@@ -94,13 +92,14 @@ module.exports = async (args) => {
   spinner.stop();
 
   if (result.success) {
-    clack.outro(chalk.green.bold(`Cherry-picked commit ${commit}`));
+    ui.success(`Cherry-picked commit ${commit}`);
   } else {
-    clack.cancel(chalk.red('Cherry-pick failed'));
-    console.error(result.error);
-    console.log(chalk.yellow('\nYou may need to resolve conflicts manually'));
-    console.log(chalk.gray('Use "gittable cherry-pick --continue" to continue after resolving'));
-    console.log(chalk.gray('Use "gittable cherry-pick --abort" to abort'));
+    ui.error('Cherry-pick failed', {
+      suggestion: result.error,
+    });
+    ui.warn('You may need to resolve conflicts manually');
+    ui.info('Use "gittable cherry-pick --continue" to continue after resolving');
+    ui.info('Use "gittable cherry-pick --abort" to abort');
     process.exit(1);
   }
 };

@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { showCommandHeader, handleCancel, promptConfirm } = require('../../utils/command-helpers');
 const {
   listTemplates,
@@ -22,7 +22,7 @@ module.exports = async (args) => {
     if (templates.length === 0) {
       console.log(chalk.dim('No templates saved'));
       console.log(chalk.dim('\nCreate one with: gittable template save <name>'));
-      clack.outro(chalk.green.bold('Done'));
+      ui.success('Done');
       return;
     }
 
@@ -30,7 +30,7 @@ module.exports = async (args) => {
     templates.forEach((name) => {
       console.log(chalk.green(`  • ${name}`));
     });
-    clack.outro(chalk.green.bold('Done'));
+    ui.success('Done');
     return;
   }
 
@@ -40,26 +40,24 @@ module.exports = async (args) => {
     let content = args.slice(2).join(' ');
 
     if (!name) {
-      const theme = getTheme();
-      name = await clack.text({
-        message: theme.primary('Template name:'),
+      name = await ui.prompt.text({
+        message: 'Template name:',
         placeholder: 'feature',
       });
-      if (handleCancel(name)) return;
+      if (name === null) return;
     }
 
     if (!content) {
-      const theme = getTheme();
-      content = await clack.text({
-        message: theme.primary('Template content:'),
+      content = await ui.prompt.text({
+        message: 'Template content:',
         placeholder: 'feat({scope}): {description}',
         initialValue: content || '',
       });
-      if (handleCancel(content)) return;
+      if (content === null) return;
     }
 
     saveTemplate(name, content);
-    clack.outro(chalk.green.bold(`Template "${name}" saved`));
+    ui.success(`Template "${name}" saved`);
     return;
   }
 
@@ -70,27 +68,25 @@ module.exports = async (args) => {
     if (!name) {
       const templates = listTemplates();
       if (templates.length === 0) {
-        clack.cancel(chalk.yellow('No templates available'));
+        ui.warn('No templates available');
         return;
       }
 
-      const theme = getTheme();
-      name = await clack.select({
-        message: theme.primary('Select template:'),
+      name = await ui.prompt.select({
+        message: 'Select template:',
         options: templates.map((t) => ({ value: t, label: t })),
       });
-      if (handleCancel(name)) return;
+      if (name === null) return;
     }
 
     const template = loadTemplate(name);
     if (!template) {
-      clack.cancel(chalk.red(`Template "${name}" not found`));
-      return;
+      ui.error(`Template "${name}" not found`, { exit: true });
     }
 
     console.log(chalk.cyan(`\nTemplate "${name}":`));
     console.log(chalk.green(template));
-    clack.outro(chalk.green.bold('Done'));
+    ui.success('Done');
     return;
   }
 
@@ -101,25 +97,24 @@ module.exports = async (args) => {
     if (!name) {
       const templates = listTemplates();
       if (templates.length === 0) {
-        clack.cancel(chalk.yellow('No templates available'));
+        ui.warn('No templates available');
         return;
       }
 
-      const theme = getTheme();
-      name = await clack.select({
-        message: theme.primary('Select template to delete:'),
+      name = await ui.prompt.select({
+        message: 'Select template to delete:',
         options: templates.map((t) => ({ value: t, label: t })),
       });
-      if (handleCancel(name)) return;
+      if (name === null) return;
     }
 
     const confirmed = await promptConfirm(`Delete template "${name}"?`, false);
     if (!confirmed) return;
 
     if (deleteTemplate(name)) {
-      clack.outro(chalk.green.bold(`Template "${name}" deleted`));
+      ui.success(`Template "${name}" deleted`);
     } else {
-      clack.cancel(chalk.red(`Template "${name}" not found`));
+      ui.error(`Template "${name}" not found`, { exit: true });
     }
     return;
   }
@@ -130,8 +125,8 @@ module.exports = async (args) => {
   if (template) {
     console.log(chalk.cyan(`\nTemplate "${action}":`));
     console.log(chalk.green(template));
-    clack.outro(chalk.green.bold('Done'));
+    ui.success('Done');
   } else {
-    clack.cancel(chalk.red(`Template "${action}" not found`));
+    ui.error(`Template "${action}" not found`, { exit: true });
   }
 };

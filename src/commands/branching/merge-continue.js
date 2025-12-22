@@ -1,6 +1,6 @@
-const { showCommandHeader, execGitWithSpinner } = require('../../utils/command-helpers');
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
+const { showCommandHeader, execGitWithSpinner } = require('../../utils/command-helpers');
 const { execGit } = require('../../core/git');
 
 /**
@@ -12,7 +12,7 @@ module.exports = async (_args) => {
   // Check if we're in a merge state
   const mergeHead = execGit('rev-parse --verify MERGE_HEAD', { silent: true });
   if (!mergeHead.success) {
-    clack.cancel(chalk.yellow('Not in a merge state'));
+    ui.warn('Not in a merge state');
     return;
   }
 
@@ -20,14 +20,13 @@ module.exports = async (_args) => {
   const conflicts = execGit('diff --name-only --diff-filter=U', { silent: true });
   if (conflicts.success && conflicts.output.trim().length > 0) {
     const conflictedFiles = conflicts.output.trim().split('\n').filter(Boolean);
-    clack.cancel(
-      chalk.red(`Cannot continue: ${conflictedFiles.length} file(s) still have conflicts`)
-    );
-    console.log();
-    console.log(chalk.yellow('Resolve conflicts first:'));
-    console.log(chalk.cyan('  gittable conflicts'));
-    console.log(chalk.cyan('  gittable resolve <file>'));
-    console.log();
+    ui.error(`Cannot continue: ${conflictedFiles.length} file(s) still have conflicts`, {
+      suggestion: 'Resolve conflicts first',
+    });
+    ui.info('Resolve conflicts first:');
+    const theme = require('../../utils/color-theme').getTheme();
+    console.log(theme.primary('  gittable conflicts'));
+    console.log(theme.primary('  gittable resolve <file>'));
     process.exit(1);
   }
 

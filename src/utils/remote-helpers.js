@@ -1,4 +1,4 @@
-const clack = require('@clack/prompts');
+const prompts = require('../ui/prompts');
 const chalk = require('chalk');
 const { remoteExists, getRemotes } = require('../core/git');
 const { promptConfirm } = require('./command-helpers');
@@ -26,7 +26,7 @@ async function ensureRemoteExists(remote = 'origin') {
   const shouldAdd = await promptConfirm(`Would you like to add remote '${remote}'?`, true);
 
   if (!shouldAdd) {
-    clack.cancel(chalk.yellow('Cancelled'));
+    prompts.cancel(chalk.yellow('Cancelled'));
     process.exit(1);
   }
 

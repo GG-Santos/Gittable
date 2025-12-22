@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit, getBranches, getCurrentBranch } = require('../../core/git');
 const { showBanner } = require('../../ui/banner');
 const { getTheme } = require('../../utils/color-theme');
@@ -16,10 +16,10 @@ module.exports = async (args) => {
   if (!targetBranch) {
     // Check if TTY is available for interactive prompts
     if (!process.stdin.isTTY) {
-      clack.cancel(chalk.red('Interactive mode required'));
-      console.log(chalk.yellow('This command requires interactive input.'));
-      console.log(chalk.gray('Please provide a branch name: gittable rebase <branch>'));
-      process.exit(1);
+      ui.error('Interactive mode required', {
+        suggestion: 'Please provide a branch name: gittable rebase <branch>',
+        exit: true,
+      });
     }
 
     const options = branches.local
@@ -36,31 +36,24 @@ module.exports = async (args) => {
     });
 
     if (options.length === 0) {
-      clack.cancel(chalk.yellow('No branches to rebase onto'));
+      ui.warn('No branches to rebase onto');
       return;
     }
 
-    const theme = getTheme();
-    targetBranch = await clack.select({
-      message: theme.primary('Select branch to rebase onto:'),
+    targetBranch = await ui.prompt.select({
+      message: 'Select branch to rebase onto:',
       options,
     });
 
-    if (clack.isCancel(targetBranch)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    if (targetBranch === null) return;
 
     if (targetBranch === '__remote__') {
-      targetBranch = await clack.text({
-        message: theme.primary('Remote branch (e.g., origin/main):'),
+      targetBranch = await ui.prompt.text({
+        message: 'Remote branch (e.g., origin/main):',
         placeholder: 'origin/main',
       });
 
-      if (clack.isCancel(targetBranch)) {
-        clack.cancel(chalk.yellow('Cancelled'));
-        return;
-      }
+      if (targetBranch === null) return;
     }
   }
 
@@ -69,15 +62,15 @@ module.exports = async (args) => {
   const abortRebase = args.includes('--abort');
 
   if (continueRebase) {
-    const spinner = clack.spinner();
+    const spinner = ui.prompt.spinner();
     spinner.start('Continuing rebase');
     const result = execGit('rebase --continue', { silent: false });
     spinner.stop();
 
     if (result.success) {
-      clack.outro(chalk.green.bold('Rebase continued'));
+      ui.success('Rebase continued');
     } else {
-      clack.cancel(chalk.red('Rebase continue failed'));
+      ui.error('Rebase continue failed');
       console.error(result.error);
       process.exit(1);
     }
@@ -86,32 +79,33 @@ module.exports = async (args) => {
 
   if (abortRebase) {
     if (!process.stdin.isTTY) {
-      clack.cancel(chalk.red('Interactive mode required'));
-      console.log(chalk.yellow('This command requires interactive confirmation.'));
-      process.exit(1);
+      ui.error('Interactive mode required', {
+        suggestion: 'This command requires interactive confirmation.',
+        exit: true,
+      });
     }
 
-    const confirm = await clack.confirm({
-      message: chalk.yellow('Abort rebase? This will lose any rebase progress.'),
+    const confirm = await ui.prompt.confirm({
+      message: 'Abort rebase? This will lose any rebase progress.',
       initialValue: false,
     });
 
-    if (clack.isCancel(confirm) || !confirm) {
-      clack.cancel(chalk.yellow('Cancelled'));
+    if (!confirm) {
       return;
     }
 
-    const spinner = clack.spinner();
+    const spinner = ui.prompt.spinner();
     spinner.start('Aborting rebase');
     const result = execGit('rebase --abort', { silent: true });
     spinner.stop();
 
     if (result.success) {
-      clack.outro(chalk.green.bold('Rebase aborted'));
+      ui.success('Rebase aborted');
     } else {
-      clack.cancel(chalk.red('Failed to abort rebase'));
-      console.error(result.error);
-      process.exit(1);
+      ui.error('Failed to abort rebase', {
+        suggestion: result.error,
+        exit: true,
+      });
     }
     return;
   }
@@ -132,7 +126,7 @@ module.exports = async (args) => {
     }
   }
 
-  const spinner = clack.spinner();
+  const spinner = ui.prompt.spinner();
   spinner.start(`Rebasing ${currentBranch} onto ${targetBranch}`);
 
   const command = interactive ? `rebase --interactive ${targetBranch}` : `rebase ${targetBranch}`;
@@ -140,7 +134,7 @@ module.exports = async (args) => {
   spinner.stop();
 
   if (result.success) {
-    clack.outro(chalk.green.bold('Rebase completed'));
+    ui.success('Rebase completed');
   } else {
     // Check if rebase conflict occurred
     const conflictCheck = execGit('diff --name-only --diff-filter=U', { silent: true });
@@ -179,10 +173,11 @@ module.exports = async (args) => {
       } else if (nextAction === 'continue') {
         const continueResult = execGit('rebase --continue', { silent: false });
         if (continueResult.success) {
-          clack.outro(chalk.green.bold('Rebase continued'));
+          ui.success('Rebase continued');
         } else {
-          clack.cancel(chalk.red('Rebase continue failed'));
-          console.error(continueResult.error);
+          ui.error('Rebase continue failed', {
+            suggestion: continueResult.error,
+          });
         }
       } else if (nextAction === 'abort') {
         const { promptConfirm } = require('../../utils/command-helpers');
@@ -193,19 +188,21 @@ module.exports = async (args) => {
         if (confirmed) {
           const abortResult = execGit('rebase --abort', { silent: true });
           if (abortResult.success) {
-            clack.outro(chalk.green.bold('Rebase aborted'));
+            ui.success('Rebase aborted');
           } else {
-            clack.cancel(chalk.red('Failed to abort rebase'));
-            console.error(abortResult.error);
+            ui.error('Failed to abort rebase', {
+              suggestion: abortResult.error,
+            });
           }
         }
       }
     } else {
-      clack.cancel(chalk.red('Rebase failed'));
-      console.error(result.error);
-      console.log(chalk.yellow('\nYou may need to resolve conflicts manually'));
-      console.log(chalk.gray('Use "gittable rebase --continue" to continue after resolving'));
-      console.log(chalk.gray('Use "gittable rebase --abort" to abort the rebase'));
+      ui.error('Rebase failed', {
+        suggestion: result.error,
+      });
+      ui.warn('You may need to resolve conflicts manually');
+      ui.info('Use "gittable rebase --continue" to continue after resolving');
+      ui.info('Use "gittable rebase --abort" to abort the rebase');
       process.exit(1);
     }
   }

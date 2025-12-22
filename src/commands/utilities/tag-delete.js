@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const {
   showCommandHeader,
@@ -28,7 +28,7 @@ module.exports = async (args) => {
   if (!tagName) {
     const tagsResult = execGit('tag -l', { silent: true });
     if (!tagsResult.success || !tagsResult.output.trim()) {
-      clack.cancel(chalk.yellow('No tags found'));
+      ui.warn('No tags found');
       return;
     }
 
@@ -38,19 +38,18 @@ module.exports = async (args) => {
       label: tag,
     }));
 
-    const theme = getTheme();
-    tagName = await clack.select({
-      message: theme.primary('Select tag to delete:'),
+    tagName = await ui.prompt.select({
+      message: 'Select tag to delete:',
       options,
     });
 
-    if (handleCancel(tagName)) return;
+    if (tagName === null) return;
   }
 
   // Check if tag exists locally
   const tagExists = execGit(`tag -l ${tagName}`, { silent: true });
   if (!tagExists.success || !tagExists.output.trim()) {
-    clack.cancel(chalk.yellow(`Tag ${tagName} not found locally`));
+    ui.warn(`Tag ${tagName} not found locally`);
     return;
   }
 
@@ -58,7 +57,6 @@ module.exports = async (args) => {
   const confirmed = await promptConfirm(`Delete tag ${tagName}?`, false);
 
   if (!confirmed) {
-    clack.cancel(chalk.yellow('Cancelled'));
     return;
   }
 
@@ -87,9 +85,9 @@ module.exports = async (args) => {
         errorMessage: 'Failed to delete tag from remote',
       });
     } else {
-      clack.outro(chalk.green(`Tag ${tagName} deleted locally`));
+      ui.success(`Tag ${tagName} deleted locally`);
     }
   } else {
-    clack.outro(chalk.green(`Tag ${tagName} deleted`));
+    ui.success(`Tag ${tagName} deleted`);
   }
 };

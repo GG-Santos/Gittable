@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { createTable } = require('../../ui/table');
 const { createActionRouter } = require('../../utils/action-router');
@@ -42,23 +42,21 @@ const addRemote = async (args) => {
   let url = args[1];
 
   if (!name) {
-    const theme = getTheme();
-    name = await clack.text({
-      message: theme.primary('Remote name:'),
+    name = await ui.prompt.text({
+      message: 'Remote name:',
       placeholder: 'origin',
     });
 
-    if (handleCancel(name)) return false;
+    if (name === null) return false;
   }
 
   if (!url) {
-    const theme = getTheme();
-    url = await clack.text({
-      message: theme.primary('Remote URL:'),
+    url = await ui.prompt.text({
+      message: 'Remote URL:',
       placeholder: 'https://github.com/user/repo.git',
     });
 
-    if (handleCancel(url)) return false;
+    if (url === null) return false;
   }
 
   const result = await execGitWithSpinner(`remote add ${name} ${url}`, {
@@ -78,13 +76,12 @@ const removeRemote = async (args) => {
   let name = args[0];
 
   if (!name) {
-    const theme = getTheme();
-    name = await clack.text({
-      message: theme.primary('Remote name to remove:'),
+    name = await ui.prompt.text({
+      message: 'Remote name to remove:',
       placeholder: 'origin',
     });
 
-    if (handleCancel(name)) return;
+    if (name === null) return;
   }
 
   const confirmed = await promptConfirm(`Remove remote ${name}?`, false);
@@ -103,23 +100,21 @@ const renameRemote = async (args) => {
   let newName = args[1];
 
   if (!oldName) {
-    const theme = getTheme();
-    oldName = await clack.text({
-      message: theme.primary('Current remote name:'),
+    oldName = await ui.prompt.text({
+      message: 'Current remote name:',
       placeholder: 'origin',
     });
 
-    if (handleCancel(oldName)) return;
+    if (oldName === null) return;
   }
 
   if (!newName) {
-    const theme = getTheme();
-    newName = await clack.text({
-      message: theme.primary('New remote name:'),
+    newName = await ui.prompt.text({
+      message: 'New remote name:',
       placeholder: 'upstream',
     });
 
-    if (handleCancel(newName)) return;
+    if (newName === null) return;
   }
 
   await execGitWithSpinner(`remote rename ${oldName} ${newName}`, {

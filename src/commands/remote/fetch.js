@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { showCommandHeader, execGitWithSpinner } = require('../../utils/command-helpers');
 const { ensureRemoteExists } = require('../../utils/remote-helpers');
 
@@ -21,18 +21,18 @@ module.exports = async (args) => {
     const remotes = getRemotes();
 
     if (remotes.length > 1) {
-      clack.note(`Fetching from ${remotes.length} remotes in parallel`, chalk.dim('Parallel'));
+      ui.note(`Fetching from ${remotes.length} remotes in parallel`);
 
       const results = await fetchFromMultipleRemotes(remotes);
       const successful = results.filter((r) => r.success).length;
       const failed = results.filter((r) => !r.success).length;
 
       if (successful > 0) {
-        clack.note(`Fetched from ${successful} remote(s)`, chalk.green('Success'));
+        ui.success(`Fetched from ${successful} remote(s)`);
       }
 
       if (failed > 0) {
-        clack.cancel(chalk.yellow(`Failed to fetch from ${failed} remote(s)`));
+        ui.warn(`Failed to fetch from ${failed} remote(s)`);
       }
 
       if (prune) {

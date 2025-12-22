@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { getBranches, getCurrentBranch, execGit } = require('../../core/git');
 const {
   showCommandHeader,
@@ -28,17 +28,16 @@ module.exports = async (args) => {
       }));
 
     if (options.length === 0) {
-      clack.cancel(chalk.yellow('No branches to merge'));
+      ui.warn('No branches to merge');
       return;
     }
 
-    const theme = getTheme();
-    branchToMerge = await clack.select({
-      message: theme.primary('Select branch to merge:'),
+    branchToMerge = await ui.prompt.select({
+      message: 'Select branch to merge:',
       options,
     });
 
-    if (handleCancel(branchToMerge)) return;
+    if (branchToMerge === null) return;
   }
 
   const strategy = args.includes('--no-ff')
@@ -59,7 +58,7 @@ module.exports = async (args) => {
       const hasConflicts = conflictCheck.success && conflictCheck.output.trim().length > 0;
 
       if (hasConflicts && process.stdin.isTTY) {
-        console.log(chalk.yellow('\n⚠ Merge conflicts detected'));
+        ui.warn('Merge conflicts detected');
 
         const { showSmartSuggestion } = require('../../utils/command-helpers');
         const nextAction = await showSmartSuggestion('What would you like to do?', [

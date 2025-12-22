@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execSync } = require('node:child_process');
 const { execGit } = require('../../core/git');
 const {
@@ -28,7 +28,7 @@ module.exports = async (args) => {
       : [];
 
   if (conflictedFiles.length === 0) {
-    clack.outro(chalk.green('No conflicts found'));
+    ui.success('No conflicts found');
     return;
   }
 
@@ -39,17 +39,16 @@ module.exports = async (args) => {
       label: chalk.yellow(file),
     }));
 
-    const theme = getTheme();
-    fileName = await clack.select({
-      message: theme.primary('Select file to resolve:'),
+    fileName = await ui.prompt.select({
+      message: 'Select file to resolve:',
       options,
     });
 
-    if (handleCancel(fileName)) return;
+    if (fileName === null) return;
   }
 
   if (!conflictedFiles.includes(fileName)) {
-    clack.cancel(chalk.yellow(`File ${fileName} is not in conflict`));
+    ui.warn(`File ${fileName} is not in conflict`);
     return;
   }
 
@@ -68,7 +67,7 @@ module.exports = async (args) => {
     // Open file in editor
     execSync(`${editor} ${fileName}`, { stdio: 'inherit' });
   } catch (error) {
-    clack.cancel(chalk.red(`Failed to open editor: ${error.message}`));
+    ui.error(`Failed to open editor: ${error.message}`, { exit: true });
     console.log(chalk.yellow(`\nYou can manually edit: ${fileName}`));
     return;
   }
@@ -87,11 +86,12 @@ module.exports = async (args) => {
     });
 
     console.log();
-    clack.outro(chalk.green(`File ${fileName} resolved and staged`));
+    ui.success(`File ${fileName} resolved and staged`);
+    const theme = getTheme();
     console.log(
-      chalk.dim('Continue with: gittable rebase --continue or gittable merge --continue')
+      theme.dim('Continue with: gittable rebase --continue or gittable merge --continue')
     );
   } else {
-    clack.outro(chalk.yellow('File not staged. Resolve conflicts and stage manually.'));
+    ui.warn('File not staged. Resolve conflicts and stage manually.');
   }
 };

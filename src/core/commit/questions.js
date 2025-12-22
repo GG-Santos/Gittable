@@ -1,4 +1,4 @@
-const clack = require('@clack/prompts');
+const prompts = require('../../ui/prompts');
 const chalk = require('chalk');
 const { getTheme } = require('../../utils/color-theme');
 const _fs = require('node:fs');
@@ -66,7 +66,7 @@ const categorizeScopesOptimized = (scopes) => {
 };
 
 const handleCancel = () => {
-  clack.cancel(chalk.yellow('Operation cancelled'));
+  prompts.cancel(chalk.yellow('Operation cancelled'));
   throw new CancelError('Operation cancelled by user');
 };
 
@@ -121,7 +121,7 @@ async function promptQuestions(config) {
       name: 'type',
       prompt: () => {
         const theme = getTheme();
-        return clack.select({
+        return prompts.select({
           message: theme.primary('Select commit type:'),
           options: [
             ...config.types.map((t) => ({
@@ -152,7 +152,7 @@ async function promptQuestions(config) {
         );
 
         const theme = getTheme();
-        return clack.select({
+        return prompts.select({
           message: theme.primary('Select scope category:'),
           options,
         });
@@ -167,7 +167,7 @@ async function promptQuestions(config) {
       prompt: ({ results }) => {
         const theme = getTheme();
         if (results.scopeCategory === '__custom__') {
-          return clack.text({
+          return prompts.text({
             message: theme.primary('Enter custom scope:'),
             placeholder: 'e.g., auth, api, ui (or press Ctrl+C to go back)',
           });
@@ -184,7 +184,7 @@ async function promptQuestions(config) {
           hint: 'Previous question',
         });
 
-        return clack.select({
+        return prompts.select({
           message: theme.primary('Select scope:'),
           options,
         });
@@ -195,7 +195,7 @@ async function promptQuestions(config) {
       condition: () => config.allowTicketNumber,
       prompt: () => {
         const theme = getTheme();
-        return clack.text({
+        return prompts.text({
           message: theme.primary('Ticket number:'),
           placeholder: config.ticketNumberPrefix || 'TICKET-',
           defaultValue: config.fallbackTicketNumber || '',
@@ -222,13 +222,13 @@ async function promptQuestions(config) {
 
         const theme = getTheme();
         if (templates.length > 0 && process.stdin.isTTY) {
-          const useTemplate = await clack.confirm({
+          const useTemplate = await prompts.confirm({
             message: theme.primary('Use commit template?'),
             initialValue: false,
           });
 
-          if (useTemplate && !clack.isCancel(useTemplate)) {
-            const selectedTemplate = await clack.select({
+          if (useTemplate && !prompts.isCancel(useTemplate)) {
+            const selectedTemplate = await prompts.select({
               message: theme.primary('Select template:'),
               options: [
                 ...templates.map((t) => ({ value: t, label: t })),
@@ -237,7 +237,7 @@ async function promptQuestions(config) {
               ],
             });
 
-            if (clack.isCancel(selectedTemplate) || selectedTemplate === '__back__') {
+            if (prompts.isCancel(selectedTemplate) || selectedTemplate === '__back__') {
               // Go back to previous step
               return '__back__';
             }
@@ -246,7 +246,7 @@ async function promptQuestions(config) {
               const template = loadTemplate(selectedTemplate);
               if (template) {
                 const expanded = expandTemplate(template);
-                clack.note(
+                prompts.note(
                   `Using template: ${theme.primary(selectedTemplate)}`,
                   chalk.dim('Template')
                 );
@@ -261,13 +261,13 @@ async function promptQuestions(config) {
         const recentOptions = createRecentMessageOptions(5);
 
         if (recentOptions.length > 0 && process.stdin.isTTY) {
-          const useRecent = await clack.confirm({
+          const useRecent = await prompts.confirm({
             message: theme.primary('Use recent commit message?'),
             initialValue: false,
           });
 
-          if (useRecent && !clack.isCancel(useRecent)) {
-            const selected = await clack.select({
+          if (useRecent && !prompts.isCancel(useRecent)) {
+            const selected = await prompts.select({
               message: theme.primary('Select recent commit message:'),
               options: [
                 ...recentOptions,
@@ -276,7 +276,7 @@ async function promptQuestions(config) {
               ],
             });
 
-            if (clack.isCancel(selected) || selected === '__back__') {
+            if (prompts.isCancel(selected) || selected === '__back__') {
               // Go back to previous step
               return '__back__';
             }
@@ -287,7 +287,7 @@ async function promptQuestions(config) {
           }
         }
 
-        return clack.text({
+        return prompts.text({
           message: theme.primary('Commit message:'),
           placeholder: 'add user authentication',
           defaultValue,
@@ -307,7 +307,7 @@ async function promptQuestions(config) {
         const defaultValue =
           config.usePreparedCommit && previous?.length > 1 ? previous.slice(1).join('|') : '';
 
-        return clack.text({
+        return prompts.text({
           message: theme.primary('Extended description (optional):'),
           placeholder: 'Use "|" for new lines',
           defaultValue,
@@ -323,7 +323,7 @@ async function promptQuestions(config) {
       condition: ({ results }) =>
         config.askForBreakingChangeFirst || config.allowBreakingChanges?.includes(results.type),
       prompt: () =>
-        clack.text({
+        prompts.text({
           message: chalk.red('Breaking changes (optional):'),
           placeholder: 'Describe breaking changes',
           validate: (value) => {
@@ -343,7 +343,7 @@ async function promptQuestions(config) {
         const defaultValue = suggestedIssue ? formatIssueReference(suggestedIssue) : '';
 
         const theme = getTheme();
-        return clack.text({
+        return prompts.text({
           message: theme.primary('Issues closed (optional):'),
           placeholder: suggestedIssue ? `#${suggestedIssue} (from branch)` : '#31, #34',
           defaultValue,
@@ -369,7 +369,7 @@ async function promptQuestions(config) {
     try {
       const result = await step.prompt({ results: answers });
 
-      if (clack.isCancel(result)) {
+      if (prompts.isCancel(result)) {
         handleCancel();
       }
 

@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../ui/framework');
 const { isGitRepo } = require('../core/git/executor');
 const { showBanner } = require('../ui/banner');
 const { getTheme } = require('../utils/color-theme');
@@ -13,16 +13,10 @@ class BaseCommand {
    */
   static requireTTY(helpText = null) {
     if (!process.stdin.isTTY) {
-      clack.cancel(chalk.red('Interactive mode required'));
-      if (helpText) {
-        console.log(chalk.yellow('This command requires interactive input.'));
-        if (Array.isArray(helpText)) {
-          helpText.forEach((line) => console.log(chalk.gray(line)));
-        } else {
-          console.log(chalk.gray(helpText));
-        }
-      }
-      process.exit(1);
+      ui.error('Interactive mode required', {
+        suggestion: helpText ? (Array.isArray(helpText) ? helpText : [helpText]) : undefined,
+        exit: true,
+      });
     }
     return true;
   }
@@ -32,16 +26,16 @@ class BaseCommand {
    */
   static requireGitRepo() {
     if (!isGitRepo()) {
-      clack.cancel(chalk.red('Not a git repository'));
-      console.log();
-      console.log(`${chalk.gray('├')}  ${chalk.yellow('Tip:')}`);
-      console.log(`${chalk.gray('│')}  ${chalk.gray('Initialize a new repository with:')}`);
-      console.log(`${chalk.gray('│')}  ${chalk.cyan('  gittable init')}`);
-      console.log(chalk.gray('│'));
-      console.log(`${chalk.gray('└')}  ${chalk.gray('Or clone an existing repository with:')}`);
-      console.log(chalk.gray('    ') + chalk.cyan('  gittable clone <url>'));
-      console.log();
-      process.exit(1);
+      ui.error('Not a git repository', {
+        suggestion: [
+          'Initialize a new repository with:',
+          '  gittable init',
+          '',
+          'Or clone an existing repository with:',
+          '  gittable clone <url>',
+        ],
+        exit: true,
+      });
     }
   }
 

@@ -14,11 +14,11 @@
 
 ---
 
-Gittable provides a beautiful, user-friendly interface for common Git operations while maintaining full compatibility with standard Git commands. Built with [@clack/prompts](https://github.com/natemoo-re/clack) for an exceptional command-line experience, Gittable enforces conventional commit message formats and offers intelligent, context-aware suggestions.
+Gittable provides a beautiful, user-friendly interface for common Git operations while maintaining full compatibility with standard Git commands. Built with a unified, native prompt system integrated with Gittable's theme system, Gittable enforces conventional commit message formats and offers intelligent, context-aware suggestions.
 
 ## Features
 
-- **Interactive Prompts** - Beautiful, intuitive command-line interface powered by @clack/prompts
+- **Interactive Prompts** - Beautiful, intuitive command-line interface with native prompt system
 - **Conventional Commits** - Enforces conventional commit message format for better project history
 - **Full Git Coverage** - Wraps all major Git commands with enhanced user experience
 - **Smart Defaults** - Context-aware suggestions and shortcuts for common workflows
@@ -30,7 +30,7 @@ Gittable provides a beautiful, user-friendly interface for common Git operations
 - **Interactive Tutorial** - Learn Git workflows with guided tutorials
 - **Beautiful UI** - Colorful banners, tables, and status displays for better readability
 - **Fast & Lightweight** - Minimal dependencies, maximum performance
-- **Commitizen Compatible** - Built-in git-cz implementation compatible with Commitizen adapters
+- **Commitizen Compatible** - Built-in git-cz implementation for backward compatibility with Commitizen adapters
 - **Modular Architecture** - Well-organized, category-based command structure for easy extension
 
 ## Installation

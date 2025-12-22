@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { showBanner } = require('../../ui/banner');
 const { getTheme } = require('../../utils/color-theme');
@@ -13,7 +13,7 @@ module.exports = async (args) => {
   const revision = args.find((arg) => !arg.startsWith('--'));
 
   if (!file) {
-    clack.cancel(chalk.yellow('No file specified'));
+    ui.warn('No file specified');
     return;
   }
 
@@ -26,10 +26,11 @@ module.exports = async (args) => {
   const result = execGit(command, { silent: false });
 
   if (!result.success) {
-    clack.cancel(chalk.red('Failed to show blame'));
-    console.error(result.error);
-    process.exit(1);
+    ui.error('Failed to show blame', {
+      suggestion: result.error,
+      exit: true,
+    });
   }
 
-  clack.outro(chalk.green.bold('Done'));
+  ui.success('Done');
 };

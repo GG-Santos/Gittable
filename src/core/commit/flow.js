@@ -1,4 +1,4 @@
-const clack = require('@clack/prompts');
+const prompts = require('../../ui/prompts');
 const chalk = require('chalk');
 const { execSync } = require('node:child_process');
 const { execGit } = require('../git/executor');
@@ -159,14 +159,14 @@ function showCommitPreview(message, options = {}) {
     if (stagedInfo.count > 0) {
       const filesPreview = stagedInfo.files.join(', ');
       const moreText = stagedInfo.hasMore ? ` and ${stagedInfo.count - 10} more` : '';
-      clack.note(
+      prompts.note(
         `${stagedInfo.count} file(s) staged: ${filesPreview}${moreText}`,
         chalk.dim('Staged Files')
       );
     }
   }
 
-  clack.note(message, chalk.bold('Commit Preview'));
+  prompts.note(message, chalk.bold('Commit Preview'));
 }
 
 /**
@@ -189,7 +189,7 @@ async function commitFlow(options = {}) {
   // Load config
   const config = readConfigFile();
   if (!config) {
-    clack.cancel(chalk.red('No configuration found'));
+    prompts.cancel(chalk.red('No configuration found'));
     throw new Error('No commit configuration found');
   }
 
@@ -199,7 +199,7 @@ async function commitFlow(options = {}) {
   const suggestions = getCommitSuggestions();
   if (suggestions.suggestedType && !options.skipTypeSuggestion) {
     const theme = getTheme();
-    clack.note(
+    prompts.note(
       `Suggested type: ${theme.primary(suggestions.suggestedType)} (based on ${suggestions.fileCount} changed file(s))`,
       chalk.dim('Context-aware suggestion')
     );
@@ -219,13 +219,13 @@ async function commitFlow(options = {}) {
       const hookResult = runHook('pre-commit');
 
       if (!hookResult.success) {
-        clack.cancel(chalk.red('Pre-commit hook failed'));
+        prompts.cancel(chalk.red('Pre-commit hook failed'));
         console.error(hookResult.error);
         throw new Error('Pre-commit hook failed');
       }
 
       if (hookResult.duration) {
-        clack.note(`Pre-commit hook passed (${hookResult.duration}ms)`, chalk.dim('Git Hook'));
+        prompts.note(`Pre-commit hook passed (${hookResult.duration}ms)`, chalk.dim('Git Hook'));
       }
     }
   }
@@ -234,7 +234,7 @@ async function commitFlow(options = {}) {
   if (!skipValidation) {
     const validation = validateStagingArea(options);
     if (!validation.valid) {
-      clack.cancel(chalk.red(validation.error));
+      prompts.cancel(chalk.red(validation.error));
       if (validation.suggestion) {
         console.log(chalk.yellow(validation.suggestion));
       }
@@ -250,7 +250,7 @@ async function commitFlow(options = {}) {
 
     showCommitPreview(message, { showStagedFiles });
 
-    const action = await clack.select({
+    const action = await prompts.select({
       message: chalk.yellow('Proceed?'),
       options: [
         { value: 'yes', label: chalk.green('Commit') },
@@ -258,20 +258,20 @@ async function commitFlow(options = {}) {
       ],
     });
 
-    if (clack.isCancel(action) || action === 'no') {
-      clack.cancel(chalk.yellow('Cancelled'));
+    if (prompts.isCancel(action) || action === 'no') {
+      prompts.cancel(chalk.yellow('Cancelled'));
       return { cancelled: true };
     }
   } catch (error) {
     if (error instanceof CancelError || error.isCancel) {
-      clack.cancel(chalk.yellow('Operation cancelled'));
+      prompts.cancel(chalk.yellow('Operation cancelled'));
       return { cancelled: true };
     }
     throw error;
   }
 
   // Execute commit
-  const spinner = clack.spinner();
+  const spinner = prompts.spinner();
   spinner.start('Creating commit...');
 
   let result;
@@ -301,7 +301,7 @@ async function commitFlow(options = {}) {
   spinner.stop();
 
   if (result.success) {
-    clack.outro(chalk.green.bold('Commit created successfully'));
+    prompts.outro(chalk.green.bold('Commit created successfully'));
 
     // Play success sound if enabled
     const { playSound } = require('../../utils/sound-alert');
@@ -358,7 +358,7 @@ async function commitFlow(options = {}) {
 
     return { success: true, message };
   }
-  clack.cancel(chalk.red('Failed to create commit'));
+  prompts.cancel(chalk.red('Failed to create commit'));
   console.error(result.error);
   throw new Error(result.error);
 }

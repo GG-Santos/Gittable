@@ -2,7 +2,7 @@ const { execSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const chalk = require('chalk');
-const clack = require('@clack/prompts');
+const prompts = require('../ui/prompts');
 
 /**
  * Run post-commit hooks
@@ -60,7 +60,7 @@ async function runPostCommitHooks(options = {}) {
   const results = [];
 
   for (const hook of hooks) {
-    const spinner = clack.spinner();
+    const spinner = prompts.spinner();
     spinner.start(`Running ${hook.name}...`);
 
     try {
@@ -73,9 +73,9 @@ async function runPostCommitHooks(options = {}) {
           error: hookResult.error,
         });
         if (hookResult.success) {
-          clack.note(`${hook.name} passed`, chalk.green('Post-commit'));
+          prompts.note(`${hook.name} passed`, chalk.green('Post-commit'));
         } else {
-          clack.cancel(chalk.red(`${hook.name} failed`));
+          prompts.cancel(chalk.red(`${hook.name} failed`));
         }
       } else {
         execSync(hook.command, {
@@ -87,7 +87,7 @@ async function runPostCommitHooks(options = {}) {
           name: hook.name,
           success: true,
         });
-        clack.note(`${hook.name} passed`, chalk.green('Post-commit'));
+        prompts.note(`${hook.name} passed`, chalk.green('Post-commit'));
       }
     } catch (error) {
       spinner.stop();
@@ -96,7 +96,7 @@ async function runPostCommitHooks(options = {}) {
         success: false,
         error: error.message,
       });
-      clack.cancel(chalk.red(`${hook.name} failed`));
+      prompts.cancel(chalk.red(`${hook.name} failed`));
     }
   }
 

@@ -6,3 +6,4 @@
   node "%~dp0\git-cz.js" %*
 )
 
+

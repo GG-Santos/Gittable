@@ -1,8 +1,8 @@
-const clack = require('@clack/prompts');
+const prompts = require('../ui/prompts');
 const chalk = require('chalk');
 const registry = require('../commands/registry');
 const { isGitRepo } = require('../core/git');
-const { showBanner } = require('../ui/banner');
+const { showBanner } = require('../ui/components');
 const { saveToHistory } = require('../utils/command-history');
 const { getTheme } = require('../utils/color-theme');
 
@@ -40,17 +40,15 @@ class Router {
       return false;
     }
 
-    // Check if command is enabled based on config
+    // Check if command is enabled based on config (enabledCommands array only)
     try {
       const readConfigFile = require('../core/config/loader');
       const config = readConfigFile();
       if (config) {
         const { isCommandEnabled } = require('../core/config/mode-filter');
         if (!isCommandEnabled(commandName, config)) {
-          clack.cancel(
-            chalk.red(`Command "${commandName}" is not available in ${config.mode || 'full'} mode`)
-          );
-          console.log(chalk.yellow('Edit .gittable.js to change the mode or enable this command.'));
+          prompts.cancel(chalk.red(`Command "${commandName}" is not enabled`));
+          console.log(chalk.yellow('Edit .gittable.js to enable this command in enabledCommands array.'));
           return false;
         }
       }
@@ -76,7 +74,7 @@ class Router {
       await command.handler(args, context);
       return true;
     } catch (error) {
-      clack.cancel(chalk.red('Command failed'));
+      prompts.cancel(chalk.red('Command failed'));
       console.error(error);
       return false;
     }
@@ -99,7 +97,7 @@ class Router {
 
       // For && operator, stop on failure
       if (cmd.operator === '&&' && !success && i < commands.length - 1) {
-        clack.cancel(chalk.red(`Command chain stopped at: ${cmdName}`));
+        prompts.cancel(chalk.red(`Command chain stopped at: ${cmdName}`));
         return false;
       }
 
@@ -115,7 +113,7 @@ class Router {
   showUnknownCommand(commandName) {
     showBanner('GITTABLE', { version: require('../../package.json').version });
     console.log();
-    clack.cancel(chalk.red(`Unknown command: ${chalk.bold(commandName)}`));
+    prompts.cancel(chalk.red(`Unknown command: ${chalk.bold(commandName)}`));
     console.log();
     console.log(`${chalk.gray('├')}  ${chalk.yellow('Available commands:')}`);
     console.log(chalk.gray('│'));
@@ -141,7 +139,7 @@ class Router {
     const theme = getTheme();
     showBanner('GITTABLE', { version: require('../../package.json').version });
     console.log();
-    clack.cancel(chalk.red('Not a git repository'));
+    prompts.cancel(chalk.red('Not a git repository'));
     console.log();
     console.log(`${chalk.gray('├')}  ${chalk.yellow('Tip:')}`);
     console.log(`${chalk.gray('│')}  ${chalk.gray('Initialize a new repository with:')}`);

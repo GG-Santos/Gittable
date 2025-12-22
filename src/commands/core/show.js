@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { showBanner } = require('../../ui/banner');
 const { getTheme } = require('../../utils/color-theme');
@@ -14,14 +14,17 @@ module.exports = async (args) => {
   // Check if commit exists (for HEAD or any commit)
   const checkResult = execGit(`rev-parse --verify ${commit}`, { silent: true });
   if (!checkResult.success) {
-    clack.cancel(chalk.red('Failed to show commit'));
     if (commit === 'HEAD') {
-      console.log(chalk.yellow('No commits found in repository'));
-      console.log(chalk.gray('Make at least one commit before using show'));
+      ui.error('Failed to show commit', {
+        suggestion: 'No commits found in repository. Make at least one commit before using show',
+        exit: true,
+      });
     } else {
-      console.error(chalk.red(`Commit ${commit} does not exist`));
+      ui.error('Failed to show commit', {
+        suggestion: `Commit ${commit} does not exist`,
+        exit: true,
+      });
     }
-    process.exit(1);
   }
 
   const stat = args.includes('--stat') || args.includes('-s');
@@ -40,10 +43,11 @@ module.exports = async (args) => {
   const result = execGit(command, { silent: false });
 
   if (!result.success) {
-    clack.cancel(chalk.red('Failed to show commit'));
-    console.error(result.error);
-    process.exit(1);
+    ui.error('Failed to show commit', {
+      suggestion: result.error,
+      exit: true,
+    });
   }
 
-  clack.outro(chalk.green.bold('Done'));
+  ui.success('Done');
 };

@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { showBanner } = require('../../ui/banner');
 const { getTheme } = require('../../utils/color-theme');
@@ -13,14 +13,14 @@ module.exports = async (args) => {
   const files = args.filter((arg) => !arg.startsWith('--'));
 
   if (files.length < 2) {
-    clack.cancel(chalk.yellow('Usage: mv <source> <destination>'));
+    ui.warn('Usage: mv <source> <destination>');
     return;
   }
 
   const source = files[0];
   const destination = files[1];
 
-  const spinner = clack.spinner();
+  const spinner = ui.prompt.spinner();
   spinner.start(`Moving ${source} to ${destination}`);
 
   let command = 'mv';
@@ -33,10 +33,11 @@ module.exports = async (args) => {
   spinner.stop();
 
   if (result.success) {
-    clack.outro(chalk.green.bold(`Moved ${source} to ${destination}`));
+    ui.success(`Moved ${source} to ${destination}`);
   } else {
-    clack.cancel(chalk.red('Failed to move file'));
-    console.error(result.error);
-    process.exit(1);
+    ui.error('Failed to move file', {
+      suggestion: result.error,
+      exit: true,
+    });
   }
 };

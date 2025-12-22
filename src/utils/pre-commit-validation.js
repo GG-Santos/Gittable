@@ -1,6 +1,6 @@
 const { execSync } = require('node:child_process');
 const chalk = require('chalk');
-const clack = require('@clack/prompts');
+const prompts = require('../ui/prompts');
 
 /**
  * Run pre-commit validation (tests, linting, etc.)
@@ -50,7 +50,7 @@ async function runPreCommitValidation(options = {}) {
   const results = [];
 
   for (const validation of validations) {
-    const spinner = clack.spinner();
+    const spinner = prompts.spinner();
     spinner.start(`Running ${validation.name}...`);
 
     try {
@@ -63,7 +63,7 @@ async function runPreCommitValidation(options = {}) {
         name: validation.name,
         success: true,
       });
-      clack.note(`${validation.name} passed`, chalk.green('Validation'));
+      prompts.note(`${validation.name} passed`, chalk.green('Validation'));
     } catch (error) {
       spinner.stop();
       results.push({
@@ -73,7 +73,7 @@ async function runPreCommitValidation(options = {}) {
       });
 
       if (skipOnError) {
-        clack.cancel(chalk.red(`${validation.name} failed`));
+        prompts.cancel(chalk.red(`${validation.name} failed`));
         return { success: false, results };
       }
 
@@ -84,7 +84,7 @@ async function runPreCommitValidation(options = {}) {
       );
 
       if (!continueAnyway) {
-        clack.cancel(chalk.red('Commit cancelled'));
+        prompts.cancel(chalk.red('Commit cancelled'));
         return { success: false, cancelled: true, results };
       }
     }

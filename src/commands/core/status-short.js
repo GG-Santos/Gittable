@@ -1,7 +1,8 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { getStatus, getCurrentBranch } = require('../../core/git');
 const { showCommandHeader } = require('../../utils/command-helpers');
+const { getTheme } = require('../../utils/color-theme');
 
 /**
  * Short status - One-line summary
@@ -9,17 +10,17 @@ const { showCommandHeader } = require('../../utils/command-helpers');
 module.exports = async (_args) => {
   const branch = getCurrentBranch();
   const status = getStatus();
+  const theme = getTheme();
 
   if (!status) {
-    clack.cancel(chalk.red('Failed to get repository status'));
-    process.exit(1);
+    ui.error('Failed to get repository status', { exit: true });
   }
 
   const parts = [];
 
   // Branch
   if (branch) {
-    parts.push(chalk.cyan(`on ${branch}`));
+    parts.push(theme.primary(`on ${branch}`));
   }
 
   // Changes summary
@@ -28,28 +29,28 @@ module.exports = async (_args) => {
   const untracked = status.untracked.length;
 
   if (staged > 0) {
-    parts.push(chalk.green(`+${staged}`));
+    parts.push(theme.success(`+${staged}`));
   }
   if (modified > 0) {
-    parts.push(chalk.yellow(`~${modified}`));
+    parts.push(theme.warning(`~${modified}`));
   }
   if (untracked > 0) {
-    parts.push(chalk.cyan(`?${untracked}`));
+    parts.push(theme.info(`?${untracked}`));
   }
 
   // Remote status
   if (status.ahead > 0) {
-    parts.push(chalk.green(`↑${status.ahead}`));
+    parts.push(theme.success(`↑${status.ahead}`));
   }
   if (status.behind > 0) {
-    parts.push(chalk.red(`↓${status.behind}`));
+    parts.push(theme.error(`↓${status.behind}`));
   }
   if (status.diverged) {
-    parts.push(chalk.yellow('⚠'));
+    parts.push(theme.warning('⚠'));
   }
 
   if (parts.length === 0) {
-    console.log(chalk.green('✓ clean'));
+    console.log(theme.success('✓ clean'));
   } else {
     console.log(parts.join(' '));
   }

@@ -1,4 +1,4 @@
-const clack = require('@clack/prompts');
+const prompts = require('../ui/prompts');
 const chalk = require('chalk');
 
 /**

@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { showCommandHeader, execGitWithSpinner } = require('../../utils/command-helpers');
 
@@ -42,16 +42,17 @@ module.exports = async (args) => {
         statusResult.output.includes('DD');
 
       if (!hasConflicts) {
-        clack.cancel(chalk.yellow('No merge conflicts to resolve'));
-        console.log(chalk.gray('Use this command when you have merge conflicts'));
+        ui.warn('No merge conflicts to resolve');
+        ui.info('Use this command when you have merge conflicts');
         return;
       }
     }
 
-    clack.cancel(chalk.red('Failed to launch merge tool'));
-    console.error(result.error);
-    process.exit(1);
+    ui.error('Failed to launch merge tool', {
+      suggestion: result.error,
+      exit: true,
+    });
   } else {
-    clack.outro(chalk.green.bold('Merge tool completed'));
+    ui.success('Merge tool completed');
   }
 };

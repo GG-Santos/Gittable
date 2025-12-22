@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { showBanner } = require('../../ui/banner');
 const VERSION = require('../../../package.json').version;
 
@@ -89,7 +89,7 @@ function showCommandHelp(commandName) {
   if (!help) {
     showBanner('GITTABLE', { version: VERSION });
     console.log();
-    clack.cancel(chalk.red(`No help available for command: ${chalk.bold(commandName)}`));
+    ui.error(`No help available for command: ${chalk.bold(commandName)}`);
     console.log();
     console.log(chalk.yellow('Available commands with help:'));
     console.log(chalk.gray(Object.keys(COMMAND_HELP).join(', ')));
@@ -117,7 +117,7 @@ function showCommandHelp(commandName) {
     });
     console.log();
   }
-  clack.outro(chalk.green.bold('Help complete'));
+  ui.success('Help complete');
 }
 
 module.exports = async (args) => {

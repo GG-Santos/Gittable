@@ -1,11 +1,7 @@
 module.exports = {
-  // Mode setting: 'basic' for essential commands only, 'full' for all commands
-  mode: 'full', // 'basic' | 'full'
 
-  // Command filtering (auto-populated based on mode, or leave empty for all commands)
-  enabledCommands: [], // If empty, all commands enabled
+  enabledCommands: [],
 
-  // Commit configuration
   types: [
     { value: 'feat', name: 'New Feature' },
     { value: 'fix', name: 'Bug Fix' },

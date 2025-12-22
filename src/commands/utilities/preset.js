@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { showCommandHeader, handleCancel, promptConfirm } = require('../../utils/command-helpers');
 const {
   listPresets,
@@ -40,7 +40,7 @@ module.exports = async (args) => {
     }
 
     console.log(chalk.dim('\nCreate one with: gittable preset save <name>'));
-    clack.outro(chalk.green.bold('Done'));
+    ui.success('Done');
     return;
   }
 
@@ -50,31 +50,28 @@ module.exports = async (args) => {
     let commands = args.slice(2);
 
     if (!name) {
-      const theme = getTheme();
-      name = await clack.text({
-        message: theme.primary('Preset name:'),
+      name = await ui.prompt.text({
+        message: 'Preset name:',
         placeholder: 'feature',
       });
-      if (handleCancel(name)) return;
+      if (name === null) return;
     }
 
     if (commands.length === 0) {
-      const theme = getTheme();
-      const commandInput = await clack.text({
-        message: theme.primary('Commands (space-separated):'),
+      const commandInput = await ui.prompt.text({
+        message: 'Commands (space-separated):',
         placeholder: 'add commit push',
       });
-      if (handleCancel(commandInput)) return;
+      if (commandInput === null) return;
       commands = commandInput.split(/\s+/).filter(Boolean);
     }
 
     if (commands.length === 0) {
-      clack.cancel(chalk.red('No commands provided'));
-      return;
+      ui.error('No commands provided', { exit: true });
     }
 
     savePreset(name, commands);
-    clack.outro(chalk.green.bold(`Preset "${name}" saved`));
+    ui.success(`Preset "${name}" saved`);
     return;
   }
 
@@ -88,16 +85,15 @@ module.exports = async (args) => {
       const allPresets = [...Object.keys(defaults), ...presets];
 
       if (allPresets.length === 0) {
-        clack.cancel(chalk.yellow('No presets available'));
+        ui.warn('No presets available');
         return;
       }
 
-      const theme = getTheme();
-      name = await clack.select({
-        message: theme.primary('Select preset:'),
+      name = await ui.prompt.select({
+        message: 'Select preset:',
         options: allPresets.map((p) => ({ value: p, label: p })),
       });
-      if (handleCancel(name)) return;
+      if (name === null) return;
     }
 
     const preset = loadPreset(name);
@@ -105,14 +101,13 @@ module.exports = async (args) => {
     const defaultPreset = defaults[name];
 
     if (!preset && !defaultPreset) {
-      clack.cancel(chalk.red(`Preset "${name}" not found`));
-      return;
+      ui.error(`Preset "${name}" not found`, { exit: true });
     }
 
     const selectedPreset = preset || defaultPreset;
     console.log(chalk.cyan(`\nPreset "${name}":`));
     console.log(chalk.green(`Commands: ${selectedPreset.commands.join(' → ')}`));
-    clack.outro(chalk.green.bold('Done'));
+    ui.success('Done');
     return;
   }
 
@@ -123,25 +118,24 @@ module.exports = async (args) => {
     if (!name) {
       const presets = listPresets();
       if (presets.length === 0) {
-        clack.cancel(chalk.yellow('No custom presets available'));
+        ui.warn('No custom presets available');
         return;
       }
 
-      const theme = getTheme();
-      name = await clack.select({
-        message: theme.primary('Select preset to delete:'),
+      name = await ui.prompt.select({
+        message: 'Select preset to delete:',
         options: presets.map((p) => ({ value: p, label: p })),
       });
-      if (handleCancel(name)) return;
+      if (name === null) return;
     }
 
     const confirmed = await promptConfirm(`Delete preset "${name}"?`, false);
     if (!confirmed) return;
 
     if (deletePreset(name)) {
-      clack.outro(chalk.green.bold(`Preset "${name}" deleted`));
+      ui.success(`Preset "${name}" deleted`);
     } else {
-      clack.cancel(chalk.red(`Preset "${name}" not found`));
+      ui.error(`Preset "${name}" not found`, { exit: true });
     }
     return;
   }
@@ -156,16 +150,15 @@ module.exports = async (args) => {
       const allPresets = [...Object.keys(defaults), ...presets];
 
       if (allPresets.length === 0) {
-        clack.cancel(chalk.yellow('No presets available'));
+        ui.warn('No presets available');
         return;
       }
 
-      const theme = getTheme();
-      name = await clack.select({
-        message: theme.primary('Select preset to run:'),
+      name = await ui.prompt.select({
+        message: 'Select preset to run:',
         options: allPresets.map((p) => ({ value: p, label: p })),
       });
-      if (handleCancel(name)) return;
+      if (name === null) return;
     }
 
     const preset = loadPreset(name);
@@ -173,27 +166,26 @@ module.exports = async (args) => {
     const defaultPreset = defaults[name];
 
     if (!preset && !defaultPreset) {
-      clack.cancel(chalk.red(`Preset "${name}" not found`));
-      return;
+      ui.error(`Preset "${name}" not found`, { exit: true });
     }
 
     const selectedPreset = preset || defaultPreset;
-    clack.note(`Running preset: ${chalk.cyan(name)}`, chalk.dim('Workflow'));
-    console.log(chalk.dim(`Commands: ${selectedPreset.commands.join(' → ')}`));
+    ui.info(`Running preset: ${name}`, 'Workflow');
+    const theme = getTheme();
+    console.log(theme.dim(`Commands: ${selectedPreset.commands.join(' → ')}`));
 
     // Execute commands sequentially via gittable CLI
     const { execSync } = require('node:child_process');
     for (const cmd of selectedPreset.commands) {
-      clack.note(`Executing: ${chalk.cyan(cmd)}`, chalk.dim('Step'));
+      ui.info(`Executing: ${cmd}`, 'Step');
       try {
         execSync(`gittable ${cmd}`, { stdio: 'inherit' });
       } catch (error) {
-        clack.cancel(chalk.red(`Failed at step: ${cmd}`));
-        return;
+        ui.error(`Failed at step: ${cmd}`, { exit: true });
       }
     }
 
-    clack.outro(chalk.green.bold(`Preset "${name}" completed`));
+    ui.success(`Preset "${name}" completed`);
     return;
   }
 
@@ -204,12 +196,11 @@ module.exports = async (args) => {
   const defaultPreset = defaults[action];
 
   if (!preset && !defaultPreset) {
-    clack.cancel(chalk.red(`Preset "${action}" not found`));
-    return;
+    ui.error(`Preset "${action}" not found`, { exit: true });
   }
 
-  clack.note(
+  ui.info(
     `Preset "${action}" found. Use 'gittable preset run ${action}' to execute.`,
-    chalk.dim('Info')
+    'Info'
   );
 };

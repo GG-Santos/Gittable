@@ -1,4 +1,4 @@
-const clack = require('@clack/prompts');
+const prompts = require('../ui/prompts');
 const chalk = require('chalk');
 
 /**
@@ -11,7 +11,7 @@ class ProgressIndicator {
     this.lastUpdate = this.startTime;
     this.current = 0;
     this.total = options.total || 100;
-    this.spinner = clack.spinner();
+    this.spinner = prompts.spinner();
     this.interval = null;
     this.updateInterval = options.updateInterval || 500; // Update every 500ms
   }

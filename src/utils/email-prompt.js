@@ -1,6 +1,6 @@
 const emailPrompt = require('email-prompt');
 const chalk = require('chalk');
-const clack = require('@clack/prompts');
+const prompts = require('../ui/prompts');
 
 /**
  * Prompt for email address
@@ -23,7 +23,7 @@ const promptEmail = async (options = {}) => {
     return email;
   } catch (err) {
     if (err.message?.includes('Aborted')) {
-      clack.cancel(chalk.yellow('Email input cancelled'));
+      prompts.cancel(chalk.yellow('Email input cancelled'));
       return null;
     }
     throw err;
@@ -43,13 +43,13 @@ const promptEmailWithConfirmation = async (options = {}) => {
   }
 
   // Show confirmation
-  const confirm = await clack.confirm({
+  const confirm = await prompts.confirm({
     message: `Use email: ${chalk.cyan(email)}?`,
     initialValue: true,
   });
 
-  if (clack.isCancel(confirm) || !confirm) {
-    clack.cancel(chalk.yellow('Email not set'));
+  if (prompts.isCancel(confirm) || !confirm) {
+    prompts.cancel(chalk.yellow('Email not set'));
     return null;
   }
 

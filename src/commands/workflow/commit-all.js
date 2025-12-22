@@ -1,3 +1,4 @@
+const ui = require('../../ui/framework');
 const {
   showCommandHeader,
   requireTTY,
@@ -5,8 +6,6 @@ const {
   promptConfirm,
 } = require('../../utils/command-helpers');
 const { commitFlow } = require('../../core/commit/flow');
-const clack = require('@clack/prompts');
-const chalk = require('chalk');
 
 /**
  * Commit-all command - Stage all and commit with message
@@ -30,7 +29,6 @@ module.exports = async (args) => {
   // Stage all changes
   const confirmed = await promptConfirm('Stage all changes?', true);
   if (!confirmed) {
-    clack.cancel(chalk.yellow('Cancelled'));
     return;
   }
 
@@ -64,20 +62,22 @@ module.exports = async (args) => {
     });
 
     if (result.success) {
-      clack.outro(chalk.green.bold('Commit created successfully'));
+      ui.success('Commit created successfully');
     } else {
-      clack.cancel(chalk.red('Failed to create commit'));
-      console.error(result.error);
-      process.exit(1);
+      ui.error('Failed to create commit', {
+        suggestion: result.error,
+        exit: true,
+      });
     }
   } else {
     // Interactive commit
     try {
       await commitFlow(commitOptions);
     } catch (error) {
-      clack.cancel(chalk.red('Commit failed'));
-      console.error(error.message);
-      process.exit(1);
+      ui.error('Commit failed', {
+        suggestion: error.message,
+        exit: true,
+      });
     }
   }
 };

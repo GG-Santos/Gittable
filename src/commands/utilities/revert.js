@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit, getLog } = require('../../core/git');
 const { showBanner } = require('../../ui/banner');
 const { getTheme } = require('../../utils/color-theme');
@@ -13,15 +13,15 @@ module.exports = async (args) => {
 
   if (!commit) {
     if (!process.stdin.isTTY) {
-      clack.cancel(chalk.red('Interactive mode required'));
-      console.log(chalk.yellow('This command requires interactive input.'));
-      console.log(chalk.gray('Please provide a commit hash: gittable revert <commit>'));
-      process.exit(1);
+      ui.error('Interactive mode required', {
+        suggestion: 'Please provide a commit hash: gittable revert <commit>',
+        exit: true,
+      });
     }
 
     const commits = getLog(10, '%h|%s');
     if (commits.length === 0) {
-      clack.cancel(chalk.yellow('No commits found'));
+      ui.warn('No commits found');
       return;
     }
 
@@ -30,19 +30,15 @@ module.exports = async (args) => {
       label: `${c.hash} - ${c.message}`,
     }));
 
-    const theme = getTheme();
-    commit = await clack.select({
-      message: theme.primary('Select commit to revert:'),
+    commit = await ui.prompt.select({
+      message: 'Select commit to revert:',
       options,
     });
 
-    if (clack.isCancel(commit)) {
-      clack.cancel(chalk.yellow('Cancelled'));
-      return;
-    }
+    if (commit === null) return;
   }
 
-  const spinner = clack.spinner();
+  const spinner = ui.prompt.spinner();
   spinner.start(`Reverting commit ${commit}`);
 
   let command = 'revert';
@@ -55,11 +51,12 @@ module.exports = async (args) => {
   spinner.stop();
 
   if (result.success) {
-    clack.outro(chalk.green.bold(`Reverted commit ${commit}`));
+    ui.success(`Reverted commit ${commit}`);
   } else {
-    clack.cancel(chalk.red('Revert failed'));
-    console.error(result.error);
-    console.log(chalk.yellow('\nYou may need to resolve conflicts manually'));
+    ui.error('Revert failed', {
+      suggestion: result.error,
+    });
+    ui.warn('You may need to resolve conflicts manually');
     process.exit(1);
   }
 };

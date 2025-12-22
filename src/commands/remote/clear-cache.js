@@ -1,5 +1,4 @@
-const clack = require('@clack/prompts');
-const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { showCommandHeader } = require('../../utils/command-helpers');
 const { clearAllCaches } = require('../../utils/cache');
 
@@ -11,5 +10,5 @@ module.exports = async (_args) => {
 
   clearAllCaches();
 
-  clack.outro(chalk.green.bold('All caches cleared'));
+  ui.success('All caches cleared');
 };

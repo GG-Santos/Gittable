@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { showCommandHeader, handleCancel } = require('../../utils/command-helpers');
 const { getPreference, setPreference } = require('../../utils/user-preferences');
 const { getTheme, getThemeWithCustomPrimary } = require('../../utils/color-theme');
@@ -31,18 +31,18 @@ module.exports = async (args) => {
     }
     console.log();
     
-    const selectedAction = await clack.select({
-      message: theme.primary('What would you like to do?'),
+    const selectedAction = await ui.prompt.select({
+      message: 'What would you like to do?',
       options: [
         { value: 'color', label: 'Change Color' },
         { value: 'reset', label: 'Reset to default' },
         { value: 'exit', label: 'Exit' },
       ],
     });
-    if (handleCancel(selectedAction)) return;
+    if (selectedAction === null) return;
     
     if (selectedAction === 'exit') {
-      clack.outro(chalk.green.bold('Done'));
+      ui.success('Done');
       return;
     }
     
@@ -55,7 +55,7 @@ module.exports = async (args) => {
     
     if (!currentColor) {
       showCommandHeader('THEME', 'Reset Primary Color');
-      clack.outro(chalk.green.bold('Primary color is already set to default (cyan)'));
+      ui.success('Primary color is already set to default (cyan)');
       return;
     }
     
@@ -71,14 +71,14 @@ module.exports = async (args) => {
         fs.writeFileSync(prefsFile, JSON.stringify(prefs, null, 2), 'utf8');
       } catch (error) {
         showCommandHeader('THEME', 'Reset Primary Color');
-        clack.cancel(chalk.red(`Failed to save preferences: ${error.message}`));
+        ui.error(`Failed to save preferences: ${error.message}`);
         return;
       }
     }
     
     // Show header AFTER reset so it uses the new default cyan color
     showCommandHeader('THEME', 'Reset Primary Color');
-    clack.outro(chalk.green.bold('Primary color reset to default (cyan)'));
+    ui.success('Primary color reset to default (cyan)');
     return;
   }
 
@@ -117,21 +117,21 @@ module.exports = async (args) => {
       { value: 'custom', label: 'Custom RGB', color: chalk.white('●') },
     ];
     
-    const selectedColor = await clack.select({
-      message: theme.primary('Select primary color:'),
+    const selectedColor = await ui.prompt.select({
+      message: 'Select primary color:',
       options: colorOptions.map((opt) => ({
         value: opt.value,
         label: `${opt.color} ${opt.label}`,
       })),
     });
-    if (handleCancel(selectedColor)) return;
+    if (selectedColor === null) return;
     
     let colorValue;
     
     if (selectedColor === 'custom') {
       // Get RGB values
-      const rgbInput = await clack.text({
-        message: theme.primary('Enter RGB values (format: r,g,b or r g b):'),
+      const rgbInput = await ui.prompt.text({
+        message: 'Enter RGB values (format: r,g,b or r g b):',
         placeholder: '255, 100, 50',
         validate: (value) => {
           if (!value) return 'RGB values are required';
@@ -152,7 +152,7 @@ module.exports = async (args) => {
           return;
         },
       });
-      if (handleCancel(rgbInput)) return;
+      if (rgbInput === null) return;
       
       const parts = rgbInput.split(/[,\s]+/).map((s) => s.trim()).filter(Boolean);
       const r = parseInt(parts[0], 10);
@@ -181,7 +181,7 @@ module.exports = async (args) => {
     
     // Show preview
     console.log('\n');
-    clack.log.step(previewTheme.primary('Preview:'));
+    ui.info('Preview:');
     console.log(previewTheme.primary('  This is how the primary color will look'));
     console.log(previewTheme.primary('  ████████████████████████████████████████'));
     console.log(previewTheme.primary('  Example text with primary color'));
@@ -201,18 +201,18 @@ module.exports = async (args) => {
     }
     
     // Ask for confirmation
-    const confirm = await clack.select({
-      message: previewTheme.primary('Apply this color?'),
+    const confirm = await ui.prompt.select({
+      message: 'Apply this color?',
       options: confirmOptions,
     });
-    if (handleCancel(confirm)) {
+    if (confirm === null) {
       // User cancelled, no changes needed
       return;
     }
     
     if (confirm === 'revert') {
       setPreference('primaryColor', originalColor);
-      clack.outro(chalk.green.bold('Color reverted to previous'));
+      ui.success('Color reverted to previous');
       return;
     }
     
@@ -228,25 +228,25 @@ module.exports = async (args) => {
         try {
           fs.writeFileSync(prefsFile, JSON.stringify(prefs, null, 2), 'utf8');
         } catch (error) {
-          clack.cancel(chalk.red(`Failed to save preferences: ${error.message}`));
+          ui.error(`Failed to save preferences: ${error.message}`);
           return;
         }
       }
-      clack.outro(chalk.green.bold('Color reset to default (cyan)'));
+      ui.success('Color reset to default (cyan)');
       return;
     }
     
     if (confirm === 'cancel') {
-      clack.cancel('Color change cancelled');
+      ui.warn('Color change cancelled');
       return;
     }
     
     // Save the color (confirm === 'yes')
     setPreference('primaryColor', colorValue);
-    clack.outro(chalk.green.bold('Primary color updated successfully'));
+    ui.success('Primary color updated successfully');
     return;
   }
 
   // Unknown action
-  clack.cancel(chalk.red(`Unknown action: ${action}. Use 'list', 'color', or 'reset'`));
+  ui.error(`Unknown action: ${action}. Use 'list', 'color', or 'reset'`);
 };

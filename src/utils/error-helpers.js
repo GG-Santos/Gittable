@@ -91,23 +91,17 @@ function parseGitError(error, command) {
 
 /**
  * Display enhanced error message with suggestions
+ * Now uses framework message system
  */
 function displayEnhancedError(error, command = null) {
   const parsed = parseGitError(error, command);
+  const ui = require('../ui/framework');
 
-  console.log();
-  console.log(chalk.red.bold('Error:'), chalk.red(parsed.message));
-
-  if (parsed.suggestion) {
-    console.log(chalk.yellow('💡 Suggestion:'), chalk.gray(parsed.suggestion));
-  }
-
-  if (parsed.solution) {
-    const theme = getTheme();
-    console.log(theme.primary('→ Try:'), chalk.bold(theme.primary(parsed.solution)));
-  }
-
-  console.log();
+  ui.error(parsed.message, {
+    suggestion: parsed.suggestion,
+    solution: parsed.solution,
+    exit: false,
+  });
 }
 
 module.exports = {

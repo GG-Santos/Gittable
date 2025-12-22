@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { createActionRouter } = require('../../utils/action-router');
 const {
@@ -39,8 +39,9 @@ const listWorktrees = async () => {
       console.log();
     }
   } else {
-    clack.cancel(chalk.red('Failed to list worktrees'));
-    console.error(result.error);
+    ui.error('Failed to list worktrees', {
+      suggestion: result.error,
+    });
   }
 };
 
@@ -52,37 +53,35 @@ const addWorktree = async (args) => {
   let checkoutBranch = args.includes('-b') || args.includes('--create');
 
   if (!path) {
-    const theme = getTheme();
-    path = await clack.text({
-      message: theme.primary('Worktree path:'),
+    path = await ui.prompt.text({
+      message: 'Worktree path:',
       placeholder: './feature-worktree',
     });
-    if (handleCancel(path)) return;
+    if (path === null) return;
   }
 
   if (!branch && !checkoutBranch) {
-    const theme = getTheme();
-    const createNew = await clack.confirm({
-      message: theme.primary('Create new branch for this worktree?'),
+    const createNew = await ui.prompt.confirm({
+      message: 'Create new branch for this worktree?',
       initialValue: false,
     });
 
-    if (clack.isCancel(createNew)) return;
+    if (createNew === null) return;
 
     if (createNew) {
       checkoutBranch = true;
-      branch = await clack.text({
-        message: theme.primary('New branch name:'),
+      branch = await ui.prompt.text({
+        message: 'New branch name:',
         placeholder: 'feature/new-feature',
       });
-      if (handleCancel(branch)) return;
+      if (branch === null) return;
     } else {
-      branch = await clack.text({
-        message: theme.primary('Branch name (optional):'),
+      branch = await ui.prompt.text({
+        message: 'Branch name (optional):',
         placeholder: 'main',
         required: false,
       });
-      if (clack.isCancel(branch)) branch = null;
+      if (branch === null) branch = null;
     }
   }
 
@@ -113,7 +112,7 @@ const removeWorktree = async (args) => {
     if (listResult.success) {
       const lines = listResult.output.trim().split('\n').filter(Boolean);
       if (lines.length === 0) {
-        clack.cancel(chalk.yellow('No worktrees to remove'));
+        ui.warn('No worktrees to remove');
         return;
       }
 
@@ -125,15 +124,13 @@ const removeWorktree = async (args) => {
         };
       });
 
-      const theme = getTheme();
-      path = await clack.select({
-        message: theme.primary('Select worktree to remove:'),
+      path = await ui.prompt.select({
+        message: 'Select worktree to remove:',
         options: worktreeOptions,
       });
-      if (handleCancel(path)) return;
+      if (path === null) return;
     } else {
-      clack.cancel(chalk.red('Failed to list worktrees'));
-      return;
+      ui.error('Failed to list worktrees', { exit: true });
     }
   }
 

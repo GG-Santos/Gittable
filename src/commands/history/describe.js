@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { showCommandHeader } = require('../../utils/command-helpers');
 const { getTheme } = require('../../utils/color-theme');
@@ -26,18 +26,20 @@ module.exports = async (args) => {
     const description = result.output.trim();
     if (description) {
       const theme = getTheme();
-    console.log(chalk.bold(theme.primary(description)));
-      clack.outro(chalk.green.bold('Done'));
+      console.log(chalk.bold(theme.primary(description)));
+      ui.success('Done');
     } else {
-      clack.cancel(chalk.yellow('No description found'));
-      console.log(chalk.gray('Try using --always to show commit hash if no tag is found'));
+      ui.warn('No description found');
+      const theme = getTheme();
+      console.log(theme.dim('Try using --always to show commit hash if no tag is found'));
     }
   } else {
-    clack.cancel(chalk.red('Failed to describe commit'));
+    ui.error('Failed to describe commit', {
+      suggestion: result.error,
+    });
     if (!always) {
-      console.log(chalk.yellow('Tip: Use --always to show commit hash even if no tag is found'));
+      ui.info('Tip: Use --always to show commit hash even if no tag is found');
     }
-    console.error(result.error);
     process.exit(1);
   }
 };

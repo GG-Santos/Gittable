@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { createTable } = require('../../ui/table');
 const {
@@ -41,22 +41,22 @@ const getConfig = async (args, scope = 'local') => {
   let key = args[0];
 
   if (!key) {
-    const theme = getTheme();
-    key = await clack.text({
-      message: theme.primary('Config key:'),
+    key = await ui.prompt.text({
+      message: 'Config key:',
       placeholder: 'user.name',
     });
 
-    if (handleCancel(key)) return;
+    if (key === null) return;
   }
 
   const scopeFlag = getScopeFlag(scope);
   const result = execGit(`config ${scopeFlag} --get ${key}`, { silent: true });
 
   if (result.success) {
-    console.log(chalk.green(result.output.trim()));
+    const theme = getTheme();
+    console.log(theme.success(result.output.trim()));
   } else {
-    clack.cancel(chalk.yellow(`Config key "${key}" not found`));
+    ui.warn(`Config key "${key}" not found`);
   }
 };
 
@@ -65,23 +65,21 @@ const setConfig = async (args, scope = 'local') => {
   let value = args[1];
 
   if (!key) {
-    const theme = getTheme();
-    key = await clack.text({
-      message: theme.primary('Config key:'),
+    key = await ui.prompt.text({
+      message: 'Config key:',
       placeholder: 'user.name',
     });
 
-    if (handleCancel(key)) return;
+    if (key === null) return;
   }
 
   if (!value) {
-    const theme = getTheme();
-    value = await clack.text({
-      message: theme.primary('Config value:'),
+    value = await ui.prompt.text({
+      message: 'Config value:',
       placeholder: 'John Doe',
     });
 
-    if (handleCancel(value)) return;
+    if (value === null) return;
   }
 
   const scopeFlag = getScopeFlag(scope);
@@ -97,13 +95,12 @@ const unsetConfig = async (args, scope = 'local') => {
   let key = args[0];
 
   if (!key) {
-    const theme = getTheme();
-    key = await clack.text({
-      message: theme.primary('Config key to unset:'),
+    key = await ui.prompt.text({
+      message: 'Config key to unset:',
       placeholder: 'user.name',
     });
 
-    if (handleCancel(key)) return;
+    if (key === null) return;
   }
 
   const confirmed = await promptConfirm(`Unset config ${key}?`, false);
@@ -140,9 +137,8 @@ module.exports = async (args) => {
       showCommandHeader('CONFIG', 'Git Configuration');
 
       // First, ask for action
-      const theme = getTheme();
-      const selectedAction = await clack.select({
-        message: theme.primary('What would you like to do?'),
+      const selectedAction = await ui.prompt.select({
+        message: 'What would you like to do?',
         options: [
           {
             value: 'list',
@@ -163,11 +159,11 @@ module.exports = async (args) => {
         ],
       });
 
-      if (handleCancel(selectedAction)) return;
+      if (selectedAction === null) return;
 
       // Then, ask for scope
-      const selectedScope = await clack.select({
-        message: theme.primary('Select scope:'),
+      const selectedScope = await ui.prompt.select({
+        message: 'Select scope:',
         options: [
           {
             value: 'local',
@@ -186,7 +182,7 @@ module.exports = async (args) => {
         initialValue: 'local',
       });
 
-      if (handleCancel(selectedScope)) return;
+      if (selectedScope === null) return;
 
       scope = selectedScope;
 
@@ -194,14 +190,14 @@ module.exports = async (args) => {
       if (selectedAction === 'list') {
         showCommandHeader('CONFIG', `Config List (${scope})`);
         listConfig(scope);
-        clack.outro(chalk.green.bold('Done'));
+        ui.success('Done');
         return;
       }
 
       if (selectedAction === 'get') {
         showCommandHeader('CONFIG', 'Get Config');
         await getConfig([], scope);
-        clack.outro(chalk.green.bold('Done'));
+        ui.success('Done');
         return;
       }
 
@@ -220,7 +216,7 @@ module.exports = async (args) => {
       // Non-interactive: list with provided scope
       showCommandHeader('CONFIG', `Config List (${scope})`);
       listConfig(scope);
-      clack.outro(chalk.green.bold('Done'));
+      ui.success('Done');
       return;
     }
   }
@@ -229,14 +225,14 @@ module.exports = async (args) => {
   if (action === 'list' || action === 'ls') {
     showCommandHeader('CONFIG', `Config List (${scope})`);
     listConfig(scope);
-    clack.outro(chalk.green.bold('Done'));
+    ui.success('Done');
     return;
   }
 
   if (action === 'get') {
     showCommandHeader('CONFIG', 'Get Config');
     await getConfig(args.slice(1), scope);
-    clack.outro(chalk.green.bold('Done'));
+    ui.success('Done');
     return;
   }
 
@@ -255,5 +251,5 @@ module.exports = async (args) => {
   // Default: get config
   showCommandHeader('CONFIG', 'Get Config');
   await getConfig([action], scope);
-  clack.outro(chalk.green.bold('Done'));
+  ui.success('Done');
 };

@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { getStatus } = require('../../core/git');
 const {
   showCommandHeader,
@@ -21,8 +21,7 @@ const stageFiles = async (files, args = []) => {
     // Interactive mode: show unstaged files
     const status = getStatus();
     if (!status) {
-      clack.cancel(chalk.red('Failed to get repository status'));
-      process.exit(1);
+      ui.error('Failed to get repository status', { exit: true });
     }
 
     // Use enhanced file selection with directory grouping
@@ -36,7 +35,7 @@ const stageFiles = async (files, args = []) => {
     const allFiles = createFileOptions(allFilesList, statusMap, { showMetadata });
 
     if (allFiles.length === 0) {
-      clack.cancel(chalk.yellow('No files to stage'));
+      ui.warn('No files to stage');
       return;
     }
 
@@ -44,8 +43,8 @@ const stageFiles = async (files, args = []) => {
     const selectableOptions = allFiles.filter((opt) => !opt.disabled);
 
     const theme = getTheme();
-    const selected = await clack.multiselect({
-      message: theme.primary('Select files to stage:'),
+    const selected = await ui.prompt.multiselect({
+      message: 'Select files to stage:',
       options: allFiles,
     });
 
@@ -122,7 +121,7 @@ const unstageFiles = async (files) => {
   if (!files || files.length === 0) {
     const status = getStatus();
     if (!status || status.staged.length === 0) {
-      clack.cancel(chalk.yellow('No staged files to unstage'));
+      ui.warn('No staged files to unstage');
       return;
     }
 
@@ -131,13 +130,12 @@ const unstageFiles = async (files) => {
       label: `${f.status} ${f.file}`,
     }));
 
-    const theme = getTheme();
-    const selected = await clack.multiselect({
-      message: theme.primary('Select files to unstage:'),
+    const selected = await ui.prompt.multiselect({
+      message: 'Select files to unstage:',
       options,
     });
 
-    if (handleCancel(selected)) return;
+    if (selected === null) return;
 
     files = selected;
   }

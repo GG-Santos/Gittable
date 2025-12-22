@@ -1,4 +1,4 @@
-const clack = require('@clack/prompts');
+const prompts = require('../ui/prompts');
 const chalk = require('chalk');
 const { getCurrentBranch } = require('../core/git');
 
@@ -14,7 +14,7 @@ function validateBranch(branchName = null, contextMessage = 'performing this ope
 
   // Handle empty repository (no commits = no branch)
   if (!branch || branch === 'null' || branch === 'HEAD') {
-    clack.cancel(chalk.red('No branch found'));
+    prompts.cancel(chalk.red('No branch found'));
     console.log(chalk.yellow('Repository has no commits yet.'));
     console.log(chalk.gray(`Make at least one commit before ${contextMessage}.`));
     process.exit(1);

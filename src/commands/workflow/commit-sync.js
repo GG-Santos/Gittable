@@ -1,3 +1,5 @@
+const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { getCurrentBranch } = require('../../core/git');
 const {
   showCommandHeader,
@@ -7,8 +9,6 @@ const {
 const { ensureRemoteExists } = require('../../utils/remote-helpers');
 const { getValidBranch } = require('../../utils/branch-helpers');
 const { commitFlow } = require('../../core/commit/flow');
-const clack = require('@clack/prompts');
-const chalk = require('chalk');
 
 /**
  * Commit + Sync command
@@ -48,8 +48,7 @@ module.exports = async (args) => {
     }
 
     if (!commitResult.success) {
-      clack.cancel(chalk.red('Commit failed, skipping sync'));
-      process.exit(1);
+      ui.error('Commit failed, skipping sync', { exit: true });
     }
 
     // Step 2: Fetch
@@ -65,19 +64,23 @@ module.exports = async (args) => {
       successMessage: null,
       errorMessage: 'Rebase failed',
       onError: () => {
-        console.log(chalk.yellow('\nYou may need to resolve conflicts manually'));
+        ui.warn('You may need to resolve conflicts manually');
       },
     });
 
     // Step 4: Push
     await execGitWithSpinner(`push ${remote} ${validBranch}`, {
       spinnerText: `Pushing to ${remote}/${validBranch}`,
-      successMessage: 'Commit and sync completed',
+      successMessage: null, // We'll show success ourselves
       errorMessage: 'Push failed',
+      onSuccess: () => {
+        ui.success('Commit and sync completed');
+      },
     });
   } catch (error) {
-    clack.cancel(chalk.red('Operation failed'));
-    console.error(error.message);
-    process.exit(1);
+    ui.error('Operation failed', {
+      suggestion: error.message,
+      exit: true,
+    });
   }
 };

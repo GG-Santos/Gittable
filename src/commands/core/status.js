@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { getStatus, getCurrentBranch } = require('../../core/git');
 const { displayStatus } = require('../../ui/status');
 const { showCommandHeader, showSmartSuggestion } = require('../../utils/command-helpers');
@@ -11,8 +11,7 @@ module.exports = async (_args) => {
   const status = getStatus();
 
   if (!status) {
-    clack.cancel(chalk.red('Failed to get repository status'));
-    process.exit(1);
+    ui.error('Failed to get repository status', { exit: true });
   }
 
   console.log(displayStatus(status, branch));
@@ -35,6 +34,6 @@ module.exports = async (_args) => {
       await router.execute(nextAction, []);
     }
   } else {
-    clack.outro(chalk.green.bold('Status complete'));
+    ui.success('Status complete');
   }
 };

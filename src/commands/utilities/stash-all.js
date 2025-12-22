@@ -1,11 +1,10 @@
+const ui = require('../../ui/framework');
 const {
   showCommandHeader,
   requireTTY,
   execGitWithSpinner,
   promptConfirm,
 } = require('../../utils/command-helpers');
-const clack = require('@clack/prompts');
-const chalk = require('chalk');
 
 /**
  * Stash-all command - Stash all changes including untracked files
@@ -28,7 +27,6 @@ module.exports = async (args) => {
   // Confirm
   const confirmed = await promptConfirm('Stash all changes including untracked files?', true);
   if (!confirmed) {
-    clack.cancel(chalk.yellow('Cancelled'));
     return;
   }
 

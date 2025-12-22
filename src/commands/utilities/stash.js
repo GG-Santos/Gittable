@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { getStashList } = require('../../core/git');
 const { createTable } = require('../../ui/table');
 const {
@@ -34,13 +34,12 @@ const createStash = async (args) => {
   const includeUntracked = args.includes('--include-untracked') || args.includes('-u');
 
   if (!message) {
-    const theme = getTheme();
-    message = await clack.text({
-      message: theme.primary('Stash message (optional):'),
+    message = await ui.prompt.text({
+      message: 'Stash message (optional):',
       placeholder: 'WIP: working on feature',
     });
 
-    if (handleCancel(message)) return;
+    if (message === null) return;
   }
 
   const command = includeUntracked
@@ -62,7 +61,7 @@ const applyStash = async (args) => {
 
   if (!stashRef) {
     if (stashes.length === 0) {
-      clack.cancel(chalk.yellow('No stashes available'));
+      ui.warn('No stashes available');
       return;
     }
 
@@ -71,12 +70,12 @@ const applyStash = async (args) => {
       label: `${chalk.cyan(`#${index}`)} ${stash.ref} - ${stash.message || chalk.dim('(no message)')}`,
     }));
 
-    stashRef = await clack.select({
-      message: theme.primary('Select stash to apply:'),
+    stashRef = await ui.prompt.select({
+      message: 'Select stash to apply:',
       options,
     });
 
-    if (handleCancel(stashRef)) return;
+    if (stashRef === null) return;
   } else {
     // Support index-based selection (e.g., "0" for first stash)
     const index = Number.parseInt(stashRef, 10);
@@ -99,7 +98,7 @@ const popStash = async (args) => {
 
   if (!stashRef) {
     if (stashes.length === 0) {
-      clack.cancel(chalk.yellow('No stashes available'));
+      ui.warn('No stashes available');
       return;
     }
 
@@ -110,12 +109,12 @@ const popStash = async (args) => {
         label: `${chalk.cyan(`#${index}`)} ${stash.ref} - ${stash.message || chalk.dim('(no message)')}`,
       }));
 
-      stashRef = await clack.select({
-        message: theme.primary('Select stash to pop:'),
+      stashRef = await ui.prompt.select({
+        message: 'Select stash to pop:',
         options,
       });
 
-      if (handleCancel(stashRef)) return;
+      if (stashRef === null) return;
     } else {
       stashRef = stashes[0].ref; // Default to most recent
     }
@@ -141,7 +140,7 @@ const dropStash = async (args) => {
 
   if (!stashRef) {
     if (stashes.length === 0) {
-      clack.cancel(chalk.yellow('No stashes available'));
+      ui.warn('No stashes available');
       return;
     }
 
@@ -150,12 +149,12 @@ const dropStash = async (args) => {
       label: `${stash.ref} - ${stash.message}`,
     }));
 
-    stashRef = await clack.select({
-      message: theme.primary('Select stash to drop:'),
+    stashRef = await ui.prompt.select({
+      message: 'Select stash to drop:',
       options,
     });
 
-    if (handleCancel(stashRef)) return;
+    if (stashRef === null) return;
   }
 
   const confirmed = await promptConfirm(`Delete stash ${stashRef}?`, false);
@@ -176,7 +175,7 @@ module.exports = async (args) => {
 
   if (action === 'list' || action === 'ls') {
     listStashes();
-    clack.outro(chalk.green.bold('Done'));
+    ui.success('Done');
     return;
   }
 

@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit, getStatus } = require('../../core/git');
 const { showBanner } = require('../../ui/banner');
 const { getTheme } = require('../../utils/color-theme');
@@ -16,37 +16,35 @@ module.exports = async (args) => {
 
   const status = getStatus();
   if (!status) {
-    clack.cancel(chalk.red('Failed to get repository status'));
-    process.exit(1);
+    ui.error('Failed to get repository status', { exit: true });
   }
 
   if (status.untracked.length === 0) {
-    clack.cancel(chalk.yellow('No untracked files to clean'));
+    ui.warn('No untracked files to clean');
     return;
   }
 
   if (dryRun) {
-    console.log(chalk.yellow('\nFiles that would be removed:'));
+    ui.warn('Files that would be removed:');
     for (const file of status.untracked) {
       console.log(chalk.gray(`  ${file}`));
     }
-    clack.outro(chalk.green.bold('Dry run complete'));
+    ui.success('Dry run complete');
     return;
   }
 
   if (!force && !interactive) {
-    const confirm = await clack.confirm({
-      message: chalk.yellow(`Remove ${status.untracked.length} untracked file(s)?`),
+    const confirm = await ui.prompt.confirm({
+      message: `Remove ${status.untracked.length} untracked file(s)?`,
       initialValue: false,
     });
 
-    if (clack.isCancel(confirm) || !confirm) {
-      clack.cancel(chalk.yellow('Cancelled'));
+    if (!confirm) {
       return;
     }
   }
 
-  const spinner = clack.spinner();
+  const spinner = ui.prompt.spinner();
   spinner.start('Cleaning untracked files');
 
   let command = 'clean';
@@ -64,10 +62,11 @@ module.exports = async (args) => {
   spinner.stop();
 
   if (result.success) {
-    clack.outro(chalk.green.bold('Clean completed'));
+    ui.success('Clean completed');
   } else {
-    clack.cancel(chalk.red('Clean failed'));
-    console.error(result.error);
-    process.exit(1);
+    ui.error('Clean failed', {
+      suggestion: result.error,
+      exit: true,
+    });
   }
 };

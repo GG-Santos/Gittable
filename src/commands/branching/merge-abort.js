@@ -1,11 +1,10 @@
+const ui = require('../../ui/framework');
 const {
   showCommandHeader,
   requireTTY,
   execGitWithSpinner,
   promptConfirm,
 } = require('../../utils/command-helpers');
-const clack = require('@clack/prompts');
-const chalk = require('chalk');
 const { execGit } = require('../../core/git');
 
 /**
@@ -19,7 +18,7 @@ module.exports = async (_args) => {
   // Check if we're in a merge state
   const mergeHead = execGit('rev-parse --verify MERGE_HEAD', { silent: true });
   if (!mergeHead.success) {
-    clack.cancel(chalk.yellow('Not in a merge state'));
+    ui.warn('Not in a merge state');
     return;
   }
 
@@ -29,7 +28,6 @@ module.exports = async (_args) => {
   );
 
   if (!confirmed) {
-    clack.cancel(chalk.yellow('Cancelled'));
     return;
   }
 

@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { getStatus } = require('../../core/git');
 const {
   showCommandHeader,
@@ -26,8 +26,7 @@ module.exports = async (args) => {
     // Interactive mode: show files that can be restored
     const status = getStatus();
     if (!status) {
-      clack.cancel(chalk.red('Failed to get repository status'));
-      process.exit(1);
+      ui.error('Failed to get repository status', { exit: true });
     }
 
     const availableFiles = staged
@@ -35,17 +34,16 @@ module.exports = async (args) => {
       : status.unstaged.map((f) => ({ value: f.file, label: chalk.yellow(`M ${f.file}`) }));
 
     if (availableFiles.length === 0) {
-      clack.cancel(chalk.yellow(`No ${staged ? 'staged' : 'unstaged'} files to restore`));
+      ui.warn(`No ${staged ? 'staged' : 'unstaged'} files to restore`);
       return;
     }
 
-    const theme = getTheme();
-    const selected = await clack.multiselect({
-      message: theme.primary(`Select files to restore${staged ? ' (from staging)' : ''}:`),
+    const selected = await ui.prompt.multiselect({
+      message: `Select files to restore${staged ? ' (from staging)' : ''}:`,
       options: availableFiles,
     });
 
-    if (handleCancel(selected)) return;
+    if (selected === null || selected.length === 0) return;
 
     files = selected;
   }

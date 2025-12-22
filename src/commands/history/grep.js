@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const { showBanner } = require('../../ui/banner');
 const { getTheme } = require('../../utils/color-theme');
@@ -14,7 +14,7 @@ module.exports = async (args) => {
   const files = args.filter((arg) => !arg.startsWith('--') && arg !== pattern);
 
   if (!pattern) {
-    clack.cancel(chalk.yellow('No search pattern specified'));
+    ui.warn('No search pattern specified');
     return;
   }
 
@@ -32,13 +32,15 @@ module.exports = async (args) => {
   if (!result.success) {
     // Grep returns non-zero when no matches found, which is not an error
     if (result.error && !result.error.includes('No matches found')) {
-      clack.cancel(chalk.red('Grep failed'));
-      console.error(result.error);
-      process.exit(1);
+      ui.error('Grep failed', {
+        suggestion: result.error,
+        exit: true,
+      });
     } else {
-      console.log(chalk.dim('No matches found'));
+      const theme = getTheme();
+      console.log(theme.dim('No matches found'));
     }
   }
 
-  clack.outro(chalk.green.bold('Done'));
+  ui.success('Done');
 };

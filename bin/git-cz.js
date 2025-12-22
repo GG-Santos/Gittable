@@ -1,18 +1,22 @@
 #!/usr/bin/env node
 
-const path = require('node:path');
+/**
+ * git-cz compatibility wrapper
+ * Thin wrapper that uses the unified gittable commit flow
+ */
+
 const {
   loadCommitizenConfig,
   resolveAdapterPath,
   getPrompter,
   findGitRoot,
-} = require('../src/core/commitizen/config-loader');
-const { commit } = require('../src/core/commitizen/git-commit');
+} = require('../src/core/config/adapter-loader');
+const { commitFlow } = require('../src/core/commit/flow');
 const {
   loadCommitCache,
   saveCommitCache,
   clearCommitCache,
-} = require('../src/core/commitizen/commit-cache');
+} = require('../src/core/commit/cache');
 
 /**
  * Main git-cz entry point
@@ -56,20 +60,40 @@ async function main() {
     const cached = loadCommitCache(gitRoot);
     if (cached?.message) {
       console.log('Retrying last commit attempt...\n');
-      const result = commit(gitRoot, cached.message, {
-        allowEmpty: cached.options?.allowEmpty || allowEmpty,
-        amend: cached.options?.amend || amend,
-        all: cached.options?.all || all,
-        noVerify: cached.options?.noVerify || noVerify,
-        noGpgSign: cached.options?.noGpgSign || noGpgSign,
-      });
+      // Use unified commit flow for retry
+      try {
+        const result = await commitFlow({
+          showHeader: false,
+          showStagedFiles: false,
+          skipValidation: false,
+          allowEmpty: cached.options?.allowEmpty || allowEmpty,
+          amend: cached.options?.amend || amend,
+          all: cached.options?.all || all,
+          noVerify: cached.options?.noVerify || noVerify,
+          noGpgSign: cached.options?.noGpgSign || noGpgSign,
+          commitCallback: (message) => {
+            const { executeCommit } = require('../src/core/commit/flow');
+            return executeCommit(message, {
+              allowEmpty: cached.options?.allowEmpty || allowEmpty,
+              amend: cached.options?.amend || amend,
+              all: cached.options?.all || all,
+              noVerify: cached.options?.noVerify || noVerify,
+              noGpgSign: cached.options?.noGpgSign || noGpgSign,
+              gitRoot,
+            });
+          },
+        });
 
-      if (result.success) {
-        console.log('Commit created successfully');
-        clearCommitCache(gitRoot);
-        process.exit(0);
-      } else {
-        console.error(`Error: ${result.error}`);
+        if (result.success) {
+          console.log('Commit created successfully');
+          clearCommitCache(gitRoot);
+          process.exit(0);
+        } else {
+          console.error(`Error: ${result.error || 'Failed to create commit'}`);
+          process.exit(1);
+        }
+      } catch (error) {
+        console.error(`Error: ${error.message}`);
         process.exit(1);
       }
     } else {
@@ -102,12 +126,14 @@ async function main() {
       },
     });
 
-    const result = commit(gitRoot, message, {
+    const { executeCommit } = require('../src/core/commit/flow');
+    const result = executeCommit(message, {
       allowEmpty,
       amend,
       all,
       noVerify,
       noGpgSign,
+      gitRoot,
     });
 
     if (result.success) {

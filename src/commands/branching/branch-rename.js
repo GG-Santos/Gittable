@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { getCurrentBranch, execGit } = require('../../core/git');
 const {
   showCommandHeader,
@@ -26,29 +26,27 @@ module.exports = async (args) => {
 
   // Get old name
   if (!oldName) {
-    const theme = getTheme();
-    oldName = await clack.text({
-      message: theme.primary('Current branch name:'),
+    oldName = await ui.prompt.text({
+      message: 'Current branch name:',
       placeholder: current || 'feature/old-name',
       initialValue: current || '',
     });
 
-    if (handleCancel(oldName)) return;
+    if (oldName === null) return;
   }
 
   // Get new name
   if (!newName) {
-    const theme = getTheme();
-    newName = await clack.text({
-      message: theme.primary('New branch name:'),
+    newName = await ui.prompt.text({
+      message: 'New branch name:',
       placeholder: 'feature/new-name',
     });
 
-    if (handleCancel(newName)) return;
+    if (newName === null) return;
   }
 
   if (oldName === newName) {
-    clack.cancel(chalk.yellow('Branch names are the same'));
+    ui.warn('Branch names are the same');
     return;
   }
 
@@ -56,7 +54,6 @@ module.exports = async (args) => {
   const confirmed = await promptConfirm(`Rename branch "${oldName}" to "${newName}"?`, false);
 
   if (!confirmed) {
-    clack.cancel(chalk.yellow('Cancelled'));
     return;
   }
 
@@ -100,10 +97,10 @@ module.exports = async (args) => {
         errorMessage: 'Failed to delete old remote branch',
       });
     } else {
-      clack.outro(chalk.green('Branch renamed locally'));
-      console.log(chalk.yellow(`Note: Old branch still exists on ${remote}`));
+      ui.success('Branch renamed locally');
+      ui.warn(`Note: Old branch still exists on ${remote}`);
     }
   } else {
-    clack.outro(chalk.green('Branch renamed successfully'));
+    ui.success('Branch renamed successfully');
   }
 };

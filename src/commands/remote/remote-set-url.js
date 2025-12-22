@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { execGit } = require('../../core/git');
 const {
   showCommandHeader,
@@ -24,7 +24,7 @@ module.exports = async (args) => {
   if (!remoteName) {
     const remotesResult = execGit('remote', { silent: true });
     if (!remotesResult.success || !remotesResult.output.trim()) {
-      clack.cancel(chalk.yellow('No remotes found'));
+      ui.warn('No remotes found');
       return;
     }
 
@@ -34,20 +34,18 @@ module.exports = async (args) => {
       label: name,
     }));
 
-    const theme = getTheme();
-    remoteName = await clack.select({
-      message: theme.primary('Select remote:'),
+    remoteName = await ui.prompt.select({
+      message: 'Select remote:',
       options,
     });
 
-    if (handleCancel(remoteName)) return;
+    if (remoteName === null) return;
   }
 
   // Get current URL
   const currentUrlResult = execGit(`remote get-url ${remoteName}`, { silent: true });
   if (!currentUrlResult.success) {
-    clack.cancel(chalk.red(`Remote ${remoteName} not found`));
-    return;
+    ui.error(`Remote ${remoteName} not found`, { exit: true });
   }
 
   const currentUrl = currentUrlResult.output.trim();
@@ -55,18 +53,17 @@ module.exports = async (args) => {
 
   // Get new URL
   if (!newUrl) {
-    const theme = getTheme();
-    newUrl = await clack.text({
-      message: theme.primary('New remote URL:'),
+    newUrl = await ui.prompt.text({
+      message: 'New remote URL:',
       placeholder: 'https://github.com/user/repo.git',
       initialValue: currentUrl,
     });
 
-    if (handleCancel(newUrl)) return;
+    if (newUrl === null) return;
   }
 
   if (newUrl === currentUrl) {
-    clack.outro(chalk.yellow('URL unchanged'));
+    ui.info('URL unchanged', { dim: true });
     return;
   }
 

@@ -1,6 +1,10 @@
+/**
+ * Adapter loader for commitizen compatibility
+ * Moved from src/core/commitizen/config-loader.js
+ */
+
 const path = require('node:path');
 const fs = require('node:fs');
-const findConfig = require('find-config');
 
 /**
  * Find the git root directory
@@ -22,6 +26,7 @@ function findGitRoot(startPath = process.cwd()) {
 
 /**
  * Load commitizen configuration from package.json or .czrc
+ * This is for backward compatibility with commitizen adapters
  */
 function loadCommitizenConfig() {
   const gitRoot = findGitRoot();
@@ -123,3 +128,4 @@ module.exports = {
   getPrompter,
   findGitRoot,
 };
+

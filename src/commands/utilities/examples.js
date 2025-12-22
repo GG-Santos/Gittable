@@ -1,5 +1,5 @@
-const clack = require('@clack/prompts');
 const chalk = require('chalk');
+const ui = require('../../ui/framework');
 const { showBanner } = require('../../ui/banner');
 const VERSION = require('../../../package.json').version;
 
@@ -89,5 +89,5 @@ module.exports = async (_args) => {
 
   console.log(chalk.dim('For more information, run: gittable help <command>'));
   console.log();
-  clack.outro(chalk.green.bold('Examples complete'));
+  ui.success('Examples complete');
 };

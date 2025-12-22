@@ -1,12 +1,17 @@
+/**
+ * Commit cache for retry functionality
+ * Moved from src/core/commitizen/commit-cache.js
+ */
+
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 
 /**
- * Get the cache directory for commitizen
+ * Get the cache directory for commits
  */
 function getCacheDirectory() {
-  const cacheDir = path.join(os.tmpdir(), 'commitizen');
+  const cacheDir = path.join(os.tmpdir(), 'gittable');
   if (!fs.existsSync(cacheDir)) {
     fs.mkdirSync(cacheDir, { recursive: true });
   }
@@ -77,7 +82,7 @@ function loadCommitCache(gitRoot) {
 function clearCommitCache(gitRoot) {
   try {
     const cachePath = getCacheFilePath(gitRoot);
-    if (fs.existsSync(cachePath)) {
+    if (cachePath && fs.existsSync(cachePath)) {
       fs.unlinkSync(cachePath);
       return true;
     }
@@ -93,3 +98,4 @@ module.exports = {
   clearCommitCache,
   getCacheDirectory,
 };
+
