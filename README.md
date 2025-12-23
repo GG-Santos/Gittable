@@ -42,6 +42,514 @@ npx gittable
 
 This displays a beautiful category-based menu for easy command discovery.
 
+## 📚 Commands
+
+Gittable provides a comprehensive set of commands organized by category. Each command is designed to be interactive and user-friendly.
+
+### Core Commands
+
+Essential Git operations for daily development workflow.
+
+#### `status` / `st` / `ss`
+Show repository status with detailed information about staged, unstaged, and untracked files.
+
+```bash
+gittable status
+gittable st
+```
+
+#### `status-short` / `s`
+Show short one-line status summary.
+
+```bash
+gittable status-short
+gittable s
+```
+
+#### `diff`
+Show changes between commits, branches, or files.
+
+```bash
+gittable diff
+gittable diff file.js
+gittable diff HEAD~1
+```
+
+#### `info`
+Quick repository overview with key information.
+
+```bash
+gittable info
+```
+
+#### `add`
+Stage files for commit with interactive file selection.
+
+```bash
+gittable add
+gittable add file1.js file2.js
+gittable add --all
+gittable add --unstage file1.js
+```
+
+#### `commit` / `ci` / `save`
+Create commits with conventional format. Includes interactive prompts for commit type, scope, and message.
+
+```bash
+gittable commit
+gittable commit -a
+gittable commit --amend
+```
+
+#### `log`
+View commit history with customizable formatting.
+
+```bash
+gittable log
+gittable log --oneline
+gittable log --graph
+```
+
+#### `show`
+Show commit details and changes.
+
+```bash
+gittable show
+gittable show HEAD
+gittable show <commit-hash>
+```
+
+### Branching & Merging Commands
+
+Manage branches, merges, and advanced branching operations.
+
+#### `branch` / `br` / `co`
+Branch management - list, create, delete branches interactively.
+
+```bash
+gittable branch
+gittable branch create feature/new
+gittable branch delete old-branch
+```
+
+#### `checkout`
+Checkout branches or restore files.
+
+```bash
+gittable checkout feature-branch
+gittable checkout -- file.js
+```
+
+#### `switch` / `sw`
+Switch branches (modern alternative to checkout).
+
+```bash
+gittable switch feature-branch
+gittable switch -c new-branch
+```
+
+#### `merge`
+Merge branches with conflict resolution guidance.
+
+```bash
+gittable merge feature-branch
+gittable merge --no-ff main
+```
+
+#### `rebase`
+Rebase operations for linear history.
+
+```bash
+gittable rebase main
+gittable rebase --interactive HEAD~3
+```
+
+#### `cherry-pick`
+Apply commits from another branch.
+
+```bash
+gittable cherry-pick <commit-hash>
+gittable cherry-pick <commit-hash1> <commit-hash2>
+```
+
+#### `mergetool` / `mt`
+Launch merge tool to resolve conflicts.
+
+```bash
+gittable mergetool
+gittable mt
+```
+
+#### `merge-continue`
+Continue merge after resolving conflicts.
+
+```bash
+gittable merge-continue
+```
+
+#### `merge-abort`
+Abort merge operation.
+
+```bash
+gittable merge-abort
+```
+
+#### `branch-clean`
+Delete merged branches interactively.
+
+```bash
+gittable branch-clean
+```
+
+#### `branch-rename`
+Rename branch locally and remotely.
+
+```bash
+gittable branch-rename old-name new-name
+```
+
+#### `branch-compare`
+Show differences between two branches.
+
+```bash
+gittable branch-compare branch1 branch2
+```
+
+### Remote Operations Commands
+
+Work with remote repositories and synchronization.
+
+#### `push` / `ps` / `up`
+Push to remote repository with interactive branch selection.
+
+```bash
+gittable push
+gittable push origin main
+gittable push --force
+```
+
+#### `pull` / `pl` / `down`
+Fetch and merge from remote. Use `--rebase` for rebase instead of merge.
+
+```bash
+gittable pull
+gittable pull origin main
+gittable pull --rebase
+```
+
+#### `fetch`
+Fetch from remote without merging.
+
+```bash
+gittable fetch
+gittable fetch origin
+```
+
+#### `sync`
+Synchronize repository (pull + rebase + push).
+
+```bash
+gittable sync
+```
+
+#### `remote`
+Manage remote repositories.
+
+```bash
+gittable remote
+gittable remote add origin <url>
+gittable remote remove origin
+```
+
+#### `remote-set-url`
+Update remote URL interactively.
+
+```bash
+gittable remote-set-url
+```
+
+#### `create-pr` / `pr`
+Create pull request/merge request.
+
+```bash
+gittable create-pr
+gittable pr
+```
+
+#### `clear-cache`
+Clear all caches.
+
+```bash
+gittable clear-cache
+```
+
+### Repository Management Commands
+
+Initialize and manage Git repositories.
+
+#### `init`
+Initialize a new repository.
+
+```bash
+gittable init
+```
+
+#### `clone`
+Clone a repository.
+
+```bash
+gittable clone <repository-url>
+```
+
+#### `uninit` / `deinit`
+Remove git repository (clear history).
+
+```bash
+gittable uninit
+```
+
+#### `archive`
+Create archive from repository.
+
+```bash
+gittable archive
+```
+
+#### `worktree` / `wt`
+Manage multiple working trees.
+
+```bash
+gittable worktree
+gittable worktree add ../project-copy
+```
+
+#### `submodule` / `sub`
+Manage submodules.
+
+```bash
+gittable submodule
+gittable submodule add <url>
+```
+
+### History & Inspection Commands
+
+Explore repository history and search for information.
+
+#### `blame`
+Show who last modified each line of a file.
+
+```bash
+gittable blame file.js
+```
+
+#### `grep`
+Search in repository.
+
+```bash
+gittable grep "search term"
+gittable grep --pattern "regex"
+```
+
+#### `shortlog`
+Summarize commit log by author.
+
+```bash
+gittable shortlog
+```
+
+#### `describe`
+Describe a commit using nearest tag.
+
+```bash
+gittable describe
+gittable describe <commit-hash>
+```
+
+#### `range-diff`
+Compare two commit ranges.
+
+```bash
+gittable range-diff branch1 branch2
+```
+
+### Utility Commands
+
+Additional tools for configuration, undo operations, and file management.
+
+#### `help`
+Show help for commands and list all available commands.
+
+```bash
+gittable help
+gittable help <command>
+```
+
+#### `config`
+Git configuration management.
+
+```bash
+gittable config
+```
+
+#### `history`
+Show recent commands executed.
+
+```bash
+gittable history
+```
+
+#### `theme`
+Customize color theme.
+
+```bash
+gittable theme
+```
+
+#### `examples`
+Show usage examples.
+
+```bash
+gittable examples
+```
+
+#### `tutorial`
+Interactive walkthrough of Gittable features.
+
+```bash
+gittable tutorial
+```
+
+#### `undo` / `reset`
+Undo operations and reflog browser.
+
+```bash
+gittable undo
+gittable reset HEAD~1
+```
+
+#### `revert`
+Revert commits.
+
+```bash
+gittable revert <commit-hash>
+```
+
+#### `stash`
+Stash management (save/restore changes).
+
+```bash
+gittable stash
+gittable stash create "WIP: feature"
+gittable stash apply 0
+gittable stash pop
+```
+
+#### `stash-all`
+Stash all changes including untracked files.
+
+```bash
+gittable stash-all
+```
+
+#### `restore`
+Restore files from index or commit.
+
+```bash
+gittable restore file.js
+gittable restore --source=HEAD~1 file.js
+```
+
+#### `restore-backup`
+Restore from backup branch.
+
+```bash
+gittable restore-backup
+```
+
+#### `bisect`
+Binary search to find bug-introducing commit.
+
+```bash
+gittable bisect start
+gittable bisect bad
+gittable bisect good <commit>
+```
+
+#### `remove` / `rm`
+Remove files from git.
+
+```bash
+gittable remove file.js
+gittable rm file.js
+```
+
+#### `move` / `mv`
+Move/rename files.
+
+```bash
+gittable move old.js new.js
+gittable mv old.js new.js
+```
+
+#### `clean`
+Remove untracked files.
+
+```bash
+gittable clean
+gittable clean --dry-run
+```
+
+#### `tag`
+Tag management (list, create, delete).
+
+```bash
+gittable tag
+gittable tag v1.0.0
+gittable tag delete v1.0.0
+```
+
+#### `conflicts`
+List all conflicted files.
+
+```bash
+gittable conflicts
+```
+
+#### `resolve`
+Open conflicted file in editor and stage after resolution.
+
+```bash
+gittable resolve file.js
+```
+
+#### `diff-preview`
+Preview changes before committing.
+
+```bash
+gittable diff-preview
+```
+
+#### `preview-diff`
+Preview diffs.
+
+```bash
+gittable preview-diff
+```
+
+#### `hooks`
+List all git hooks in repository.
+
+```bash
+gittable hooks
+```
+
+#### `state`
+Show current repository state.
+
+```bash
+gittable state
+```
+
 ## Acknowledgments
 
 Gittable is built with the following excellent open-source projects:
