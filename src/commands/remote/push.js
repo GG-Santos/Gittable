@@ -125,12 +125,13 @@ module.exports = async (args) => {
   // Execute push with spinner
   let command = 'push';
   
+  // Add --no-progress to prevent git progress output from interfering with spinner
   if (pushType === 'tags') {
-    command += ` ${remote} --tags`;
+    command += ` ${remote} --tags --no-progress`;
   } else if (pushType === 'all') {
-    command += ` ${remote} --all`;
+    command += ` ${remote} --all --no-progress`;
   } else {
-    command += ` ${remote} ${branchName}`;
+    command += ` ${remote} ${branchName} --no-progress`;
     if (pushType === 'upstream') {
       command += ' --set-upstream';
     } else if (pushType === 'force-with-lease') {

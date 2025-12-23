@@ -50,8 +50,8 @@ function createBanner(commandName, options = {}) {
   }
 
   // Calculate width - strip ANSI codes first to get actual visual width
-  // This ensures border width remains constant regardless of theme color
-  const WIDTH = Math.max(...asciiLines.map((line) => stripAnsi(line).length), 50);
+  // Use the actual ASCII art width (no minimum) so border matches ASCII art
+  const WIDTH = Math.max(...asciiLines.map((line) => stripAnsi(line).length));
 
   const content = primaryColor;
 
@@ -63,9 +63,11 @@ function createBanner(commandName, options = {}) {
   const TOTAL_FRAMED_WIDTH = 1 + 1 + CONTENT_PADDED_WIDTH + 1 + 1; // │ + space + content + space + │ = WIDTH + 6
 
   // Helper functions
-  const pad = (text = '') => text.padEnd(CONTENT_PADDED_WIDTH);
   const framedLine = (text = '') => {
-    const padded = pad(text);
+    // Strip ANSI codes to get plain text for accurate padding
+    const plainText = stripAnsi(text);
+    const padded = plainText.padEnd(CONTENT_PADDED_WIDTH);
+    // Apply color to the padded text
     const colored = content(padded);
     return `${border(borderChar.vertical)} ${colored} ${border(borderChar.vertical)}`;
   };
@@ -92,10 +94,11 @@ function createBanner(commandName, options = {}) {
   const bottomBorder = () => border(`${borderChar.bottomLeft}${borderChar.horizontal.repeat(TOTAL_FRAMED_WIDTH - 2)}${borderChar.bottomRight}`);
 
   // Build banner
+  // Use ASCII art lines as-is with 3-space prefix (no padding to match border)
   const banner = [
     topBorder(`${commandName} v${version}`),
     ...asciiLines.map((line) => framedLine(`   ${line}`)),
-    framedLine(),
+    framedLine(''), // Empty line between ASCII art and bottom border
     bottomBorder(),
   ].join('\n');
 

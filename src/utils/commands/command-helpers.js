@@ -44,6 +44,12 @@ async function execGitWithSpinner(gitCommand, options = {}) {
   const spinner = ui.prompt.spinner();
   if (spinnerText) {
     spinner.start(spinnerText);
+    // Ensure spinner renders at least once before blocking operation
+    // This is important because spawnSync blocks the event loop
+    if (process.stdout.isTTY) {
+      // Give the spinner a chance to render the first frame
+      await new Promise(resolve => setImmediate(resolve));
+    }
   }
 
   const { execGit } = require('../../core/git/executor');
@@ -56,6 +62,9 @@ async function execGitWithSpinner(gitCommand, options = {}) {
 
   // Handle dry run mode
   if (isDryRun()) {
+    if (spinnerText) {
+      spinner.stop();
+    }
     dryRunLog(spinnerText || 'Would execute command', commandForLogging);
     return {
       success: true,
