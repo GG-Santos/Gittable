@@ -148,9 +148,30 @@ module.exports = async (args) => {
 
   const result = await execGitWithSpinner(command, {
     spinnerText,
-    successMessage: 'Push completed',
+    silent: true, // Capture output to format it nicely
+    successMessage: null, // We'll format it ourselves
     errorMessage: 'Push failed',
-    onSuccess: async () => {
+    onSuccess: async (result) => {
+      // Format and display git output nicely
+      // Git push writes output to stderr (not stdout), so check stderr first
+      const pushOutput = result.stderr || result.output || '';
+      
+      if (pushOutput.trim()) {
+        const outputLines = pushOutput.trim().split('\n');
+        outputLines.forEach(line => {
+          const trimmed = line.trim();
+          // Filter out warnings and empty lines
+          if (trimmed && 
+              !trimmed.includes('CRLF') && 
+              !trimmed.includes('LF') &&
+              !trimmed.includes('warning:')) {
+            // Format git push output with proper indentation
+            console.log(`   ${chalk.dim(trimmed)}`);
+          }
+        });
+      }
+      
+      ui.success('Push completed');
       // Suggest creating PR after successful push
       if (process.stdin.isTTY && branchName !== 'main' && branchName !== 'master') {
         const { getPRUrl, detectCIPlatform } = require('../../utils/git');

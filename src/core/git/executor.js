@@ -51,11 +51,12 @@ const execGit = (command, options = {}) => {
   }
 
   if (result.status === 0) {
-    return { success: true, output: stdout, error: null };
+    return { success: true, output: stdout, stderr: stderr, error: null };
   } else {
     return {
       success: false,
       output: stdout,
+      stderr: stderr,
       error: stderr || result.error?.message || 'Command failed',
     };
   }
