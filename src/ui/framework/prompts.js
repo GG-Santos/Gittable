@@ -47,9 +47,9 @@ async function text(options = {}) {
  */
 async function confirm(options = {}) {
   const theme = getTheme();
-  const { message, ...restOptions } = options;
+  const { message, skipSpacing, ...restOptions } = options;
 
-  if (SPACING.promptMessage > 0) {
+  if (!skipSpacing && SPACING.promptMessage > 0) {
     console.log();
   }
 
@@ -70,9 +70,9 @@ async function confirm(options = {}) {
  */
 async function select(options = {}) {
   const theme = getTheme();
-  const { message, ...restOptions } = options;
+  const { message, skipSpacing, ...restOptions } = options;
 
-  if (SPACING.promptMessage > 0) {
+  if (!skipSpacing && SPACING.promptMessage > 0) {
     console.log();
   }
 

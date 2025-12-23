@@ -4,18 +4,12 @@
  */
 
 const chalk = require('chalk');
+const stripAnsiModule = require('strip-ansi');
+const stripAnsi = stripAnsiModule.default || stripAnsiModule;
 const { getTheme } = require('./theme');
-const { getCommandASCII } = require('../ascii');
+const { getCommandASCII } = require('../components/ascii');
 const commandVersions = require('../../utils/versions');
 const { BANNER_STANDARDS, SPACING } = require('./standards');
-
-/**
- * Strip ANSI codes from string to get actual visual length
- */
-function stripAnsi(str) {
-  const ansiRegex = /[\u001B\u009B][[\]()#;?]*(?:(?:(?:;[-a-zA-Z\d\/#&.:=?%@~_]+)*|[a-zA-Z\d]+(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-nq-uy=><~]))/g;
-  return str.replace(ansiRegex, '');
-}
 
 /**
  * Create a standardized banner

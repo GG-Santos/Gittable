@@ -1,4 +1,6 @@
 const chalk = require('chalk');
+const stripAnsiModule = require('strip-ansi');
+const stripAnsi = stripAnsiModule.default || stripAnsiModule;
 
 /**
  * Sort table rows by column
@@ -30,13 +32,6 @@ function sortTableRows(rows, columnIndex, order = 'asc') {
   });
 
   return sorted;
-}
-
-/**
- * Strip ANSI color codes from string
- */
-function stripAnsi(str) {
-  return str.replace(/\u001b\[[0-9;]*m/g, '');
 }
 
 /**

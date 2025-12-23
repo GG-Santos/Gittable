@@ -43,7 +43,7 @@ class ProgressIndicator {
       }
     }
 
-    this.spinner.message(statusText);
+    this.spinner.text = statusText;
     this.lastUpdate = now;
   }
 
@@ -63,7 +63,7 @@ class ProgressIndicator {
 
   setMessage(message) {
     this.message = message;
-    this.spinner.message(message);
+    this.spinner.text = message;
   }
 }
 

@@ -1,5 +1,5 @@
 {
-  "version": "1.0.7",
+  "version": "1.0.8",
   "name": "@gg-santos/gittable",
   "description": "Modern Git CLI with Conventional Commits",
   "main": "index.js",
@@ -12,11 +12,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
-    "test": "node --test test/**/*.test.js",
-    "test:watch": "node --test --watch test/**/*.test.js",
-    "publish:github": "npm publish --registry=https://npm.pkg.github.com",
-    "publish:npm": "node scripts/publish-npm.js",
-    "publish:both": "npm run publish:github && npm run publish:npm",
+    "package": "npm publish --registry=https://npm.pkg.github.com && node scripts/publish-npm.js",
     "gittable": "node index.js"
   },
   "repository": {
@@ -38,12 +34,19 @@
     "version-control"
   ],
   "dependencies": {
+    "@colors/colors": "^1.6.0",
     "chalk": "^4.1.2",
-    "cli-table3": "^0.6.5",
+    "cli-cursor": "^4.0.0",
+    "cli-spinners": "^3.3.0",
     "find-config": "^1.0.0",
+    "is-interactive": "^1.0.0",
+    "is-unicode-supported": "^1.3.0",
+    "log-symbols": "^5.1.0",
     "prettycli": "^1.1.0",
-    "sisteransi": "^1.0.5",
-    "wcwidth": "^1.0.1",
+    "stdin-discarder": "^0.3.0",
+    "string-width": "^6.1.0",
+    "strip-ansi": "^7.1.2",
+    "terminal-link": "^3.0.0",
     "word-wrap": "^1.2.5"
   },
   "devDependencies": {

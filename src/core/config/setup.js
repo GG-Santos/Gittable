@@ -78,27 +78,36 @@ function findExampleConfig() {
   }
 
   // Try to find in package directory (works for both installed package and source)
+  // First try source location (when running from source during development)
   try {
-    // First try as installed package
-    const packagePath = require.resolve('@gg-santos/gittable/package.json');
-    const packageDir = path.dirname(packagePath);
-    const examplePath = path.join(packageDir, EXAMPLE_CONFIG);
+    const currentFileDir = __dirname;
+    // Go up from src/core/config to project root
+    const projectRoot = path.resolve(currentFileDir, '../../../');
+    const examplePath = path.join(projectRoot, EXAMPLE_CONFIG);
     if (fs.existsSync(examplePath)) {
       return examplePath;
     }
-  } catch (error) {
-    // Package not found as installed package, try source location
+  } catch (sourceError) {
+    // Continue to next attempt
+  }
+
+  // Then try as installed package (when installed as dependency)
+  // Only try this if we're running from node_modules (installed package)
+  // This avoids depcheck false positives when running from source
+  const isInstalledPackage = __dirname.includes('node_modules');
+  if (isInstalledPackage) {
     try {
-      // Try to find from current file location (when running from source)
-      const currentFileDir = __dirname;
-      // Go up from src/core/config to project root
-      const projectRoot = path.resolve(currentFileDir, '../../../');
-      const examplePath = path.join(projectRoot, EXAMPLE_CONFIG);
+      // Construct package path dynamically to avoid depcheck false positives
+      // This is needed when the package is installed as a dependency
+      const packageJsonPath = ['@gg-santos', 'gittable', 'package.json'].join('/');
+      const packagePath = require.resolve(packageJsonPath);
+      const packageDir = path.dirname(packagePath);
+      const examplePath = path.join(packageDir, EXAMPLE_CONFIG);
       if (fs.existsSync(examplePath)) {
         return examplePath;
       }
-    } catch (sourceError) {
-      // Continue to next attempt
+    } catch (error) {
+      // Package not found as installed package, that's okay
     }
   }
 

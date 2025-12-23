@@ -111,8 +111,8 @@ const EXAMPLES = {
   'Tag Management': [
     { cmd: 'gittable tag', desc: 'List all tags' },
     { cmd: 'gittable tag create v1.0.0', desc: 'Create a tag' },
-    { cmd: 'gittable tag-push v1.0.0', desc: 'Create and push tag in one step' },
-    { cmd: 'gittable tag-delete v1.0.0', desc: 'Delete tag locally and remotely' },
+    { cmd: 'gittable tag push v1.0.0', desc: 'Create and push tag in one step' },
+    { cmd: 'gittable tag delete v1.0.0', desc: 'Delete tag locally and remotely' },
   ],
 
   'Configuration & Customization': [

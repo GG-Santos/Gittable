@@ -6,11 +6,13 @@
 const banner = require('./banner');
 const status = require('./status');
 const table = require('./table');
+const ascii = require('./ascii');
 
 module.exports = {
   banner,
   status,
   table,
+  ascii,
   // Direct exports for convenience
   createBanner: banner.createBanner,
   showBanner: banner.showBanner,
@@ -19,5 +21,8 @@ module.exports = {
   STATUS_LABELS: status.STATUS_LABELS,
   createTable: table.createTable,
   createKeyValueList: table.createKeyValueList,
+  generateASCII: ascii.generateASCII,
+  getCommandASCII: ascii.getCommandASCII,
+  ASCII_LETTERS: ascii.ASCII_LETTERS,
 };
 

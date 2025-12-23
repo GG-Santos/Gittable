@@ -1,31 +1,18 @@
-# Gittable
+<div align="center"><a name="readme-top"></a>
 
-<div align="center">
+[![forthebadge](data:image/svg+xml;base64,PHN2ZyBkYXRhLXYtM2M4N2I3YjQ9IiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iOTIuMzg2Nzc2NzMzMzk4NDMiIGhlaWdodD0iMjQuNSIgdmlld0JveD0iMCAwIDEzMS45ODExMDk2MTkxNDA2MiAzNSIgY2xhc3M9ImJhZGdlLXN2ZyI+PGRlZnMgZGF0YS12LTNjODdiN2I0PSIiPjwhLS0tLT48IS0tLS0+PCEtLS0tPjwvZGVmcz48cGF0aCBkYXRhLXYtM2M4N2I3YjQ9IiIgZD0iTSA1IDAgTCA1MS45OTg0NjY0OTE2OTkyMiAwIEwgNTEuOTk4NDY2NDkxNjk5MjIgMzUgTCA1IDM1IFEgMCAzNSAwIDMwIEwgMCA1IFEgMCAwIDUgMCBaIiBmaWxsPSIjMzgzODM4Ii8+PHBhdGggZGF0YS12LTNjODdiN2I0PSIiIGQ9Ik0gNTEuOTk4NDY2NDkxNjk5MjIgMCBMIDEyNi45ODExMDk2MTkxNDA2MiAwIFEgMTMxLjk4MTEwOTYxOTE0MDYyIDAgMTMxLjk4MTEwOTYxOTE0MDYyIDUgTCAxMzEuOTgxMTA5NjE5MTQwNjIgMzAgUSAxMzEuOTgxMTA5NjE5MTQwNjIgMzUgMTI2Ljk4MTEwOTYxOTE0MDYyIDM1IEwgNTEuOTk4NDY2NDkxNjk5MjIgMzUgWiIgZmlsbD0iI2NiMzgzNyIvPjwhLS0tLT48dGV4dCBkYXRhLXYtM2M4N2I3YjQ9IiIgeD0iMjUuOTk5MjMzMjQ1ODQ5NjEiIHk9IjE3LjUiIGR5PSIwLjM1ZW0iIGZvbnQtc2l6ZT0iMTIiIGZvbnQtZmFtaWx5PSJNb250c2VycmF0LCBzYW5zLXNlcmlmIiBmaWxsPSIjRkZGRkZGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBsZXR0ZXItc3BhY2luZz0iMiIgZm9udC13ZWlnaHQ9IjYwMCIgZm9udC1zdHlsZT0ibm9ybWFsIiB0ZXh0LWRlY29yYXRpb249Im5vbmUiIGZpbGwtb3BhY2l0eT0iMSIgZm9udC12YXJpYW50PSJub3JtYWwiIHN0eWxlPSJ0ZXh0LXRyYW5zZm9ybTogdXBwZXJjYXNlOyI+UEtHPC90ZXh0PjxnIGRhdGEtdi0zYzg3YjdiND0iIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg2MS45OTg0NjY0OTE2OTkyMiwgOS41KSBzY2FsZSgwLjY2NjY2NjY2NjY2NjY2NjYpIj48cGF0aCBkYXRhLXYtM2M4N2I3YjQ9IiIgZD0iTTEuNzYzIDBDLjc4NiAwIDAgLjc4NiAwIDEuNzYzdjIwLjQ3NEMwIDIzLjIxNC43ODYgMjQgMS43NjMgMjRoMjAuNDc0Yy45NzcgMCAxLjc2My0uNzg2IDEuNzYzLTEuNzYzVjEuNzYzQzI0IC43ODYgMjMuMjE0IDAgMjIuMjM3IDB6TTUuMTMgNS4zMjNsMTMuODM3LjAxOS0uMDA5IDEzLjgzNmgtMy40NjRsLjAxLTEwLjM4MmgtMy40NTZMMTIuMDQgMTkuMTdINS4xMTN6IiBmaWxsPSIjZmZmZmZmIi8+PC9nPjx0ZXh0IGRhdGEtdi0zYzg3YjdiND0iIiB4PSIxMDEuOTg5Nzg4MDU1NDE5OTIiIHk9IjE3LjUiIGR5PSIwLjM1ZW0iIGZvbnQtc2l6ZT0iMTIiIGZvbnQtZmFtaWx5PSJNb250c2VycmF0LCBzYW5zLXNlcmlmIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iOTAwIiBsZXR0ZXItc3BhY2luZz0iMiIgZm9udC1zdHlsZT0ibm9ybWFsIiB0ZXh0LWRlY29yYXRpb249Im5vbmUiIGZpbGwtb3BhY2l0eT0iMSIgZm9udC12YXJpYW50PSJub3JtYWwiIHN0eWxlPSJ0ZXh0LXRyYW5zZm9ybTogdXBwZXJjYXNlOyI+TlBNPC90ZXh0PjwhLS0tLT48L3N2Zz4=)](https://www.npmjs.com/package/gittable)
+[![forthebadge](data:image/svg+xml;base64,PHN2ZyBkYXRhLXYtM2M4N2I3YjQ9IiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMTQ4LjAyNzY2MzA0MDE2MTEyIiBoZWlnaHQ9IjI0LjUiIHZpZXdCb3g9IjAgMCAyMTEuNDY4MDkwMDU3MzczMDUgMzUiIGNsYXNzPSJiYWRnZS1zdmciPjxkZWZzIGRhdGEtdi0zYzg3YjdiND0iIj48IS0tLS0+PCEtLS0tPjwhLS0tLT48L2RlZnM+PHBhdGggZGF0YS12LTNjODdiN2I0PSIiIGQ9Ik0gNSAwIEwgNjIuNjY0NjIzMjYwNDk4MDUgMCBMIDYyLjY2NDYyMzI2MDQ5ODA1IDM1IEwgNSAzNSBRIDAgMzUgMCAzMCBMIDAgNSBRIDAgMCA1IDAgWiIgZmlsbD0iIzM4MzgzOCIvPjxwYXRoIGRhdGEtdi0zYzg3YjdiND0iIiBkPSJNIDYyLjY2NDYyMzI2MDQ5ODA1IDAgTCAyMDYuNDY4MDkwMDU3MzczMDUgMCBRIDIxMS40NjgwOTAwNTczNzMwNSAwIDIxMS40NjgwOTAwNTczNzMwNSA1IEwgMjExLjQ2ODA5MDA1NzM3MzA1IDMwIFEgMjExLjQ2ODA5MDA1NzM3MzA1IDM1IDIwNi40NjgwOTAwNTczNzMwNSAzNSBMIDYyLjY2NDYyMzI2MDQ5ODA1IDM1IFoiIGZpbGw9IiNmZmJiMDAiLz48IS0tLS0+PHRleHQgZGF0YS12LTNjODdiN2I0PSIiIHg9IjMxLjMzMjMxMTYzMDI0OTAyMyIgeT0iMTcuNSIgZHk9IjAuMzVlbSIgZm9udC1zaXplPSIxMiIgZm9udC1mYW1pbHk9Ik1vbnRzZXJyYXQsIHNhbnMtc2VyaWYiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGxldHRlci1zcGFjaW5nPSIyIiBmb250LXdlaWdodD0iNjAwIiBmb250LXN0eWxlPSJub3JtYWwiIHRleHQtZGVjb3JhdGlvbj0ibm9uZSIgZmlsbC1vcGFjaXR5PSIxIiBmb250LXZhcmlhbnQ9Im5vcm1hbCIgc3R5bGU9InRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7Ij5DT0RFPC90ZXh0PjxnIGRhdGEtdi0zYzg3YjdiND0iIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg3Mi42NjQ2MjMyNjA0OTgwNSwgOS41KSBzY2FsZSgwLjY2NjY2NjY2NjY2NjY2NjYpIj48cGF0aCBkYXRhLXYtM2M4N2I3YjQ9IiIgZD0iTTAgMGgyNHYyNEgwVjB6bTIyLjAzNCAxOC4yNzZjLS4xNzUtMS4wOTUtLjg4OC0yLjAxNS0zLjAwMy0yLjg3My0uNzM2LS4zNDUtMS41NTQtLjU4NS0xLjc5Ny0xLjE0LS4wOTEtLjMzLS4xMDUtLjUxLS4wNDYtLjcwNS4xNS0uNjQ2LjkxNS0uODQgMS41MTUtLjY2LjM5LjEyLjc1LjQyLjk3Ni45IDEuMDM0LS42NzYgMS4wMzQtLjY3NiAxLjc1NS0xLjEyNS0uMjctLjQyLS40MDQtLjYwMS0uNTg2LS43OC0uNjMtLjcwNS0xLjQ2OS0xLjA2NS0yLjgzNC0xLjAzNGwtLjcwNS4wODljLS42NzYuMTY1LTEuMzIuNTI1LTEuNzEgMS4wMDUtMS4xNCAxLjI5MS0uODExIDMuNTQxLjU2OSA0LjQ3MSAxLjM2NSAxLjAyIDMuMzYxIDEuMjQ0IDMuNjE2IDIuMjA1LjI0IDEuMTctLjg3IDEuNTQ1LTEuOTY2IDEuNDEtLjgxMS0uMTgtMS4yNi0uNTg2LTEuNzU1LTEuMzM2bC0xLjgzIDEuMDUxYy4yMS40OC40NS42ODkuODEgMS4xMDkgMS43NCAxLjc1NiA2LjA5IDEuNjY2IDYuODcxLTEuMDA0LjAyOS0uMDkuMjQtLjcwNS4wNzQtMS42NWwuMDQ2LjA2N3ptLTguOTgzLTcuMjQ1aC0yLjI0OGMwIDEuOTM4LS4wMDkgMy44NjQtLjAwOSA1LjgwNSAwIDEuMjMyLjA2MyAyLjM2My0uMTM4IDIuNzExLS4zMy42ODktMS4xOC42MDEtMS41NjYuNDgtLjM5Ni0uMTk2LS41OTctLjQ2Ni0uODMtLjg1NS0uMDYzLS4xMDUtLjExLS4xOTYtLjEyNy0uMTk2bC0xLjgyNSAxLjEyNWMuMzA1LjYzLjc1IDEuMTcyIDEuMzI0IDEuNTE3Ljg1NS41MSAyLjAwNC42NzUgMy4yMDcuNDA1Ljc4My0uMjI2IDEuNDU4LS42OTEgMS44MTEtMS40MTEuNTEtLjkzLjQwMi0yLjA3LjM5Ny0zLjM0Ni4wMTItMi4wNTQgMC00LjEwOSAwLTYuMTc5bC4wMDQtLjA1NnoiIGZpbGw9IiMzODM4MzgiLz48L2c+PHRleHQgZGF0YS12LTNjODdiN2I0PSIiIHg9IjE0Ny4wNjYzNTY2NTg5MzU1NSIgeT0iMTcuNSIgZHk9IjAuMzVlbSIgZm9udC1zaXplPSIxMiIgZm9udC1mYW1pbHk9Ik1vbnRzZXJyYXQsIHNhbnMtc2VyaWYiIGZpbGw9IiMzODM4MzgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI5MDAiIGxldHRlci1zcGFjaW5nPSIyIiBmb250LXN0eWxlPSJub3JtYWwiIHRleHQtZGVjb3JhdGlvbj0ibm9uZSIgZmlsbC1vcGFjaXR5PSIxIiBmb250LXZhcmlhbnQ9Im5vcm1hbCIgc3R5bGU9InRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7Ij5KQVZBU0NSSVBUPC90ZXh0PjwhLS0tLT48L3N2Zz4=)](https://github.com/GG-Santos/Gittable)
+[![forthebadge](data:image/svg+xml;base64,PHN2ZyBkYXRhLXYtM2M4N2I3YjQ9IiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMTE5LjQ1MDU4NDQxMTYyMTA4IiBoZWlnaHQ9IjI0LjUiIHZpZXdCb3g9IjAgMCAxNzAuNjQzNjkyMDE2NjAxNTYgMzUiIGNsYXNzPSJiYWRnZS1zdmciPjxkZWZzIGRhdGEtdi0zYzg3YjdiND0iIj48IS0tLS0+PCEtLS0tPjwhLS0tLT48L2RlZnM+PHBhdGggZGF0YS12LTNjODdiN2I0PSIiIGQ9Ik0gNSAwIEwgNjIuMDAzNTcwNTU2NjQwNjI1IDAgTCA2Mi4wMDM1NzA1NTY2NDA2MjUgMzUgTCA1IDM1IFEgMCAzNSAwIDMwIEwgMCA1IFEgMCAwIDUgMCBaIiBmaWxsPSIjMzgzODM4Ii8+PHBhdGggZGF0YS12LTNjODdiN2I0PSIiIGQ9Ik0gNjIuMDAzNTcwNTU2NjQwNjI1IDAgTCAxNjUuNjQzNjkyMDE2NjAxNTYgMCBRIDE3MC42NDM2OTIwMTY2MDE1NiAwIDE3MC42NDM2OTIwMTY2MDE1NiA1IEwgMTcwLjY0MzY5MjAxNjYwMTU2IDMwIFEgMTcwLjY0MzY5MjAxNjYwMTU2IDM1IDE2NS42NDM2OTIwMTY2MDE1NiAzNSBMIDYyLjAwMzU3MDU1NjY0MDYyNSAzNSBaIiBmaWxsPSIjZTY1YzAwIi8+PCEtLS0tPjx0ZXh0IGRhdGEtdi0zYzg3YjdiND0iIiB4PSIzMS4wMDE3ODUyNzgzMjAzMTIiIHk9IjE3LjUiIGR5PSIwLjM1ZW0iIGZvbnQtc2l6ZT0iMTIiIGZvbnQtZmFtaWx5PSJNb250c2VycmF0LCBzYW5zLXNlcmlmIiBmaWxsPSIjRkZGRkZGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBsZXR0ZXItc3BhY2luZz0iMiIgZm9udC13ZWlnaHQ9IjYwMCIgZm9udC1zdHlsZT0ibm9ybWFsIiB0ZXh0LWRlY29yYXRpb249Im5vbmUiIGZpbGwtb3BhY2l0eT0iMSIgZm9udC12YXJpYW50PSJub3JtYWwiIHN0eWxlPSJ0ZXh0LXRyYW5zZm9ybTogdXBwZXJjYXNlOyI+UkVQTzwvdGV4dD48ZyBkYXRhLXYtM2M4N2I3YjQ9IiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNzIuMDAzNTcwNTU2NjQwNjIsIDkuNSkgc2NhbGUoMC42NjY2NjY2NjY2NjY2NjY2KSI+PHBhdGggZGF0YS12LTNjODdiN2I0PSIiIGQ9Ik0xMiAuMjk3Yy02LjYzIDAtMTIgNS4zNzMtMTIgMTIgMCA1LjMwMyAzLjQzOCA5LjggOC4yMDUgMTEuMzg1LjYuMTEzLjgyLS4yNTguODItLjU3NyAwLS4yODUtLjAxLTEuMDQtLjAxNS0yLjA0LTMuMzM4LjcyNC00LjA0Mi0xLjYxLTQuMDQyLTEuNjFDNC40MjIgMTguMDcgMy42MzMgMTcuNyAzLjYzMyAxNy43Yy0xLjA4Ny0uNzQ0LjA4NC0uNzI5LjA4NC0uNzI5IDEuMjA1LjA4NCAxLjgzOCAxLjIzNiAxLjgzOCAxLjIzNiAxLjA3IDEuODM1IDIuODA5IDEuMzA1IDMuNDk1Ljk5OC4xMDgtLjc3Ni40MTctMS4zMDUuNzYtMS42MDUtMi42NjUtLjMtNS40NjYtMS4zMzItNS40NjYtNS45MyAwLTEuMzEuNDY1LTIuMzggMS4yMzUtMy4yMi0uMTM1LS4zMDMtLjU0LTEuNTIzLjEwNS0zLjE3NiAwIDAgMS4wMDUtLjMyMiAzLjMgMS4yMy45Ni0uMjY3IDEuOTgtLjM5OSAzLS40MDUgMS4wMi4wMDYgMi4wNC4xMzggMyAuNDA1IDIuMjgtMS41NTIgMy4yODUtMS4yMyAzLjI4NS0xLjIzLjY0NSAxLjY1My4yNCAyLjg3My4xMiAzLjE3Ni43NjUuODQgMS4yMyAxLjkxIDEuMjMgMy4yMiAwIDQuNjEtMi44MDUgNS42MjUtNS40NzUgNS45Mi40Mi4zNi44MSAxLjA5Ni44MSAyLjIyIDAgMS42MDYtLjAxNSAyLjg5Ni0uMDE1IDMuMjg2IDAgLjMxNS4yMS42OS44MjUuNTdDMjAuNTY1IDIyLjA5MiAyNCAxNy41OTIgMjQgMTIuMjk3YzAtNi42MjctNS4zNzMtMTItMTItMTIiIGZpbGw9IiNmZmZmZmYiLz48L2c+PHRleHQgZGF0YS12LTNjODdiN2I0PSIiIHg9IjEyNi4zMjM2MzEyODY2MjExIiB5PSIxNy41IiBkeT0iMC4zNWVtIiBmb250LXNpemU9IjEyIiBmb250LWZhbWlseT0iTW9udHNlcnJhdCwgc2Fucy1zZXJpZiIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjkwMCIgbGV0dGVyLXNwYWNpbmc9IjIiIGZvbnQtc3R5bGU9Im5vcm1hbCIgdGV4dC1kZWNvcmF0aW9uPSJub25lIiBmaWxsLW9wYWNpdHk9IjEiIGZvbnQtdmFyaWFudD0ibm9ybWFsIiBzdHlsZT0idGV4dC10cmFuc2Zvcm06IHVwcGVyY2FzZTsiPkdJVEhVQjwvdGV4dD48IS0tLS0+PC9zdmc+)](https://github.com/GG-Santos/Gittable)
 
-**A modern, interactive Git CLI wrapper with conventional commits**
 
-[![forthebadge](https://img.shields.io/badge/NPM-PUBLISHED-ff4d4d?style=for-the-badge&logo=npm&logoColor=white)](https://www.npmjs.com/package/gittable)
-[![forthebadge](https://img.shields.io/badge/MADE%20WITH-JAVASCRIPT-ff4d4d?style=for-the-badge&logo=javascript&logoColor=white)](https://www.npmjs.com/package/gittable)
-[![forthebadge](https://img.shields.io/badge/BUILT%20FOR-DEVELOPERS-ff4d4d?style=for-the-badge&logo=git&logoColor=white)](https://github.com/GG-Santos/Gittable)
+<div align="justify">
+Gittable is a modern, interactive suite built on top of Git operations, designed to improve developer productivity and make everyday Git workflows more intuitive. Rather than replacing Git, Gittable wraps standard Git commands in a beautiful, guided CLI experience that helps developers work faster, safer, and with more confidence—while remaining fully compatible with existing repositories and workflows. </br></br>
 
-[Installation](#installation) • [Quick Start](#quick-start) • [Documentation](#documentation) • [Architecture](./ARCHITECTURE.md)
-
+Every interaction is designed to reduce friction and prevent mistakes before they happen. For example, when committing with Gittable, you’re guided through required commit fields at commit time, with instant feedback on formatting and conventions. No more failed commits from late-running hooks, and no more hunting through CONTRIBUTING.md to figure out the correct message format. This same philosophy extends across the full Gittable workflow: proactive guidance, clear feedback, and smarter defaults that help teams stay consistent without slowing down. </br></br>
 </div>
 
----
-
-Gittable is a modern, interactive Git CLI wrapper that enhances the standard Git experience with beautiful prompts, conventional commits enforcement, and intelligent workflow suggestions. It provides a user-friendly interface for common Git operations while maintaining full compatibility with standard Git commands.
-
-## ✨ Features
-
-- **🎨 Beautiful CLI Interface** - Native prompt system with colorful banners, tables, and status displays
-- **📝 Conventional Commits** - Enforces conventional commit message format for better project history
-- **⚡ Workflow Shortcuts** - Combined commands like `quick` (add+commit+push), `commit-push`, `add-commit`
-- **🧠 Smart Suggestions** - Context-aware next-step prompts after each command
-- **🛡️ Safety Features** - Branch protection warnings, backup before destructive operations
-- **🔧 Fully Configurable** - Customize commit types, scopes, and command behavior
-- **📚 Interactive Tutorial** - Learn Git workflows with guided tutorials
-- **🚀 Fast & Lightweight** - Minimal dependencies, maximum performance
+</div>
+<div align="left">
 
 ## 📦 Installation
 
@@ -47,291 +34,15 @@ npm install --save-dev gittable
 npx gittable <command>
 ```
 
-For detailed installation instructions, see the [Installation](#installation) section below.
-
-## 🚀 Quick Start
-
-### Interactive Mode
-
 Simply run `gittable` without any arguments to enter interactive mode:
 
 ```bash
-gittable
+npx gittable
 ```
 
 This displays a beautiful category-based menu for easy command discovery.
 
-### Command Mode
-
-Use Gittable just like Git, but with enhanced prompts:
-
-```bash
-# Check repository status
-gittable status
-gittable st
-
-# Create a commit with conventional format
-gittable commit
-gittable ci
-
-# Branch management
-gittable branch
-gittable br
-
-# Quick workflow (add + commit + push)
-gittable quick
-gittable q
-```
-
-## 📖 Available Commands
-
-### Core Commands
-
-| Command | Aliases | Description |
-|---------|---------|-------------|
-| `status` | `st`, `s` | Show repository status with color-coded display |
-| `info` | | Quick repository overview |
-| `add` | | Stage files for commit with interactive selection |
-| `commit` | `ci`, `save` | Create commits with conventional format |
-| `diff` | | Show changes with formatted output |
-| `log` | | View commit history with formatted output |
-
-### Workflow Commands ⚡
-
-| Command | Aliases | Description |
-|---------|---------|-------------|
-| `quick` | `q` | Full workflow: add + commit + push |
-| `add-commit` | `ac` | Stage files and commit in one flow |
-| `commit-push` | `cp` | Commit and push in one flow |
-| `commit-sync` | `cs` | Commit and sync (fetch + rebase + push) |
-| `sync` | | Synchronize (pull + rebase + push) |
-
-### Branching Commands
-
-| Command | Aliases | Description |
-|---------|---------|-------------|
-| `branch` | `br`, `co` | Branch management (list, create, checkout, delete) |
-| `checkout` | `co` | Checkout files or branches |
-| `merge` | | Merge branches with interactive prompts |
-| `rebase` | | Rebase operations with safety checks |
-| `branch-clean` | | Delete merged branches interactively |
-
-### Remote Commands
-
-| Command | Aliases | Description |
-|---------|---------|-------------|
-| `push` | `ps`, `up` | Push to remote repository |
-| `pull` | `pl`, `down` | Fetch and merge from remote |
-| `fetch` | | Fetch from remote with status updates |
-| `create-pr` | `pr` | Create pull request after push |
-
-See the [Available Commands](#-available-commands) section above for more commands.
-
-## ⚙️ Configuration
-
-Gittable uses configuration files to customize commit prompts and behavior. Create one of the following files in your project root:
-
-- `.gittable.js`
-- `.gittable.json`
-- Or add config to `package.json` under `gittable` key
-
-### Example Configuration (`.gittable.js`)
-
-```javascript
-module.exports = {
-  types: [
-    { value: 'feat', name: 'feat:     A new feature' },
-    { value: 'fix', name: 'fix:      A bug fix' },
-    { value: 'docs', name: 'docs:     Documentation only changes' },
-    { value: 'style', name: 'style:    Code style changes (formatting, etc.)' },
-    { value: 'refactor', name: 'refactor: Code refactoring' },
-    { value: 'perf', name: 'perf:     Performance improvements' },
-    { value: 'test', name: 'test:     Adding or updating tests' },
-    { value: 'chore', name: 'chore:    Maintenance tasks' },
-  ],
-  scopes: [
-    'components',
-    'api',
-    'auth',
-    'db',
-    'config',
-    'utils',
-  ],
-  allowTicketNumber: true,
-  ticketNumberPrefix: 'TICKET-',
-  subjectLimit: 100,
-  allowBreakingChanges: ['feat', 'fix'],
-};
-```
-
-See the [Configuration](#️-configuration) section above for more details.
-
-## 📚 Documentation
-
-- **[Architecture](./ARCHITECTURE.md)** - System architecture and design
-- **README** - This file contains installation, usage, and configuration guides
-
-## 💡 Usage Examples
-
-### Creating a Commit
-
-```bash
-gittable commit
-```
-
-This interactive command guides you through:
-1. Selecting commit type (feat, fix, docs, etc.)
-2. Choosing scope (optional)
-3. Entering ticket number (if enabled)
-4. Writing commit message
-5. Adding extended description (optional)
-6. Breaking changes (if applicable)
-7. Issues closed (optional)
-
-### Quick Workflow
-
-```bash
-gittable quick
-# or
-gittable q
-```
-
-This will:
-1. Show changes
-2. Stage files (with confirmation)
-3. Create a commit (interactive)
-4. Push to remote (with confirmation)
-
-### Combined Commands
-
-```bash
-# Stage and commit in one flow
-gittable add-commit
-gittable ac
-
-# Commit and push
-gittable commit-push
-gittable cp
-
-# Commit and sync (fetch + rebase + push)
-gittable commit-sync
-gittable cs
-```
-
-### Branch Management
-
-```bash
-# List all branches
-gittable branch
-
-# Create and checkout new branch
-gittable branch create feature/new-feature
-
-# Clean up merged branches
-gittable branch-clean
-```
-
-### Status Check
-
-```bash
-gittable status
-# or use short alias
-gittable st
-```
-
-Shows a beautiful, color-coded status display with:
-- Current branch information
-- Last commit message and time
-- Staged files
-- Unstaged files
-- Untracked files
-- Ahead/behind information relative to remote
-- Smart suggestions for next actions
-
-## 🛠️ Development
-
-### Prerequisites
-
-- Node.js >= 14.0.0
-- npm or yarn
-- Git
-
-### Setup
-
-```bash
-# Clone repository
-git clone https://github.com/GG-Santos/Gittable.git
-cd Gittable
-
-# Install dependencies
-npm install
-
-# Link for local development
-npm link
-
-# Run tests
-npm test
-
-# Lint code
-npm run lint
-```
-
-For development setup, see the [Development](#️-development) section above.
-
-## 🏗️ Architecture
-
-Gittable uses a modular, category-based architecture for better maintainability and extensibility.
-
-### Project Structure
-
-```
-gittable/
-├── src/
-│   ├── cli/          # CLI layer (entry, parsing, routing)
-│   ├── commands/     # Commands organized by category
-│   ├── core/         # Core business logic
-│   ├── ui/           # UI components and framework
-│   └── utils/        # Shared utilities
-├── test/             # Test suite (unit, integration, fixtures)
-├── scripts/          # Build and publish scripts
-└── index.js          # Main entry point
-```
-
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed architecture documentation.
-
-## 📦 Dependencies
-
-### Production Dependencies
-
-- **chalk** (^4.1.2) - Terminal string styling
-- **cli-table3** (^0.6.5) - Beautiful tables for CLI output
-- **find-config** (^1.0.0) - Configuration file discovery
-- **prettycli** (^1.1.0) - Enhanced CLI logging
-- **sisteransi** (^1.0.5) - ANSI escape sequences
-- **wcwidth** (^1.0.1) - Character width calculation
-- **word-wrap** (^1.2.5) - Text wrapping utility
-
-### Development Dependencies
-
-- **@biomejs/biome** (^1.9.4) - Fast formatter and linter
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these guidelines:
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes and add tests
-4. Commit using conventional commits (`feat: add amazing feature`)
-5. Push to your branch (`git push origin feature/amazing-feature`)
-6. Open a Pull Request
-
-For more details, see the [Development](#️-development) section above.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
+## Acknowledgments
 
 Gittable is built with the following excellent open-source projects:
 
@@ -339,21 +50,10 @@ Gittable is built with the following excellent open-source projects:
 - **[conventional-changelog](https://github.com/conventional-changelog)** - Conventional commits specification
 - **[chalk](https://github.com/chalk/chalk)** by [@sindresorhus](https://github.com/sindresorhus) - Terminal string styling
 - **[cli-table3](https://github.com/cli-table/cli-table3)** - Beautiful CLI tables
-- **[Biome](https://biomejs.dev/)** - Fast formatter and linter
 
-## 👤 Author
+## Author
 
 **GG-Santos** from Wab n' Wab Atelier
 
 - Email: ggsantos_0415@proton.me
 - GitHub: [@GG-Santos](https://github.com/GG-Santos)
-
----
-
-<div align="center">
-
-Made with dedication by the Wab n' Wab Atelier
-
-[Report Bug](https://github.com/GG-Santos/Gittable/issues) • [Request Feature](https://github.com/GG-Santos/Gittable/issues) • [View on GitHub](https://github.com/GG-Santos/Gittable)
-
-</div>

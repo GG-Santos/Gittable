@@ -7,7 +7,7 @@ const readline = require('node:readline');
 const process = require('node:process');
 const tty = require('node:tty');
 const chalk = require('chalk');
-const sisteransi = require('sisteransi');
+const sisteransi = require('../components/sisteransi');
 const { getTheme } = require('../../utils/ui');
 
 // Cancel symbol

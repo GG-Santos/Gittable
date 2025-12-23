@@ -16,11 +16,24 @@ function getTutorialProgress() {
   return getPreference('tutorial.progress', {
     level: 1,
     completedLevels: [],
+    completedTutorials: {}, // { levelId: [tutorialIndex1, tutorialIndex2, ...] }
+    quizPassed: {}, // { levelId: true/false }
     xp: 0,
-    badges: [],
     streak: 0,
     lastPlayed: null,
   });
+}
+
+function getDefaultProgress() {
+  return {
+    level: 1,
+    completedLevels: [],
+    completedTutorials: {},
+    quizPassed: {},
+    xp: 0,
+    streak: 0,
+    lastPlayed: null,
+  };
 }
 
 function saveTutorialProgress(progress) {
@@ -34,9 +47,10 @@ function calculateProgress(progress) {
 }
 
 function drawProgressBar(percentage, width = 30) {
+  const theme = getTheme();
   const filled = Math.round((percentage / 100) * width);
   const empty = width - filled;
-  return chalk.green('█'.repeat(filled)) + chalk.gray('░'.repeat(empty));
+  return theme.primary('█'.repeat(filled)) + chalk.gray('░'.repeat(empty));
 }
 
 // Level definitions
@@ -123,6 +137,21 @@ const LEVELS = [
         options: ['Creates a commit', 'Stages files for commit', 'Pushes to remote'],
         correct: 1,
       },
+      {
+        question: 'What does "gittable status" show?',
+        options: ['Only committed files', 'Files in three states: untracked, modified, and staged', 'Only remote branches'],
+        correct: 1,
+      },
+      {
+        question: 'What happens when you commit changes?',
+        options: ['Changes are pushed to remote', 'Changes are saved permanently to repository', 'Changes are deleted'],
+        correct: 1,
+      },
+      {
+        question: 'What is the staging area used for?',
+        options: ['Storing backups', 'Preparing changes before committing', 'Viewing history'],
+        correct: 1,
+      },
     ],
   },
   {
@@ -204,6 +233,21 @@ const LEVELS = [
       {
         question: 'What does "gittable sync" do?',
         options: ['Only pushes', 'Fetch + rebase + push', 'Only pulls'],
+        correct: 1,
+      },
+      {
+        question: 'What is the difference between merge and rebase?',
+        options: ['No difference', 'Merge creates a merge commit, rebase rewrites history linearly', 'Rebase only works locally'],
+        correct: 1,
+      },
+      {
+        question: 'When should you use "gittable pull --rebase"?',
+        options: ['Never', 'When you want to keep a linear history', 'Only for remote branches'],
+        correct: 1,
+      },
+      {
+        question: 'What happens when you merge a feature branch into main?',
+        options: ['The feature branch is deleted', 'Changes from feature branch are combined into main', 'Nothing happens'],
         correct: 1,
       },
     ],
@@ -303,6 +347,21 @@ const LEVELS = [
         options: ['No difference', 'Undo removes commit, revert creates new commit', 'Undo is for local, revert for remote'],
         correct: 1,
       },
+      {
+        question: 'What does "gittable conflicts" show?',
+        options: ['All branches', 'Files with merge conflicts', 'Commit history'],
+        correct: 1,
+      },
+      {
+        question: 'When should you use revert instead of undo?',
+        options: ['Never', 'For commits that have already been pushed', 'Only for local commits'],
+        correct: 1,
+      },
+      {
+        question: 'What happens when you apply a stash?',
+        options: ['The stash is deleted', 'Stashed changes are restored to working directory', 'Nothing happens'],
+        correct: 1,
+      },
     ],
   },
   {
@@ -337,7 +396,7 @@ const LEVELS = [
           },
           {
             text: 'Push tag to remote',
-            cmd: 'gittable tag-push v1.0.0',
+            cmd: 'gittable tag push v1.0.0',
             explanation: 'Share tag with team',
           },
         ],
@@ -375,6 +434,21 @@ const LEVELS = [
         options: ['Who to blame for bugs', 'Who last modified each line', 'Commit messages'],
         correct: 1,
       },
+      {
+        question: 'What does "gittable grep" search?',
+        options: ['File contents only', 'Commit messages and history', 'Only current files'],
+        correct: 1,
+      },
+      {
+        question: 'What is a worktree?',
+        options: ['A type of branch', 'Multiple working directories for the same repository', 'A remote repository'],
+        correct: 1,
+      },
+      {
+        question: 'When would you use tags?',
+        options: ['For every commit', 'To mark release versions or important milestones', 'To organize branches'],
+        correct: 1,
+      },
     ],
   },
 ];
@@ -396,18 +470,19 @@ async function showLevelMenu(progress) {
   });
 
   options.push({
-    value: 'progress',
-    label: chalk.yellow('📊 View Progress & Achievements'),
+    value: 'reset',
+    label: chalk.yellow('Reset progress'),
   });
 
   options.push({
     value: 'exit',
-    label: chalk.red('Exit tutorial'),
+    label: chalk.red('Exit'),
   });
 
   return await ui.prompt.select({
     message: 'Select a level:',
     options,
+    skipSpacing: true,
   });
 }
 
@@ -415,39 +490,46 @@ async function runTutorial(level, tutorialIndex) {
   const tutorial = level.tutorials[tutorialIndex];
   const theme = getTheme();
 
-  console.log();
-  console.log(chalk.bold.cyan(tutorial.name));
-  console.log(chalk.dim(tutorial.description));
-  console.log();
+  // Clear screen and show banner with tutorial title
+  showBanner('TUTORIAL', { version: VERSION });
+  console.log(`${chalk.gray('├')}  ${chalk.bold(theme.primary(tutorial.name))}`);
+  console.log(chalk.gray('│'));
 
   for (let i = 0; i < tutorial.steps.length; i++) {
+    // Clear screen before each step (except the first one)
+    if (i > 0) {
+      showBanner('TUTORIAL', { version: VERSION });
+      console.log(`${chalk.gray('├')}  ${chalk.bold(theme.primary(tutorial.name))}`);
+      console.log(chalk.gray('│'));
+    }
+
     const step = tutorial.steps[i];
-    console.log(chalk.bold.yellow(`Step ${i + 1}/${tutorial.steps.length}: ${step.text}`));
+    console.log(`${chalk.gray('│')}  ${chalk.bold.yellow(`Step ${i + 1}/${tutorial.steps.length}: ${step.text}`)}`);
     
     if (step.cmd) {
-      console.log(chalk.gray(`  $ ${step.cmd}`));
+      console.log(`${chalk.gray('│')}  ${chalk.gray(`$ ${step.cmd}`)}`);
     }
     
     if (step.explanation) {
-      console.log(chalk.dim(`  ${step.explanation}`));
+      console.log(`${chalk.gray('│')}  ${chalk.dim(step.explanation)}`);
     }
     
     if (step.tip) {
-      console.log(chalk.cyan(`  💡 Tip: ${step.tip}`));
+      console.log(`${chalk.gray('│')}  ${chalk.cyan(`💡 Tip: ${step.tip}`)}`);
     }
     
-    console.log();
-
+    // Only add │ line if not the last step (last step doesn't have continue prompt)
     if (i < tutorial.steps.length - 1) {
+      console.log(chalk.gray('│'));
       const continueTutorial = await ui.prompt.confirm({
         message: 'Continue to next step?',
         initialValue: true,
+        skipSpacing: true,
       });
 
       if (!continueTutorial) {
         return false;
       }
-      console.log();
     }
   }
 
@@ -455,35 +537,56 @@ async function runTutorial(level, tutorialIndex) {
 }
 
 async function runQuiz(level) {
-  console.log();
-  console.log(chalk.bold.cyan('📝 Quiz Time!'));
-  console.log(chalk.dim('Test your understanding'));
-  console.log();
-
+  const theme = getTheme();
   let correct = 0;
+
   for (let i = 0; i < level.quiz.length; i++) {
+    // Clear screen and show banner for each question (except first one)
+    if (i > 0) {
+      showBanner('TUTORIAL', { version: VERSION });
+      console.log(`${chalk.gray('├')}  ${chalk.bold(theme.primary('Test your understanding'))}`);
+      console.log(chalk.gray('│'));
+    }
+
     const question = level.quiz[i];
     const options = question.options.map((opt, idx) => ({
       value: idx,
       label: opt,
     }));
 
+    // Add exit option
+    options.push({
+      value: '__exit_quiz__',
+      label: chalk.red('Exit Quiz'),
+    });
+
     const answer = await ui.prompt.select({
       message: `${i + 1}. ${question.question}`,
       options,
+      skipSpacing: true,
     });
 
-    if (answer === question.correct) {
-      console.log(chalk.green('  ✓ Correct!'));
-      correct++;
-    } else {
-      console.log(chalk.red(`  ✗ Incorrect. Correct answer: ${question.options[question.correct]}`));
+    // Check if user wants to exit
+    if (answer === '__exit_quiz__') {
+      console.log(chalk.gray('│'));
+      console.log(`${chalk.gray('├')}  ${chalk.yellow('Quiz exited. You can retry later to complete this level.')}`);
+      return false; // Return false to indicate quiz not completed
     }
-    console.log();
+
+    // Track correct answers silently (no feedback shown)
+    if (answer === question.correct) {
+      correct++;
+    }
   }
 
+  // Clear screen and show final score
+  showBanner('TUTORIAL', { version: VERSION });
+  console.log(`${chalk.gray('├')}  ${chalk.bold(theme.primary('Test your understanding'))}`);
+  console.log(chalk.gray('│'));
+  
   const percentage = Math.round((correct / level.quiz.length) * 100);
-  console.log(chalk.bold(`Score: ${correct}/${level.quiz.length} (${percentage}%)`));
+  console.log(`${chalk.gray('│')}  ${chalk.bold(`Final Score: ${correct}/${level.quiz.length} (${percentage}%)`)}`);
+  console.log(chalk.gray('│'));
   
   return percentage >= 70; // Pass if 70% or higher
 }
@@ -497,17 +600,9 @@ async function showProgress(progress) {
   console.log();
   console.log(`  Level: ${chalk.bold(progress.level)}/4`);
   console.log(`  Progress: ${drawProgressBar(percentage)} ${percentage}%`);
-  console.log(`  XP: ${chalk.yellow(progress.xp)}`);
   console.log(`  Streak: ${chalk.cyan(progress.streak)} days`);
   console.log();
 
-  if (progress.badges.length > 0) {
-    console.log(chalk.bold('🏆 Badges:'));
-    for (const badge of progress.badges) {
-      console.log(`  ${badge}`);
-    }
-    console.log();
-  }
 
   console.log(chalk.dim('Press Enter to continue...'));
   await ui.prompt.text({ message: '' });
@@ -516,13 +611,8 @@ async function showProgress(progress) {
 module.exports = async (_args) => {
   requireTTY('Tutorial requires interactive mode');
 
-  showBanner('GITTABLE', { version: VERSION });
-  console.log();
-  console.log(chalk.bold.cyan('🎮 Gamified Tutorial System'));
-  console.log(chalk.dim('Learn Git workflows with Gittable - Level by Level'));
-  console.log();
-
   let progress = getTutorialProgress();
+  const theme = getTheme();
   const today = new Date().toDateString();
   
   // Update streak
@@ -543,6 +633,14 @@ module.exports = async (_args) => {
   progress.lastPlayed = today;
 
   while (true) {
+    showBanner('TUTORIAL', { version: VERSION });
+    const percentage = calculateProgress(progress);
+
+    console.log(`${chalk.gray('├')}  ${chalk.bold(theme.primary('Tutorial System'))}`);
+    console.log(chalk.gray('│'));
+    console.log(`${chalk.gray('│')}  ${chalk.yellow('Progress:')} ${drawProgressBar(percentage)} ${chalk.white(`${percentage}%`)}`);
+    console.log(chalk.gray('│'));
+
     const selected = await showLevelMenu(progress);
 
     if (selected === null || selected === 'exit') {
@@ -550,8 +648,22 @@ module.exports = async (_args) => {
       return;
     }
 
-    if (selected === 'progress') {
-      await showProgress(progress);
+    if (selected === 'reset') {
+      const confirmReset = await ui.prompt.confirm({
+        message: 'Reset all tutorial progress? This cannot be undone.',
+        initialValue: false,
+        skipSpacing: true,
+      });
+
+      console.log(chalk.gray('│'));
+      if (!confirmReset) {
+        console.log(`${chalk.gray('├')}  ${chalk.yellow('Reset cancelled.')}`);
+        continue;
+      }
+
+      progress = getDefaultProgress();
+      saveTutorialProgress(progress);
+      console.log(`${chalk.gray('├')}  ${chalk.green('Progress has been reset.')}`);
       continue;
     }
 
@@ -564,26 +676,32 @@ module.exports = async (_args) => {
       continue;
     }
 
-    console.log();
-    console.log(chalk.bold.cyan(`Level ${level.id}: ${level.title}`));
-    console.log(chalk.dim(level.description));
-    console.log();
-    console.log(chalk.bold('Concepts:'));
+    console.log(chalk.gray('│'));
+    console.log(`${chalk.gray('├')}  ${chalk.bold(theme.primary(`Level ${level.id}: ${level.title}`))}`);
+    console.log(`${chalk.gray('│')}  ${chalk.dim(level.description)}`);
+    console.log(chalk.gray('│'));
+    console.log(`${chalk.gray('│')}  ${chalk.bold('Concepts:')}`);
     for (const concept of level.concepts) {
-      console.log(chalk.dim(`  • ${concept}`));
+      console.log(`${chalk.gray('│')}  ${chalk.dim(`• ${concept}`)}`);
     }
-    console.log();
+    console.log(chalk.gray('│'));
 
     // Select tutorial
-    const tutorialOptions = level.tutorials.map((t, idx) => ({
-      value: idx,
-      label: `${t.name} - ${chalk.dim(t.description)}`,
-    }));
+    const completedTutorials = progress.completedTutorials[level.id] || [];
+    const tutorialOptions = level.tutorials.map((t, idx) => {
+      const isCompleted = completedTutorials.includes(idx);
+      const status = isCompleted ? chalk.green(' ✓ Completed') : '';
+      return {
+        value: idx,
+        label: `${t.name} - ${chalk.dim(t.description)}${status}`,
+      };
+    });
     tutorialOptions.push({ value: 'back', label: chalk.gray('← Back to levels') });
 
     const tutorialIndex = await ui.prompt.select({
       message: 'Select a tutorial:',
       options: tutorialOptions,
+      skipSpacing: true,
     });
 
     if (tutorialIndex === 'back' || tutorialIndex === null) {
@@ -594,32 +712,71 @@ module.exports = async (_args) => {
     const completed = await runTutorial(level, tutorialIndex);
     if (!completed) continue;
 
-    // Run quiz
-    const passed = await runQuiz(level);
-    if (!passed) {
-      console.log(chalk.yellow('You need 70% to pass. Try again!'));
+    // Mark tutorial as completed
+    if (!progress.completedTutorials[level.id]) {
+      progress.completedTutorials[level.id] = [];
+    }
+    if (!progress.completedTutorials[level.id].includes(tutorialIndex)) {
+      progress.completedTutorials[level.id].push(tutorialIndex);
+    }
+
+    // Check if all tutorials are completed
+    const allTutorialsCompleted = progress.completedTutorials[level.id].length === level.tutorials.length;
+    const quizAlreadyPassed = progress.quizPassed[level.id] === true;
+    const levelAlreadyCompleted = progress.completedLevels.includes(level.id);
+
+    // If level is already completed, just save and continue
+    if (levelAlreadyCompleted) {
+      saveTutorialProgress(progress);
       continue;
     }
 
-    // Complete level
-    if (!progress.completedLevels.includes(level.id)) {
+    // Only show quiz if all tutorials are completed and quiz hasn't been passed yet
+    if (allTutorialsCompleted && !quizAlreadyPassed) {
+      // Ask if they want to take the quiz
+      console.log(chalk.gray('│'));
+      const takeQuiz = await ui.prompt.confirm({
+        message: 'All tutorials completed! Ready to take the quiz?',
+        initialValue: true,
+        skipSpacing: true,
+      });
+
+      if (!takeQuiz) {
+        console.log(chalk.gray('│'));
+        console.log(`${chalk.gray('├')}  ${chalk.yellow('Quiz skipped. You can retry later to complete this level.')}`);
+        saveTutorialProgress(progress);
+        continue;
+      }
+
+      // Clear screen and show banner for quiz
+      showBanner('TUTORIAL', { version: VERSION });
+      console.log(`${chalk.gray('├')}  ${chalk.bold(theme.primary('Test your understanding'))}`);
+      console.log(chalk.gray('│'));
+
+      // Run quiz
+      const passed = await runQuiz(level);
+      if (!passed) {
+        console.log(`${chalk.gray('├')}  ${chalk.yellow('You need 70% to pass. Try again!')}`);
+        saveTutorialProgress(progress);
+        continue;
+      }
+
+      // Mark quiz as passed
+      progress.quizPassed[level.id] = true;
+    } else if (!allTutorialsCompleted) {
+      // Not all tutorials completed yet
+      const remaining = level.tutorials.length - progress.completedTutorials[level.id].length;
+      console.log(chalk.gray('│'));
+      console.log(`${chalk.gray('├')}  ${chalk.cyan(`Tutorial completed! ${remaining} more tutorial${remaining > 1 ? 's' : ''} remaining to unlock the quiz.`)}`);
+      saveTutorialProgress(progress);
+      continue;
+    }
+
+    // Complete level only if all tutorials are completed AND quiz is passed
+    if (allTutorialsCompleted && progress.quizPassed[level.id] && !levelAlreadyCompleted) {
       progress.completedLevels.push(level.id);
       progress.xp += level.xpReward;
-      progress.badges.push(level.badge);
       progress.level = Math.min(4, level.id + 1);
-
-      console.log();
-      console.log(chalk.green.bold(`🎉 Level ${level.id} Complete!`));
-      console.log(chalk.yellow(`+${level.xpReward} XP`));
-      console.log(chalk.cyan(`Badge unlocked: ${level.badge}`));
-      console.log();
-
-      if (level.id < 4) {
-        console.log(chalk.cyan(`Level ${level.id + 1} is now unlocked!`));
-      } else {
-        console.log(chalk.green.bold('🏆 Congratulations! You\'ve completed all levels!'));
-      }
-      console.log();
     }
 
     saveTutorialProgress(progress);

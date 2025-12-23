@@ -63,9 +63,7 @@ module.exports = {
   worktree: '1.0.0',
   submodule: '1.0.0',
   config: '1.1.2',
-  tag: '1.1.0',
-  'tag-push': '1.0.0',
-  'tag-delete': '1.0.0',
+  tag: '1.2.0',
 
   // Utilities - Help & Documentation
   help: '1.0.0',

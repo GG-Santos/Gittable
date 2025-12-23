@@ -3,9 +3,9 @@ module.exports = [
   {
     name: 'help',
     aliases: [],
-    description: 'Show help for commands',
+    description: 'Show help for commands and list all available commands',
     category: 'utilities',
-    subcategory: 'help',
+    subcategory: 'settings',
     handler: require('./help'),
   },
   {
@@ -21,7 +21,7 @@ module.exports = [
     aliases: [],
     description: 'Show recent commands executed',
     category: 'utilities',
-    subcategory: 'commandHistory',
+    subcategory: 'settings',
     handler: require('./history'),
   },
   {
@@ -37,7 +37,7 @@ module.exports = [
     aliases: [],
     description: 'Show usage examples',
     category: 'utilities',
-    subcategory: 'help',
+    subcategory: 'settings',
     handler: require('./examples'),
   },
   {
@@ -45,7 +45,7 @@ module.exports = [
     aliases: [],
     description: 'Interactive walkthrough',
     category: 'utilities',
-    subcategory: 'help',
+    subcategory: 'settings',
     handler: require('./tutorial'),
   },
   {
@@ -135,22 +135,6 @@ module.exports = [
     category: 'utilities',
     subcategory: 'tagging',
     handler: require('./tag'),
-  },
-  {
-    name: 'tag-push',
-    aliases: [],
-    description: 'Create and push tag in one flow',
-    category: 'utilities',
-    subcategory: 'tagging',
-    handler: require('./tag-push'),
-  },
-  {
-    name: 'tag-delete',
-    aliases: [],
-    description: 'Delete tag locally and remotely',
-    category: 'utilities',
-    subcategory: 'tagging',
-    handler: require('./tag-delete'),
   },
   {
     name: 'conflicts',

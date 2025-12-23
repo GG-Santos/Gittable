@@ -4,17 +4,11 @@
 
 const chalk = require('chalk');
 const process = require('node:process');
+const stripAnsiModule = require('strip-ansi');
+const stripAnsi = stripAnsiModule.default || stripAnsiModule;
 const { SYMBOLS } = require('./theme');
 const { getTheme } = require('../../utils/ui');
 const { isCancel } = require('./core');
-
-/**
- * Strip ANSI codes from string
- */
-function stripAnsi(str) {
-  const ansiRegex = /[\u001B\u009B][[\]()#;?]*(?:(?:(?:;[-a-zA-Z\d\/#&.:=?%@~_]+)*|[a-zA-Z\d]+(?:;[-a-zA-Z\d\/#&.:=?%@~_]*)*)?\u0007|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-nq-uy=><~]))/g;
-  return str.replace(ansiRegex, '');
-}
 
 /**
  * Intro message
@@ -36,7 +30,7 @@ function outro(message = '') {
  * Cancel message
  */
 function cancel(message = '') {
-  process.stdout.write(`${chalk.gray(SYMBOLS.BAR_END)}  ${chalk.red(message)}\n\n`);
+  process.stdout.write(`${chalk.gray(SYMBOLS.BAR_END)}  ${chalk.red(message)}\n`);
 }
 
 /**

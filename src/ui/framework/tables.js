@@ -4,7 +4,7 @@
  */
 
 const chalk = require('chalk');
-const Table = require('cli-table3');
+const Table = require('../components/cli-table3');
 const { getTheme } = require('./theme');
 const { TABLE_STANDARDS, SPACING } = require('./standards');
 

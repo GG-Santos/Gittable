@@ -73,7 +73,6 @@ function getWorkflowMap() {
         fileOps: 'File Operations',
         repoManagement: 'Repository Management',
         tagging: 'Tagging',
-        helpLearning: 'Help & Learning',
         quickActions: 'Quick Actions',
         undo: 'Undo & Recovery',
         inspection: 'Inspection',
@@ -82,10 +81,7 @@ function getWorkflowMap() {
     gittableSettings: {
       label: 'Gittable Settings',
       description: 'Configure Gittable appearance and behavior',
-      subcategories: {
-        appearance: 'Appearance',
-        behavior: 'Behavior',
-      },
+      subcategories: null,
     },
   };
 }
@@ -98,12 +94,8 @@ function getWorkflowMap() {
 function mapCommandToWorkflow(commandName, category, subcategory) {
   // Special handling for settings commands (utilities category with settings subcategory)
   if (category === 'utilities' && subcategory === 'settings') {
-    // Map settings commands to gittableSettings workflow
-    if (commandName === 'theme') {
-      return { workflow: 'gittableSettings', subcategory: 'appearance' };
-    }
-    // config goes to behavior
-    return { workflow: 'gittableSettings', subcategory: 'behavior' };
+    // Map all settings commands directly to gittableSettings workflow (no subcategory)
+    return { workflow: 'gittableSettings', subcategory: null };
   }
 
   // Map workflow category based on subcategory
@@ -140,9 +132,6 @@ function mapCommandToWorkflow(commandName, category, subcategory) {
     if (subcategory === 'tagging') {
       return { workflow: 'maintenanceUtilities', subcategory: 'tagging' };
     }
-    if (subcategory === 'help' || subcategory === 'commandHistory') {
-      return { workflow: 'maintenanceUtilities', subcategory: 'helpLearning' };
-    }
     if (subcategory === 'inspection') {
       return { workflow: 'historyInspection', subcategory: 'repositoryState' };
     }
@@ -150,7 +139,7 @@ function mapCommandToWorkflow(commandName, category, subcategory) {
       // diff-preview and preview-diff already handled above, but fallback
       return { workflow: 'dailyDevelopment', subcategory: 'previewChanges' };
     }
-    return { workflow: 'maintenanceUtilities', subcategory: 'helpLearning' };
+    return { workflow: 'maintenanceUtilities', subcategory: 'quickActions' };
   }
 
   // Map core category
@@ -206,7 +195,7 @@ function mapCommandToWorkflow(commandName, category, subcategory) {
   }
 
   // Default fallback
-  return { workflow: 'maintenanceUtilities', subcategory: 'helpLearning' };
+  return { workflow: 'maintenanceUtilities', subcategory: 'quickActions' };
 }
 
 /**
@@ -244,8 +233,14 @@ function getCommandsByWorkflow(workflow, subcategory = null, config = null) {
     }
 
     // If subcategory is specified, only match commands with that subcategory
+    // If subcategory is null, only match commands with null subcategory
     if (subcategory !== null) {
       if (mapping.subcategory !== subcategory) {
+        return false;
+      }
+    } else {
+      // When subcategory is null, only match commands that also have null subcategory
+      if (mapping.subcategory !== null) {
         return false;
       }
     }
@@ -385,7 +380,7 @@ function showHelp() {
     }
 
     const workflowName = workflowInfo.label;
-    const hasSubcategories = workflowInfo.subcategories !== null;
+    const hasSubcategories = workflowInfo.subcategories != null && typeof workflowInfo.subcategories === 'object';
 
     if (hasSubcategories) {
       // Show workflow header
@@ -453,6 +448,45 @@ function searchCommands(query, config) {
 async function showSubcategoryMenu(workflowKey, workflowInfo) {
   const config = getConfig();
   const theme = getTheme();
+
+  // If workflow has no subcategories, show commands directly
+  if (!workflowInfo.subcategories) {
+    const commands = getCommandsByWorkflow(workflowKey, null, config);
+    if (commands.length === 0) {
+      prompts.cancel(chalk.yellow('No commands available in this workflow'));
+      return showWorkflowMenu();
+    }
+
+    const commandOptions = commands.map((cmd) => {
+      const aliases = cmd.aliases.length > 0 ? chalk.dim(` (${cmd.aliases.join(', ')})`) : '';
+      return {
+        value: cmd.name,
+        label: `${theme.primary(cmd.name)}${aliases} ${chalk.gray(`- ${cmd.description}`)}`,
+      };
+    });
+
+    commandOptions.push({
+      value: INTERACTIVE_MARKERS.BACK,
+      label: chalk.dim('← Previous Menu'),
+    });
+
+    const selectedCommand = await prompts.select({
+      message: theme.primary(`Select a command from ${workflowInfo.label}:`),
+      options: commandOptions,
+    });
+
+    if (prompts.isCancel(selectedCommand) || selectedCommand === INTERACTIVE_MARKERS.BACK) {
+      return showWorkflowMenu();
+    }
+
+    // Execute the selected command
+    const success = await router.execute(selectedCommand, []);
+    if (!success) {
+      const { CommandError } = require('../core/errors');
+      throw new CommandError(`Command "${selectedCommand}" failed`, selectedCommand);
+    }
+    return;
+  }
 
   const subcategoryOptions = [];
   const directCommandSubcategories = [];
@@ -548,9 +582,13 @@ async function showCommandMenu(workflowKey, subcategory, workflowInfo) {
     label: chalk.dim('← Previous Menu'),
   });
 
+  const subcategoryLabel = workflowInfo.subcategories && workflowInfo.subcategories[subcategory] 
+    ? workflowInfo.subcategories[subcategory] 
+    : 'this subcategory';
+  
   const selectedCommand = await prompts.select({
     message: theme.primary(
-      `Select a command from ${workflowInfo.subcategories[subcategory]}:`
+      `Select a command from ${subcategoryLabel}:`
     ),
     options: commandOptions,
   });
@@ -595,8 +633,12 @@ async function showWorkflowMenu() {
 
     // Count commands in this workflow
     let commandCount = 0;
-    for (const subKey of Object.keys(workflowInfo.subcategories)) {
-      commandCount += getCommandsByWorkflow(workflowKey, subKey, config).length;
+    if (workflowInfo.subcategories) {
+      for (const subKey of Object.keys(workflowInfo.subcategories)) {
+        commandCount += getCommandsByWorkflow(workflowKey, subKey, config).length;
+      }
+    } else {
+      commandCount = getCommandsByWorkflow(workflowKey, null, config).length;
     }
 
     const label =
@@ -606,9 +648,8 @@ async function showWorkflowMenu() {
     topLevelOptions.push({ value: workflowKey, label });
   }
 
-  // Add help and exit
+  // Add exit
   topLevelOptions.push(
-    { value: 'help', label: chalk.yellow('List Commands') },
     { value: 'exit', label: chalk.red('Exit') }
   );
 
@@ -618,13 +659,12 @@ async function showWorkflowMenu() {
     options: topLevelOptions,
   });
 
-  if (prompts.isCancel(selection) || selection === 'exit') {
+  if (prompts.isCancel(selection)) {
     prompts.cancel(chalk.yellow('Cancelled'));
     return;
   }
 
-  if (selection === 'help') {
-    showHelp();
+  if (selection === 'exit') {
     return;
   }
 

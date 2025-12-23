@@ -48,7 +48,7 @@ async function select(options = {}) {
           return `${promptLine}${chalk.gray(symbol)}  ${formatOption(this.options[this.cursor], 'selected')}`;
         }
         case 'cancel':
-          return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${formatOption(this.options[this.cursor], 'cancelled')}\n${chalk.gray(SYMBOLS.BAR)}\n`;
+          return `${promptLine}${chalk.gray(SYMBOLS.BAR)}  ${formatOption(this.options[this.cursor], 'cancelled')}`;
         default: {
           const maxVisible = maxItems === undefined ? Infinity : Math.max(maxItems, 5);
           const visibleCount = Math.min(maxVisible, this.options.length);

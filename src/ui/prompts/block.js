@@ -5,7 +5,7 @@
 const readline = require('node:readline');
 const process = require('node:process');
 const tty = require('node:tty');
-const sisteransi = require('sisteransi');
+const sisteransi = require('../components/sisteransi');
 
 const isWindows = process.platform.startsWith('win');
 

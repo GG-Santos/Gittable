@@ -10,7 +10,7 @@ const select = require('./select');
 const multiselect = require('./multiselect');
 const groupMultiselect = require('./group-multiselect');
 const selectKey = require('./select-key');
-const spinner = require('./spinner');
+const spinner = require('../components/spinner');
 const { intro, outro, cancel, note, log, group, isCancel } = require('./helpers');
 
 module.exports = {
